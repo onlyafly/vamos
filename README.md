@@ -17,3 +17,8 @@ What is Vamos?
 --------------
 
 Vamos is a Lisp written in Go.
+
+Running Test Suite
+------------------
+
+$ ./tests.sh

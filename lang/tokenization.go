@@ -2,6 +2,7 @@ package lang
 
 import (
 	"strings"
+	"fmt"
 )
 
 ////////// Tokenization
@@ -23,7 +24,11 @@ func tokenize(s string) *TokenList {
 
 type TokenList struct {
 	tokens []string
-	i int
+	i      int
+}
+
+func (self *TokenList) String() string {
+	return fmt.Sprintf("%#v", *self)
 }
 
 func (self *TokenList) pop() string {

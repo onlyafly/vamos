@@ -1,4 +1,7 @@
 Vamos Todo
 ==========
 
-* n/a
+Scanner
+-------
+
+* Improve scanner to use regular expressions.

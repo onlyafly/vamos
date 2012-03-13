@@ -1,12 +1,12 @@
 package lang
 
 import (
-	"strings"
 	"strconv"
+	"strings"
 )
 
-type Form interface {
-	Type() string
+type Expression interface {
+	Probe() string
 	String() string
 }
 
@@ -18,8 +18,8 @@ func NewSymbol(name string) *Symbol {
 	return &Symbol{name}
 }
 
-func (self *Symbol) Type() string {
-	return "symbol"
+func (self *Symbol) Probe() string {
+	return self.Name
 }
 
 func (self *Symbol) String() string {
@@ -34,8 +34,8 @@ func NewNumber(value float64) *Number {
 	return &Number{value}
 }
 
-func (self *Number) Type() string {
-	return "number"
+func (self *Number) Probe() string {
+	return self.String()
 }
 
 func (self *Number) String() string {
@@ -47,39 +47,85 @@ func (self *Number) String() string {
 }
 
 type List struct {
-	Value []Form
+	Value []Expression
 }
 
-func NewList(value []Form) *List {
+func NewList(value []Expression) *List {
 	return &List{value}
 }
 
-func (self *List) Type() string {
+func (self *List) Probe() string {
+	return "(" + strings.Join(probeExpressions(self.Value), " ") + ")"
 	return "list"
 }
 
 func (self *List) String() string {
-	forms := make([]string, len(self.Value))
-	for i, form := range self.Value {
-		forms[i] = form.String()
-	}
-	return "(" + strings.Join(forms, " ") + ")"
+	return "(" + strings.Join(stringExpressions(self.Value), " ") + ")"
 }
 
-func toNumberValue(form Form) float64 {
-	switch value := form.(type) {
+type FunctionDefinition struct {
+	Name      *Symbol
+	Arguments *List
+	Body      []Expression
+}
+
+func NewFunctionDefinition(name *Symbol, args *List, body []Expression) *FunctionDefinition {
+	return &FunctionDefinition{name, args, body}
+}
+
+func (self *FunctionDefinition) Probe() string {
+	return "<DEFN " + self.Name.Probe() +
+		" ARGS=" + self.Arguments.Probe() +
+		" BODY=" +
+		strings.Join(probeExpressions(self.Body), " ") +
+		">"
+}
+
+func (self *FunctionDefinition) String() string {
+	return "(defn " +
+		self.Name.String() + " " + self.Arguments.String() + " " +
+		strings.Join(stringExpressions(self.Body), " ") +
+		")"
+}
+
+func toNumberValue(exp Expression) float64 {
+	switch value := exp.(type) {
 	case *Number:
 		return value.Value
 	}
-	
-	panic("Form is not a number: " + form.String())
+
+	panic("Expression is not a number: " + exp.String())
 }
 
-func toSymbolValue(form Form) string {
-	switch value := form.(type) {
+func toSymbolValue(exp Expression) string {
+	switch value := exp.(type) {
 	case *Symbol:
 		return value.Name
 	}
-	
-	panic("Form is not a symbol: " + form.String())
+
+	panic("Expression is not a symbol: " + exp.String())
+}
+
+func stringExpressions(es []Expression) []string {
+	return expressionsToStrings(es, stringExpression)
+}
+
+func stringExpression(e Expression) string {
+	return e.String()
+}
+
+func probeExpressions(es []Expression) []string {
+	return expressionsToStrings(es, probeExpression)
+}
+
+func probeExpression(e Expression) string {
+	return e.Probe()
+}
+
+func expressionsToStrings(es []Expression, convert func(e Expression)string) []string {
+	strings := make([]string, len(es))
+	for i, exp := range es {
+		strings[i] = convert(exp)
+	}
+	return strings
 }

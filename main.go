@@ -2,22 +2,22 @@ package main
 
 import (
 	"fmt"
+	"flag"
 	"vamos/lang"
 )
 
 func main() {
 	fmt.Println("Vamos!")
-	fmt.Println("Press CTRL+C to quit.")
 
-	for {
-		fmt.Print("> ")
+	//fileName := flag.String("c", "", "compile a file")
+	flag.Parse()
+	fileName := flag.Arg(0)
 
-		input := lang.ReadLine()
+	content, _ := lang.ReadFile(fileName)
 
-		ast := lang.Parse(input)
+	ast := lang.Parse(content)
+	result := lang.Compile(ast)
 
-		env := lang.NewEnv()
-		result := lang.Eval(ast, env)
-		fmt.Println(result)
-	}
+	_ = lang.WriteFile("output.go", result)
+	fmt.Println("Wrote output.go")
 }
