@@ -1,8 +1,8 @@
 package lang
 
 import (
-	"strings"
 	"fmt"
+	"strings"
 )
 
 ////////// Tokenization

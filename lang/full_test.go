@@ -1,9 +1,9 @@
 package lang
 
 import (
-	"testing"
 	"io/ioutil"
 	"strings"
+	"testing"
 )
 
 const (
@@ -46,7 +46,7 @@ func testInputFile(inFileName string, t *testing.T) {
 
 	// Remove any carriage return line endings from .out file
 	expected = strings.Replace(expected, "\r", "", -1)
-	
+
 	actual := Compile(Parse(input))
 	verify(t, testNumber, expected, actual)
 }
@@ -54,10 +54,10 @@ func testInputFile(inFileName string, t *testing.T) {
 func verify(t *testing.T, testNumber, expected, actual string) {
 	if expected != actual {
 		t.Errorf(
-			"TEST CASE #%s FAILED...\n" +
-            "<<<<<EXPECTED>>>>>\n%v\n" +
-			"<<<<<ACTUAL>>>>>\n%v\n" +
-			"<<<<<>>>>>\n",
+			"TEST CASE #%s FAILED...\n"+
+				"<<<<<EXPECTED>>>>>\n%v\n"+
+				"<<<<<ACTUAL>>>>>\n%v\n"+
+				"<<<<<>>>>>\n",
 			testNumber,
 			expected,
 			actual)

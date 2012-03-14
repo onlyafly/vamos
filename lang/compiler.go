@@ -5,7 +5,7 @@ import ()
 ////////// Evaluation
 
 func Compile(e Expression) string {
-	
+
 	result := "package main\n\n"
 
 	switch value := e.(type) {
@@ -20,7 +20,7 @@ func Compile(e Expression) string {
 
 func CompileFunctionDefinition(fd *FunctionDefinition) (r string) {
 	r = "func " + fd.Name.String() + "() {\n"
-	
+
 	for _, e := range fd.Body {
 		r += "\t" + CompileBodyExpression(e) + "\n"
 	}

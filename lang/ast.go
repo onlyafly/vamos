@@ -122,7 +122,7 @@ func probeExpression(e Expression) string {
 	return e.Probe()
 }
 
-func expressionsToStrings(es []Expression, convert func(e Expression)string) []string {
+func expressionsToStrings(es []Expression, convert func(e Expression) string) []string {
 	strings := make([]string, len(es))
 	for i, exp := range es {
 		strings[i] = convert(exp)

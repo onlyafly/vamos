@@ -1,5 +1,8 @@
 all:
 	go install
 
-test: all
+fmt:
+	go fmt . ./...
+
+test: all fmt
 	go test . ./...

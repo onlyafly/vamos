@@ -28,7 +28,7 @@ func ReadFile(fileName string) (string, error) {
 }
 
 func WriteFile(fileName string, data string) error {
-	f, err := os.OpenFile(fileName, os.O_RDWR | os.O_CREATE, 0666)
+	f, err := os.OpenFile(fileName, os.O_RDWR|os.O_CREATE, 0666)
 	if err != nil {
 		return err
 	}
