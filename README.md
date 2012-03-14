@@ -2,7 +2,7 @@ Vamos
 =====
 
 __Current Version__:
-v0.1.0 (2012-03-05)
+v0.1.0dev (2012-03-14)
 
 __License__:
 MIT (see included LICENSE file)
@@ -21,4 +21,17 @@ Vamos is a Lisp written in Go.
 Running Test Suite
 ------------------
 
-$ ./tests.sh
+Linux and Mac:
+$ make test
+
+Windows:
+> test.cmd
+
+Building From Source
+--------------------
+
+Linux and Mac:
+$ make
+
+Windows:
+> build.cmd

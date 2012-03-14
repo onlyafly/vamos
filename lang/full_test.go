@@ -30,19 +30,23 @@ func testInputFile(inFileName string, t *testing.T) {
 	testNumber := parts[0]
 
 	inFilePath := testsuiteDir + "/" + inFileName
+	outFilePath := testsuiteDir + "/" + testNumber + ".out"
+
 	input, errIn := ReadFile(inFilePath)
 	if errIn != nil {
 		t.Errorf("Error reading file <" + inFilePath + ">: " + errIn.Error())
 		return
 	}
 
-	outFilePath := testsuiteDir + "/" + testNumber + ".out"
 	expected, errOut := ReadFile(outFilePath)
 	if errOut != nil {
 		t.Errorf("Error reading file <" + outFilePath + ">: " + errOut.Error())
 		return
 	}
 
+	// Remove any carriage return line endings from .out file
+	expected = strings.Replace(expected, "\r", "", -1)
+	
 	actual := Compile(Parse(input))
 	verify(t, testNumber, expected, actual)
 }
