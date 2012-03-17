@@ -5,41 +5,83 @@ import (
 )
 
 func Parse(input string) Expression {
-	return analyzeTopLevelExpression(parseExpression(tokenize(input)))
+	s, _ := Scan("parserCreated", input)
+	p := &parser{s: s}
+
+	return analyzeTopLevelExpression(parseExpression(p))
+}
+
+////////// Parser
+
+type parser struct {
+	s *scanner
+	lookahead [2]token // two-token lookahead
+	lookaheadCount int
+}
+
+func (p *parser) next() token {
+	if p.lookaheadCount > 0 {
+		p.lookaheadCount--
+	} else {
+		p.lookahead[0] = <-p.s.tokens
+	}
+	return p.lookahead[p.lookaheadCount]
+}
+
+func (p *parser) backup() {
+	p.lookaheadCount++
+}
+
+func (p *parser) peek() token {
+	if p.lookaheadCount > 0 {
+		return p.lookahead[p.lookaheadCount - 1]
+	}
+
+	p.lookaheadCount = 1
+	p.lookahead[0] = <-p.s.tokens
+	return p.lookahead[0]
+}
+
+func (p *parser) inputEmpty() bool {
+	if p.peek().code == tkEOF {
+		return true
+	}
+
+	return false
 }
 
 ////////// Parsing
 
-func parseExpression(tokens *TokenList) Expression {
-	if tokens.empty() {
+func parseExpression(p *parser) Expression {
+	if p.inputEmpty() {
 		panic("Unexpected EOF while parsing expression")
 	}
-	token := tokens.pop()
+	token := p.next()
 
 	switch {
-	case "(" == token:
+	case token.code == tkLeftParen:
 		list := make([]Expression, 0)
-		for tokens.top() != ")" {
-			list = append(list, parseExpression(tokens))
+		for p.peek().code != tkRightParen {
+			list = append(list, parseExpression(p))
 		}
-		tokens.pop()
+		p.next()
 		return NewList(list)
-	case ")" == token:
+	case token.code == tkRightParen:
 		panic("unexpected )")
 	default:
-		return parseAtom(token)
+		return parseAtom(token.value)
 	}
 
 	return NewSymbol("nil")
 }
 
-func parseAtom(token string) Expression {
-	f, ferr := strconv.ParseFloat(token, 64)
+func parseAtom(tokenValue string) Expression {
+	f, ferr := strconv.ParseFloat(tokenValue, 64)
 	if ferr == nil {
 		return NewNumber(f)
 	}
 
-	return NewSymbol(token)
+	return NewSymbol(tokenValue)
 }
 
 ////////// Semantic Analysis

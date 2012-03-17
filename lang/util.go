@@ -3,6 +3,7 @@ package lang
 import (
 	"bufio"
 	"bytes"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"strings"
@@ -41,6 +42,15 @@ func WriteFile(fileName string, data string) error {
 	}
 
 	return nil
+}
+
+func checkEqualStringer(t *testing.T, expected, actual interface{}) {
+	e := fmt.Sprintf("%v", expected)
+	a := fmt.Sprintf("%v", actual)
+
+	if e != a {
+		t.Errorf("Expected <%v>, got <%v>", e, a)
+	}
 }
 
 func checkEqualString(t *testing.T, expected, actual string) {

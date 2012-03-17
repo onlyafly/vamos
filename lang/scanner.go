@@ -26,7 +26,7 @@ func (t token) String() string {
 		return t.value
 	}
 
-	return fmt.Sprintf("%q", t.value)
+	return fmt.Sprintf("%v", t.value)
 }
 
 ////////// Token code
@@ -55,6 +55,10 @@ type scanner struct {
 	tokens chan token // channel of scanned items
 }
 
+func (s *scanner) String() string {
+	return fmt.Sprintf("<scanner remaining=%#v>", s.input[s.start:s.pos])
+}
+
 func (s *scanner) run() {
 	for state := scanBegin; state != nil; {
 		state = state(s)
@@ -70,11 +74,12 @@ func (s *scanner) emit(code tokenCode) {
 func (s *scanner) next() (r rune) {
 	if s.pos >= len(s.input) {
 		s.width = 0
-		return eof
+		r = eof
+		return
 	}
 	r, s.width = utf8.DecodeRuneInString(s.input[s.pos:])
 	s.pos += s.width
-	return r
+	return
 }
 
 // ignore skips over the pending input before this point.
@@ -128,7 +133,7 @@ func (s *scanner) errorf(format string, args ...interface{}) stateFn {
 
 type stateFn func(*scanner) stateFn
 
-func scan(name, input string) (*scanner, chan token) {
+func Scan(name, input string) (*scanner, chan token) {
 	s := &scanner{
 		name:   name,
 		input:  input,
@@ -139,6 +144,7 @@ func scan(name, input string) (*scanner, chan token) {
 }
 
 func scanBegin(s *scanner) stateFn {
+	Outer:
 	for {
 		switch r := s.next(); {
 		case isSpace(r):
@@ -154,14 +160,27 @@ func scanBegin(s *scanner) stateFn {
 			 case isAlphaNumeric(r):
 			 s.backup()
 			 return scanSymbol
-			*/
+			 */
+		case isSymbolic(r):
+			s.backup()
+			return scanSymbol
 		case r == eof:
-			break
+			break Outer
+		default:
+			fmt.Printf("scanBegin default: %#v\n", r)
 		}
 	}
 
 	s.emit(tkEOF)
 	return nil
+}
+
+func scanSymbol(s *scanner) stateFn {
+	for isSymbolic(s.next()) {
+	}
+	s.backup()
+	s.emit(tkSymbol)
+	return scanBegin
 }
 
 func scanNumber(s *scanner) stateFn {
@@ -201,6 +220,21 @@ func isAlphaNumeric(r rune) bool {
 	case 'a' <= r && r <= 'z':
 		return true
 	case 'A' <= r && r <= 'Z':
+		return true
+	}
+
+	return false
+}
+
+func isSymbolic(r rune) bool {
+	switch {
+	case '0' <= r && r <= '9':
+		return true
+	case 'a' <= r && r <= 'z':
+		return true
+	case 'A' <= r && r <= 'Z':
+		return true
+	case r == '?':
 		return true
 	}
 

@@ -1,7 +1,7 @@
 package main
 
 import (
-	"flag"
+	//"flag"
 	"fmt"
 	"vamos/lang"
 )
@@ -9,6 +9,14 @@ import (
 func main() {
 	fmt.Println("Vamos!")
 
+	_, c := lang.Scan("x", "(1 2 3)")
+	fmt.Println("result: %v", <-c)
+	fmt.Println("result: %v", <-c)
+	fmt.Println("result: %v", <-c)
+	fmt.Println("result: %v", <-c)
+	fmt.Println("result: %v", <-c)
+
+	/*
 	//fileName := flag.String("c", "", "compile a file")
 	flag.Parse()
 	fileName := flag.Arg(0)
@@ -20,4 +28,5 @@ func main() {
 
 	_ = lang.WriteFile("output.go", result)
 	fmt.Println("Wrote output.go")
+	 */
 }
