@@ -4,15 +4,6 @@ import (
 	"testing"
 )
 
-func TestTokenize(t *testing.T) {
-	result := tokenize("(a b 10)")
-	checkEqualString(t, "(", result.pop())
-	checkEqualString(t, "a", result.pop())
-	checkEqualString(t, "b", result.pop())
-	checkEqualString(t, "10", result.pop())
-	checkEqualString(t, ")", result.pop())
-}
-
 func TestParseAtom(t *testing.T) {
 	result1, _ := parseAtom("fred").(*Symbol)
 
