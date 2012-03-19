@@ -1,21 +1,28 @@
 package lang
 
-import ()
+import (
+	"fmt"	
+)
 
 ////////// Evaluation
 
-func Compile(e Expression) string {
+func Compile(m *Module) (result string) {
+	for i, e := range m.Expressions {
+		switch value := e.(type) {
+		case *FunctionDefinition:
+			result += CompileFunctionDefinition(value)
+		case *PackageDefinition:
+			result += CompilePackageDefinition(value)
+		default:
+			panic("Cannot compile: " + value.String())
+		}
 
-	result := "package main\n\n"
-
-	switch value := e.(type) {
-	case *FunctionDefinition:
-		result += CompileFunctionDefinition(value)
-	default:
-		panic("Cannot compile: " + value.Probe())
+		if i < len(m.Expressions)-1 {
+			result += "\n\n"
+		}
 	}
 
-	return result
+	return
 }
 
 func CompileFunctionDefinition(fd *FunctionDefinition) (r string) {
@@ -29,18 +36,30 @@ func CompileFunctionDefinition(fd *FunctionDefinition) (r string) {
 	return
 }
 
+func CompilePackageDefinition(pd *PackageDefinition) (r string) {
+	r = fmt.Sprintf("package %v", pd.Name)
+	return
+}
+
 func CompileBodyExpression(e Expression) string {
 	switch value := e.(type) {
 	case *List:
 		return CompileFunctionCall(value)
 	default:
-		panic("Cannot compile: " + value.Probe())
+		panic("Cannot compile: " + value.String())
 	}
 
 	return ""
 }
 
 func CompileFunctionCall(list *List) (r string) {
-	r = list.Value[0].String() + "(" + list.Value[1].String() + ")"
+	r = fmt.Sprintf("%v(", list.Value[0])
+	for i, e := range list.Value[1:] {
+		r += e.String()
+		if i < len(list.Value[1:]) - 1 {
+			r += ", "
+		}
+	}
+	r += ")"
 	return
 }

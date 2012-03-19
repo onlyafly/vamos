@@ -17,16 +17,16 @@ func main() {
 	fmt.Println("result: %v", <-c)
 
 	/*
-	//fileName := flag.String("c", "", "compile a file")
-	flag.Parse()
-	fileName := flag.Arg(0)
+		//fileName := flag.String("c", "", "compile a file")
+		flag.Parse()
+		fileName := flag.Arg(0)
 
-	content, _ := lang.ReadFile(fileName)
+		content, _ := lang.ReadFile(fileName)
 
-	ast := lang.Parse(content)
-	result := lang.Compile(ast)
+		ast := lang.Parse(content)
+		result := lang.Compile(ast)
 
-	_ = lang.WriteFile("output.go", result)
-	fmt.Println("Wrote output.go")
-	 */
+		_ = lang.WriteFile("output.go", result)
+		fmt.Println("Wrote output.go")
+	*/
 }

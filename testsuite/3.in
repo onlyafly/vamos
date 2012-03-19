@@ -1,0 +1,5 @@
+(package main)
+
+(defn main () (two))
+
+(defn two () (print 44))

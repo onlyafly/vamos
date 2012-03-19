@@ -17,7 +17,7 @@ func TestParseAtom(t *testing.T) {
 }
 
 func TestParse(t *testing.T) {
-	result := Parse("(defn init () (print 42))")
+	result := Parse("(defn init ()  (print 42))")
 
-	checkEqualString(t, "<DEFN init ARGS=() BODY=(print 42)>", result.Probe())
+	checkEqualString(t, "(defn init () (print 42))", result.String())
 }

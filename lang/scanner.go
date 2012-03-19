@@ -144,7 +144,7 @@ func Scan(name, input string) (*scanner, chan token) {
 }
 
 func scanBegin(s *scanner) stateFn {
-	Outer:
+Outer:
 	for {
 		switch r := s.next(); {
 		case isSpace(r):
@@ -160,7 +160,7 @@ func scanBegin(s *scanner) stateFn {
 			 case isAlphaNumeric(r):
 			 s.backup()
 			 return scanSymbol
-			 */
+			*/
 		case isSymbolic(r):
 			s.backup()
 			return scanSymbol

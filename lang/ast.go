@@ -1,14 +1,35 @@
 package lang
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 )
 
+////////// Module
+
+type Module struct {
+	Expressions []Expression
+}
+
+func (m *Module) String() (result string) {
+	for i, e := range m.Expressions {
+		result += e.String()
+
+		if i < len(m.Expressions) - 1 {
+			result += "\n\n"
+		}
+	}
+	return
+}
+
+////////// Expression
+
 type Expression interface {
-	Probe() string
 	String() string
 }
+
+////////// Symbol
 
 type Symbol struct {
 	Name string
@@ -18,13 +39,11 @@ func NewSymbol(name string) *Symbol {
 	return &Symbol{name}
 }
 
-func (self *Symbol) Probe() string {
-	return self.Name
-}
-
 func (self *Symbol) String() string {
 	return self.Name
 }
+
+////////// Number
 
 type Number struct {
 	Value float64
@@ -32,10 +51,6 @@ type Number struct {
 
 func NewNumber(value float64) *Number {
 	return &Number{value}
-}
-
-func (self *Number) Probe() string {
-	return self.String()
 }
 
 func (self *Number) String() string {
@@ -46,6 +61,8 @@ func (self *Number) String() string {
 		64)
 }
 
+////////// List
+
 type List struct {
 	Value []Expression
 }
@@ -54,14 +71,11 @@ func NewList(value []Expression) *List {
 	return &List{value}
 }
 
-func (self *List) Probe() string {
-	return "(" + strings.Join(probeExpressions(self.Value), " ") + ")"
-	return "list"
-}
-
 func (self *List) String() string {
 	return "(" + strings.Join(stringExpressions(self.Value), " ") + ")"
 }
+
+////////// Function Definition
 
 type FunctionDefinition struct {
 	Name      *Symbol
@@ -73,20 +87,28 @@ func NewFunctionDefinition(name *Symbol, args *List, body []Expression) *Functio
 	return &FunctionDefinition{name, args, body}
 }
 
-func (self *FunctionDefinition) Probe() string {
-	return "<DEFN " + self.Name.Probe() +
-		" ARGS=" + self.Arguments.Probe() +
-		" BODY=" +
-		strings.Join(probeExpressions(self.Body), " ") +
-		">"
-}
-
 func (self *FunctionDefinition) String() string {
 	return "(defn " +
 		self.Name.String() + " " + self.Arguments.String() + " " +
 		strings.Join(stringExpressions(self.Body), " ") +
 		")"
 }
+
+////////// Package Definition
+
+type PackageDefinition struct {
+	Name *Symbol
+}
+
+func NewPackageDefinition(name *Symbol) *PackageDefinition {
+	return &PackageDefinition{name}
+}
+
+func (self *PackageDefinition) String() string {
+	return fmt.Sprintf("(package %v)", self.Name)
+}
+
+////////// Helpers
 
 func toNumberValue(exp Expression) float64 {
 	switch value := exp.(type) {
@@ -112,14 +134,6 @@ func stringExpressions(es []Expression) []string {
 
 func stringExpression(e Expression) string {
 	return e.String()
-}
-
-func probeExpressions(es []Expression) []string {
-	return expressionsToStrings(es, probeExpression)
-}
-
-func probeExpression(e Expression) string {
-	return e.Probe()
 }
 
 func expressionsToStrings(es []Expression, convert func(e Expression) string) []string {
