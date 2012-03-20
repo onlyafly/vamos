@@ -4,6 +4,8 @@ import (
 	"io/ioutil"
 	"strings"
 	"testing"
+	"vamos/lang/compiling"
+	"vamos/lang/parsing"
 )
 
 const (
@@ -47,7 +49,7 @@ func testInputFile(inFileName string, t *testing.T) {
 	// Remove any carriage return line endings from .out file
 	expected = strings.Replace(expected, "\r", "", -1)
 
-	actual := Compile(Parse(input))
+	actual := compiling.Compile(parsing.Parse(input))
 	verify(t, testNumber, expected, actual)
 }
 

@@ -44,7 +44,7 @@ func WriteFile(fileName string, data string) error {
 	return nil
 }
 
-func checkEqualStringer(t *testing.T, expected, actual interface{}) {
+func CheckEqualStringer(t *testing.T, expected, actual interface{}) {
 	e := fmt.Sprintf("%v", expected)
 	a := fmt.Sprintf("%v", actual)
 
@@ -53,19 +53,19 @@ func checkEqualStringer(t *testing.T, expected, actual interface{}) {
 	}
 }
 
-func checkEqualString(t *testing.T, expected, actual string) {
+func CheckEqualString(t *testing.T, expected, actual string) {
 	if expected != actual {
 		t.Errorf("Expected <%v>, got <%v>", expected, actual)
 	}
 }
 
-func checkEqualInt(t *testing.T, expected, actual int) {
+func CheckEqualInt(t *testing.T, expected, actual int) {
 	if expected != actual {
 		t.Errorf("Expected <%v>, got <%v>", expected, actual)
 	}
 }
 
-func checkEqualFloat(t *testing.T, expected, actual float64) {
+func CheckEqualFloat(t *testing.T, expected, actual float64) {
 	if expected != actual {
 		t.Errorf("Expected <%v>, got <%v>", expected, actual)
 	}

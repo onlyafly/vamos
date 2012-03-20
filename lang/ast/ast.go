@@ -1,4 +1,4 @@
-package lang
+package ast
 
 import (
 	"fmt"
@@ -16,11 +16,17 @@ func (m *Module) String() (result string) {
 	for i, e := range m.Expressions {
 		result += e.String()
 
-		if i < len(m.Expressions) - 1 {
+		if i < len(m.Expressions)-1 {
 			result += "\n\n"
 		}
 	}
 	return
+}
+
+////////// Node
+
+type Node interface {
+	Pos() int
 }
 
 ////////// Expression

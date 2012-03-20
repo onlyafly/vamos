@@ -3,7 +3,7 @@ See "Lexical Scanning in Go" by Rob Pike for the basic theory behind this
 module: http://www.youtube.com/watch?v=HxaD_trXwRE
 */
 
-package lang
+package scanning
 
 import (
 	"fmt"
@@ -13,65 +13,65 @@ import (
 
 ////////// Token
 
-type token struct {
-	code  tokenCode
-	value string
+type Token struct {
+	Code  TokenCode
+	Value string
 }
 
-func (t token) String() string {
-	switch t.code {
-	case tkEOF:
+func (t Token) String() string {
+	switch t.Code {
+	case TC_EOF:
 		return "EOF"
-	case tkError:
-		return t.value
+	case TC_ERROR:
+		return t.Value
 	}
 
-	return fmt.Sprintf("%v", t.value)
+	return fmt.Sprintf("%v", t.Value)
 }
 
 ////////// Token code
 
-type tokenCode int
+type TokenCode int
 
 const (
-	tkError tokenCode = iota
-	tkLeftParen
-	tkRightParen
-	tkSymbol
-	tkNumber
-	tkEOF
+	TC_ERROR TokenCode = iota
+	TC_LEFT_PAREN
+	TC_RIGHT_PAREN
+	TC_SYMBOL
+	TC_NUMBER
+	TC_EOF
 )
 
 const eof = -1
 
 ////////// Scanner struct
 
-type scanner struct {
+type Scanner struct {
 	name   string     // used only for error reports
 	input  string     // the string being scanned
 	start  int        // start position of this item
 	pos    int        // current position in the input
 	width  int        // width of last rune read from input
-	tokens chan token // channel of scanned items
+	Tokens chan Token // channel of scanned items
 }
 
-func (s *scanner) String() string {
+func (s *Scanner) String() string {
 	return fmt.Sprintf("<scanner remaining=%#v>", s.input[s.start:s.pos])
 }
 
-func (s *scanner) run() {
+func (s *Scanner) run() {
 	for state := scanBegin; state != nil; {
 		state = state(s)
 	}
-	close(s.tokens)
+	close(s.Tokens)
 }
 
-func (s *scanner) emit(code tokenCode) {
-	s.tokens <- token{code, s.input[s.start:s.pos]}
+func (s *Scanner) emit(code TokenCode) {
+	s.Tokens <- Token{code, s.input[s.start:s.pos]}
 	s.start = s.pos
 }
 
-func (s *scanner) next() (r rune) {
+func (s *Scanner) next() (r rune) {
 	if s.pos >= len(s.input) {
 		s.width = 0
 		r = eof
@@ -83,19 +83,19 @@ func (s *scanner) next() (r rune) {
 }
 
 // ignore skips over the pending input before this point.
-func (s *scanner) ignore() {
+func (s *Scanner) ignore() {
 	s.start = s.pos
 }
 
 // backup steps back one rune.
 // Can be called only once per call of next.
-func (s *scanner) backup() {
+func (s *Scanner) backup() {
 	s.pos -= s.width
 }
 
 // peek returns but does not consume
 // the next rune in the input.
-func (s *scanner) peek() rune {
+func (s *Scanner) peek() rune {
 	r := s.next()
 	s.backup()
 	return r
@@ -103,7 +103,7 @@ func (s *scanner) peek() rune {
 
 // accept consumes the next rune
 // if it's from the valid set.
-func (s *scanner) accept(valid string) bool {
+func (s *Scanner) accept(valid string) bool {
 	if strings.IndexRune(valid, s.next()) >= 0 {
 		return true
 	}
@@ -112,7 +112,7 @@ func (s *scanner) accept(valid string) bool {
 }
 
 // acceptRun consumes a run of runes from the valid set.
-func (s *scanner) acceptRun(valid string) {
+func (s *Scanner) acceptRun(valid string) {
 	for strings.IndexRune(valid, s.next()) >= 0 {
 	}
 	s.backup()
@@ -121,9 +121,9 @@ func (s *scanner) acceptRun(valid string) {
 // error returns an error token and terminates the scan
 // by passing back a nil pointer that will be the next
 // state, terminating l.run.
-func (s *scanner) errorf(format string, args ...interface{}) stateFn {
-	s.tokens <- token{
-		tkError,
+func (s *Scanner) errorf(format string, args ...interface{}) stateFn {
+	s.Tokens <- Token{
+		TC_ERROR,
 		fmt.Sprintf(format, args...),
 	}
 	return nil
@@ -131,28 +131,28 @@ func (s *scanner) errorf(format string, args ...interface{}) stateFn {
 
 ////////// Scanning
 
-type stateFn func(*scanner) stateFn
+type stateFn func(*Scanner) stateFn
 
-func Scan(name, input string) (*scanner, chan token) {
-	s := &scanner{
+func Scan(name, input string) (*Scanner, chan Token) {
+	s := &Scanner{
 		name:   name,
 		input:  input,
-		tokens: make(chan token),
+		Tokens: make(chan Token),
 	}
 	go s.run()
-	return s, s.tokens
+	return s, s.Tokens
 }
 
-func scanBegin(s *scanner) stateFn {
+func scanBegin(s *Scanner) stateFn {
 Outer:
 	for {
 		switch r := s.next(); {
 		case isSpace(r):
 			s.ignore()
 		case r == '(':
-			s.emit(tkLeftParen)
+			s.emit(TC_LEFT_PAREN)
 		case r == ')':
-			s.emit(tkRightParen)
+			s.emit(TC_RIGHT_PAREN)
 		case r == '+' || r == '-' || '0' <= r && r <= '9':
 			s.backup()
 			return scanNumber
@@ -171,21 +171,22 @@ Outer:
 		}
 	}
 
-	s.emit(tkEOF)
+	s.emit(TC_EOF)
 	return nil
 }
 
-func scanSymbol(s *scanner) stateFn {
+func scanSymbol(s *Scanner) stateFn {
 	for isSymbolic(s.next()) {
 	}
 	s.backup()
-	s.emit(tkSymbol)
+	s.emit(TC_SYMBOL)
 	return scanBegin
 }
 
-func scanNumber(s *scanner) stateFn {
-	// Optional leading sign.
+func scanNumber(s *Scanner) stateFn {
+	// Optional leading sign
 	s.accept("+-")
+
 	// Is it hex?
 	digits := "0123456789"
 	if s.accept("0") && s.accept("xX") {
@@ -199,15 +200,18 @@ func scanNumber(s *scanner) stateFn {
 		s.accept("+-")
 		s.acceptRun("0123456789")
 	}
+
 	// Is it imaginary?
 	s.accept("i")
-	// Next thing mustn't be alphanumeric.
+
+	// Next thing must not be alphanumeric
 	if isAlphaNumeric(s.peek()) {
 		s.next()
 		return s.errorf("bad number syntax: %q",
 			s.input[s.start:s.pos])
 	}
-	s.emit(tkNumber)
+	s.emit(TC_NUMBER)
+
 	return scanBegin
 }
 
