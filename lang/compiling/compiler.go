@@ -8,17 +8,17 @@ import (
 ////////// Evaluation
 
 func Compile(m *ast.Module) (result string) {
-	for i, e := range m.Expressions {
-		switch value := e.(type) {
-		case *ast.FunctionDefinition:
-			result += CompileFunctionDefinition(value)
-		case *ast.PackageDefinition:
-			result += CompilePackageDefinition(value)
+	for i, n := range m.Nodes {
+		switch value := n.(type) {
+		case *ast.FunctionDecl:
+			result += CompileFunctionDecl(value)
+		case *ast.PackageDecl:
+			result += CompilePackageDecl(value)
 		default:
 			panic("Cannot compile: " + value.String())
 		}
 
-		if i < len(m.Expressions)-1 {
+		if i < len(m.Nodes)-1 {
 			result += "\n\n"
 		}
 	}
@@ -26,24 +26,24 @@ func Compile(m *ast.Module) (result string) {
 	return
 }
 
-func CompileFunctionDefinition(fd *ast.FunctionDefinition) (r string) {
+func CompileFunctionDecl(fd *ast.FunctionDecl) (r string) {
 	r = "func " + fd.Name.String() + "() {\n"
 
-	for _, e := range fd.Body {
-		r += "\t" + CompileBodyExpression(e) + "\n"
+	for _, n := range fd.Body {
+		r += "\t" + CompileBodyNode(n) + "\n"
 	}
 
 	r += "}"
 	return
 }
 
-func CompilePackageDefinition(pd *ast.PackageDefinition) (r string) {
+func CompilePackageDecl(pd *ast.PackageDecl) (r string) {
 	r = fmt.Sprintf("package %v", pd.Name)
 	return
 }
 
-func CompileBodyExpression(e ast.Expression) string {
-	switch value := e.(type) {
+func CompileBodyNode(n ast.Node) string {
+	switch value := n.(type) {
 	case *ast.List:
 		return CompileFunctionCall(value)
 	default:
@@ -54,10 +54,10 @@ func CompileBodyExpression(e ast.Expression) string {
 }
 
 func CompileFunctionCall(list *ast.List) (r string) {
-	r = fmt.Sprintf("%v(", list.Value[0])
-	for i, e := range list.Value[1:] {
+	r = fmt.Sprintf("%v(", list.Nodes[0])
+	for i, e := range list.Nodes[1:] {
 		r += e.String()
-		if i < len(list.Value[1:])-1 {
+		if i < len(list.Nodes[1:])-1 {
 			r += ", "
 		}
 	}

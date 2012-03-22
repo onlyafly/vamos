@@ -9,14 +9,14 @@ import (
 ////////// Module
 
 type Module struct {
-	Expressions []Expression
+	Nodes []Node
 }
 
 func (m *Module) String() (result string) {
-	for i, e := range m.Expressions {
-		result += e.String()
+	for i, n := range m.Nodes {
+		result += n.String()
 
-		if i < len(m.Expressions)-1 {
+		if i < len(m.Nodes)-1 {
 			result += "\n\n"
 		}
 	}
@@ -26,13 +26,25 @@ func (m *Module) String() (result string) {
 ////////// Node
 
 type Node interface {
-	Pos() int
+	fmt.Stringer
+	//TODO Pos() int
 }
 
 ////////// Expression
 
-type Expression interface {
-	String() string
+type Stmt interface {
+	Node
+	isStmt() bool
+}
+
+type Expr interface {
+	Node
+	isExpr() bool
+}
+
+type Decl interface {
+	Node
+	isDecl() bool
 }
 
 ////////// Symbol
@@ -41,22 +53,16 @@ type Symbol struct {
 	Name string
 }
 
-func NewSymbol(name string) *Symbol {
-	return &Symbol{name}
-}
-
 func (self *Symbol) String() string {
 	return self.Name
 }
+
+func (self *Symbol) isExpr() bool { return true }
 
 ////////// Number
 
 type Number struct {
 	Value float64
-}
-
-func NewNumber(value float64) *Number {
-	return &Number{value}
 }
 
 func (self *Number) String() string {
@@ -67,56 +73,52 @@ func (self *Number) String() string {
 		64)
 }
 
+func (self *Number) isExpr() bool { return true }
+
 ////////// List
 
 type List struct {
-	Value []Expression
-}
-
-func NewList(value []Expression) *List {
-	return &List{value}
+	Nodes []Node
 }
 
 func (self *List) String() string {
-	return "(" + strings.Join(stringExpressions(self.Value), " ") + ")"
+	return "(" + strings.Join(stringNodes(self.Nodes), " ") + ")"
 }
 
-////////// Function Definition
+func (self *List) isExpr() bool { return true }
 
-type FunctionDefinition struct {
+////////// Function Decl
+
+type FunctionDecl struct {
 	Name      *Symbol
 	Arguments *List
-	Body      []Expression
+	Body      []Node
 }
 
-func NewFunctionDefinition(name *Symbol, args *List, body []Expression) *FunctionDefinition {
-	return &FunctionDefinition{name, args, body}
-}
-
-func (self *FunctionDefinition) String() string {
+func (self *FunctionDecl) String() string {
 	return "(defn " +
 		self.Name.String() + " " + self.Arguments.String() + " " +
-		strings.Join(stringExpressions(self.Body), " ") +
+		strings.Join(stringNodes(self.Body), " ") +
 		")"
 }
 
-////////// Package Definition
+func (self *FunctionDecl) isDecl() bool { return true }
 
-type PackageDefinition struct {
+////////// Package Declaration
+
+type PackageDecl struct {
 	Name *Symbol
 }
 
-func NewPackageDefinition(name *Symbol) *PackageDefinition {
-	return &PackageDefinition{name}
-}
-
-func (self *PackageDefinition) String() string {
+func (self *PackageDecl) String() string {
 	return fmt.Sprintf("(package %v)", self.Name)
 }
 
+func (self *PackageDecl) isDecl() bool { return true }
+
 ////////// Helpers
 
-func toNumberValue(exp Expression) float64 {
+func toNumberValue(exp Expr) float64 {
 	switch value := exp.(type) {
 	case *Number:
 		return value.Value
@@ -125,7 +127,7 @@ func toNumberValue(exp Expression) float64 {
 	panic("Expression is not a number: " + exp.String())
 }
 
-func toSymbolValue(exp Expression) string {
+func toSymbolValue(exp Expr) string {
 	switch value := exp.(type) {
 	case *Symbol:
 		return value.Name
@@ -134,18 +136,14 @@ func toSymbolValue(exp Expression) string {
 	panic("Expression is not a symbol: " + exp.String())
 }
 
-func stringExpressions(es []Expression) []string {
-	return expressionsToStrings(es, stringExpression)
+func stringNodes(nodes []Node) []string {
+	return nodesToStrings(nodes, func(n Node) string { return n.String() })
 }
 
-func stringExpression(e Expression) string {
-	return e.String()
-}
-
-func expressionsToStrings(es []Expression, convert func(e Expression) string) []string {
-	strings := make([]string, len(es))
-	for i, exp := range es {
-		strings[i] = convert(exp)
+func nodesToStrings(nodes []Node, convert func(n Node) string) []string {
+	strings := make([]string, len(nodes))
+	for i, node := range nodes {
+		strings[i] = convert(node)
 	}
 	return strings
 }
