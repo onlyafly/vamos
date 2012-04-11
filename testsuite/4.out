@@ -1,0 +1,9 @@
+package main
+
+func main() {
+	two(5)
+}
+
+func two(n int) {
+	print(n)
+}

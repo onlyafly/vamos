@@ -1,0 +1,5 @@
+(package main)
+
+(defn main () (two 5))
+
+(defn two (^int n) (print n))

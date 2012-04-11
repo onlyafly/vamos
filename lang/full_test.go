@@ -49,18 +49,25 @@ func testInputFile(inFileName string, t *testing.T) {
 	// Remove any carriage return line endings from .out file
 	expected = strings.Replace(expected, "\r", "", -1)
 
-	actual := compiling.Compile(parsing.Parse(input))
-	verify(t, testNumber, expected, actual)
+	ir, errors := parsing.Parse(input)
+	if errors.Len() != 0 {
+		verify(t, testNumber, input, expected, errors.String())
+	} else {
+		actual := compiling.Compile(ir)
+		verify(t, testNumber, input, expected, actual)
+	}
 }
 
-func verify(t *testing.T, testNumber, expected, actual string) {
+func verify(t *testing.T, testNumber, input, expected, actual string) {
 	if expected != actual {
 		t.Errorf(
 			"TEST CASE #%s FAILED...\n"+
+				"<<<<<INPUT>>>>>\n%v\n"+
 				"<<<<<EXPECTED>>>>>\n%v\n"+
 				"<<<<<ACTUAL>>>>>\n%v\n"+
-				"<<<<<>>>>>\n",
+				"<<<<<END>>>>>\n",
 			testNumber,
+			input,
 			expected,
 			actual)
 	}

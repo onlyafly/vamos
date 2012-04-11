@@ -11,9 +11,14 @@ import (
 	"unicode/utf8"
 )
 
+////////// TokenPosition
+
+type TokenPosition int
+
 ////////// Token
 
 type Token struct {
+	Pos   TokenPosition
 	Code  TokenCode
 	Value string
 }
@@ -39,10 +44,13 @@ const (
 	TC_RIGHT_PAREN
 	TC_SYMBOL
 	TC_NUMBER
+	TC_CARET
 	TC_EOF
 )
 
 const eof = -1
+
+type ErrorHandler func(position int, message string)
 
 ////////// Scanner struct
 
@@ -53,6 +61,10 @@ type Scanner struct {
 	pos    int        // current position in the input
 	width  int        // width of last rune read from input
 	Tokens chan Token // channel of scanned items
+
+	// Error handling
+	errorCount   int
+	errorHandler ErrorHandler
 }
 
 func (s *Scanner) String() string {
@@ -67,7 +79,11 @@ func (s *Scanner) run() {
 }
 
 func (s *Scanner) emit(code TokenCode) {
-	s.Tokens <- Token{code, s.input[s.start:s.pos]}
+	s.Tokens <- Token{
+		Pos:   TokenPosition(s.start),
+		Code:  code,
+		Value: s.input[s.start:s.pos],
+	}
 	s.start = s.pos
 }
 
@@ -118,15 +134,20 @@ func (s *Scanner) acceptRun(valid string) {
 	s.backup()
 }
 
-// error returns an error token and terminates the scan
-// by passing back a nil pointer that will be the next
-// state, terminating l.run.
-func (s *Scanner) errorf(format string, args ...interface{}) stateFn {
-	s.Tokens <- Token{
-		TC_ERROR,
-		fmt.Sprintf(format, args...),
+func (s *Scanner) emitErrorf(format string, args ...interface{}) {
+	if s.errorHandler != nil {
+		message := fmt.Sprintf(format, args...)
+		s.errorHandler(s.start, message)
 	}
-	return nil
+
+	s.Tokens <- Token{
+		Pos:   TokenPosition(s.start),
+		Code:  TC_ERROR,
+		Value: s.input[s.start:s.pos],
+	}
+	s.start = s.pos
+
+	s.errorCount++
 }
 
 ////////// Scanning
@@ -156,18 +177,15 @@ Outer:
 		case r == '+' || r == '-' || '0' <= r && r <= '9':
 			s.backup()
 			return scanNumber
-			/*
-			 case isAlphaNumeric(r):
-			 s.backup()
-			 return scanSymbol
-			*/
+		case r == '^':
+			s.emit(TC_CARET)
 		case isSymbolic(r):
 			s.backup()
 			return scanSymbol
 		case r == eof:
 			break Outer
 		default:
-			fmt.Printf("scanBegin default: %#v\n", r)
+			s.emitErrorf("unrecognized character")
 		}
 	}
 
@@ -207,10 +225,10 @@ func scanNumber(s *Scanner) stateFn {
 	// Next thing must not be alphanumeric
 	if isAlphaNumeric(s.peek()) {
 		s.next()
-		return s.errorf("bad number syntax: %q",
-			s.input[s.start:s.pos])
+		s.emitErrorf("bad number syntax: %q", s.input[s.start:s.pos])
+	} else {
+		s.emit(TC_NUMBER)
 	}
-	s.emit(TC_NUMBER)
 
 	return scanBegin
 }

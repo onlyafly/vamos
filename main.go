@@ -3,13 +3,13 @@ package main
 import (
 	//"flag"
 	"fmt"
-	"vamos/lang"
+	"vamos/lang/scanning"
 )
 
 func main() {
 	fmt.Println("Vamos!")
 
-	_, c := lang.Scan("x", "(1 2 3)")
+	_, c := scanning.Scan("x", "(^int 2 3)")
 	fmt.Println("result: %v", <-c)
 	fmt.Println("result: %v", <-c)
 	fmt.Println("result: %v", <-c)

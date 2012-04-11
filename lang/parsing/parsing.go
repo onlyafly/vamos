@@ -6,11 +6,14 @@ import (
 	"vamos/lang/scanning"
 )
 
-func Parse(input string) *ast.Module {
+func Parse(input string) (*ast.Module, ParserErrorList) {
 	s, _ := scanning.Scan("parserCreated", input)
+	errorList := NewParserErrorList()
 	p := &parser{s: s}
 
-	return analyzeModule(parseModule(p))
+	parsedModule := parseModule(p, &errorList)
+	analyzedModule := analyzeModule(parsedModule, &errorList)
+	return analyzedModule, errorList
 }
 
 ////////// Parser
@@ -54,55 +57,74 @@ func (p *parser) inputEmpty() bool {
 
 ////////// Parsing
 
-func parseModule(p *parser) *ast.Module {
+func parseModule(p *parser, errors *ParserErrorList) *ast.Module {
 	nodes := make([]ast.Node, 0)
 	for !p.inputEmpty() {
-		nodes = append(nodes, parseNode(p))
+		nodes = append(nodes, parseBasicNode(p, errors))
 	}
 	return &ast.Module{nodes}
 }
 
-func parseNode(p *parser) ast.Node {
+func parseBasicNode(p *parser, errors *ParserErrorList) ast.BasicNode {
 	token := p.next()
 
-	switch {
-	case token.Code == scanning.TC_LEFT_PAREN:
+	switch token.Code {
+	case scanning.TC_LEFT_PAREN:
 		list := make([]ast.Node, 0)
 		for p.peek().Code != scanning.TC_RIGHT_PAREN {
-			list = append(list, parseNode(p))
+			list = append(list, parseBasicNode(p, errors))
 		}
 		p.next()
-		return &ast.List{list}
-	case token.Code == scanning.TC_RIGHT_PAREN:
-		panic("unexpected )")
+		return &ast.List{Nodes: list}
+	case scanning.TC_RIGHT_PAREN:
+		errors.Add(token.Pos, "Unbalanced parentheses")
+	case scanning.TC_NUMBER:
+		return parseNumber(token, errors)
+	case scanning.TC_SYMBOL:
+		return parseSymbol(token)
+	case scanning.TC_CARET:
+		return parseAnnotation(p, errors)
 	default:
-		return parseAtom(token.Value)
+		errors.Add(token.Pos, "Unrecognized token: "+token.String())
 	}
 
-	return &ast.Symbol{"nil"}
+	return &ast.Symbol{Name: "nil"}
 }
 
-func parseAtom(tokenValue string) ast.Expr {
-	f, ferr := strconv.ParseFloat(tokenValue, 64)
+func parseAnnotation(p *parser, errors *ParserErrorList) ast.BasicNode {
+	annotation := parseBasicNode(p, errors)
+	annotatee := parseBasicNode(p, errors)
+	annotatee.SetAnnotation(annotation)
+	return annotatee
+}
+
+func parseNumber(t scanning.Token, errors *ParserErrorList) *ast.Number {
+	f, ferr := strconv.ParseFloat(t.Value, 64)
 	if ferr == nil {
-		return &ast.Number{f}
+		return &ast.Number{Value: f}
+	} else {
+		errors.Add(t.Pos, "Invalid number: "+t.Value)
 	}
 
-	return &ast.Symbol{tokenValue}
+	return &ast.Number{Value: 0.0}
+}
+
+func parseSymbol(t scanning.Token) *ast.Symbol {
+	return &ast.Symbol{Name: t.Value}
 }
 
 ////////// Semantic Analysis
 
-func analyzeModule(m *ast.Module) *ast.Module {
+func analyzeModule(m *ast.Module, errors *ParserErrorList) *ast.Module {
 	nodes := make([]ast.Node, len(m.Nodes))
 
 	for i, n := range m.Nodes {
-		nodes[i] = analyzeTopLevelNode(n)
+		nodes[i] = analyzeTopLevelDecl(n)
 	}
 	return &ast.Module{nodes}
 }
 
-func analyzeTopLevelNode(n ast.Node) ast.Decl {
+func analyzeTopLevelDecl(n ast.Node) ast.Decl {
 	switch v := n.(type) {
 	case *ast.List:
 		return analyzeTopLevelList(v)
@@ -133,12 +155,16 @@ func analyzeFunctionDecl(nodes []ast.Node) *ast.FunctionDecl {
 	functionNameSymbol := ensureSymbol(nodes[0])
 	argumentsList := ensureList(nodes[1])
 	body := nodes[2:]
-	return &ast.FunctionDecl{functionNameSymbol, argumentsList, body}
+	return &ast.FunctionDecl{
+		Name:      functionNameSymbol,
+		Arguments: argumentsList,
+		Body:      body,
+	}
 }
 
 func analyzePackageDecl(nodes []ast.Node) *ast.PackageDecl {
 	nameSymbol := ensureSymbol(nodes[0])
-	return &ast.PackageDecl{nameSymbol}
+	return &ast.PackageDecl{Name: nameSymbol}
 }
 
 ////////// Helper Functions
