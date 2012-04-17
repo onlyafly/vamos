@@ -1,3 +1,2 @@
-(defn main () (print 44))
-
-(defn two () (print 44))
+(def x 42)
+x

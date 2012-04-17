@@ -1,4 +1,4 @@
-package ast
+package lang
 
 import (
 	"fmt"
@@ -6,21 +6,12 @@ import (
 	"strings"
 )
 
-////////// Module
+////////// Slice of Nodes
 
-type Module struct {
-	Nodes []Node
-}
+type Nodes []Node
 
-func (m *Module) String() (result string) {
-	for i, n := range m.Nodes {
-		result += n.String()
-
-		if i < len(m.Nodes)-1 {
-			result += "\n\n"
-		}
-	}
-	return
+func (ns Nodes) String() string {
+	return strings.Join(nodesToStrings([]Node(ns)), "\n")
 }
 
 ////////// Node
@@ -31,28 +22,23 @@ type Node interface {
 	//TODO Pos() int
 }
 
-////////// BasicNode
+////////// AnnotatedNode
 
-type BasicNode interface {
+type AnnotatedNode interface {
 	Node
 	Annotation() Node
 	SetAnnotation(n Node)
 }
 
-func displayAnnotation(bn BasicNode, rawRepresentation string) string {
-	if bn.Annotation() != nil {
-		return "^" + bn.Annotation().String() + " " + rawRepresentation
+func displayAnnotation(an AnnotatedNode, rawRepresentation string) string {
+	if an.Annotation() != nil {
+		return "^" + an.Annotation().String() + " " + rawRepresentation
 	}
 
 	return rawRepresentation
 }
 
-////////// Expression
-
-type Stmt interface {
-	Node
-	isStmt() bool
-}
+////////// Expressions and Declarations
 
 type Expr interface {
 	Node
@@ -107,7 +93,7 @@ type List struct {
 }
 
 func (this *List) String() string {
-	raw := "(" + strings.Join(stringNodes(this.Nodes), " ") + ")"
+	raw := "(" + strings.Join(nodesToStrings(this.Nodes), " ") + ")"
 	return displayAnnotation(this, raw)
 }
 
@@ -127,7 +113,7 @@ type FunctionDecl struct {
 func (self *FunctionDecl) String() string {
 	return "(defn " +
 		self.Name.String() + " " + self.Arguments.String() + " " +
-		strings.Join(stringNodes(self.Body), " ") +
+		strings.Join(nodesToStrings(self.Body), " ") +
 		")"
 }
 
@@ -151,13 +137,13 @@ func (self *PackageDecl) isDecl() bool { return true }
 
 ////////// Helpers
 
-func toNumberValue(exp Expr) float64 {
-	switch value := exp.(type) {
+func toNumberValue(n Node) float64 {
+	switch value := n.(type) {
 	case *Number:
 		return value.Value
 	}
 
-	panic("Expression is not a number: " + exp.String())
+	panic("Expression is not a number: " + n.String())
 }
 
 func toSymbolValue(exp Expr) string {
@@ -169,11 +155,11 @@ func toSymbolValue(exp Expr) string {
 	panic("Expression is not a symbol: " + exp.String())
 }
 
-func stringNodes(nodes []Node) []string {
-	return nodesToStrings(nodes, func(n Node) string { return n.String() })
+func nodesToStrings(nodes []Node) []string {
+	return nodesToStringsWithFunc(nodes, func(n Node) string { return n.String() })
 }
 
-func nodesToStrings(nodes []Node, convert func(n Node) string) []string {
+func nodesToStringsWithFunc(nodes []Node, convert func(n Node) string) []string {
 	strings := make([]string, len(nodes))
 	for i, node := range nodes {
 		strings[i] = convert(node)

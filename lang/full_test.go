@@ -4,8 +4,7 @@ import (
 	"io/ioutil"
 	"strings"
 	"testing"
-	"vamos/lang/compiling"
-	"vamos/lang/parsing"
+	"../util"
 )
 
 const (
@@ -34,13 +33,13 @@ func testInputFile(inFileName string, t *testing.T) {
 	inFilePath := testsuiteDir + "/" + inFileName
 	outFilePath := testsuiteDir + "/" + testNumber + ".out"
 
-	input, errIn := ReadFile(inFilePath)
+	input, errIn := util.ReadFile(inFilePath)
 	if errIn != nil {
 		t.Errorf("Error reading file <" + inFilePath + ">: " + errIn.Error())
 		return
 	}
 
-	expected, errOut := ReadFile(outFilePath)
+	expected, errOut := util.ReadFile(outFilePath)
 	if errOut != nil {
 		t.Errorf("Error reading file <" + outFilePath + ">: " + errOut.Error())
 		return
@@ -49,11 +48,18 @@ func testInputFile(inFileName string, t *testing.T) {
 	// Remove any carriage return line endings from .out file
 	expected = strings.Replace(expected, "\r", "", -1)
 
-	ir, errors := parsing.Parse(input)
+	nodes, errors := Parse(input)
 	if errors.Len() != 0 {
 		verify(t, testNumber, input, expected, errors.String())
 	} else {
-		actual := compiling.Compile(ir)
+		e := NewMapEnv()
+
+		var result Node
+		for _, n := range nodes {
+			result = Eval(e, n)
+		}
+
+		actual := result.String()
 		verify(t, testNumber, input, expected, actual)
 	}
 }

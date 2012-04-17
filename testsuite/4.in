@@ -1,5 +1,2 @@
-(package main)
-
-(defn main () (two 5))
-
-(defn two (^int n) (print n))
+(def x 42)
+(quote x)

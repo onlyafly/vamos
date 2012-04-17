@@ -1,12 +1,62 @@
-package compiling
+package lang
 
 import (
-	"fmt"
-	"vamos/lang/ast"
 )
 
 ////////// Evaluation
 
+func Eval(e Env, n Node) Node {
+	switch value := n.(type) {
+	case *Number:
+		return value
+	case *Symbol:
+		return e.Get(value.Name)
+	case *List:
+		return evalList(e, value)
+	default:
+		panic("Unknown form to evaluate: " + value.String())
+	}
+	
+	return &Symbol{Name: "nil"}
+}
+
+func evalList(e Env, l *List) Node {
+	elements := l.Nodes
+	proc := elements[0]
+	args := elements[1:]
+	
+	switch value := proc.(type) {
+	case *Symbol:
+		switch value.Name {
+		case "+":
+			result := toNumberValue(Eval(e, args[0])) + toNumberValue(Eval(e, args[1]))
+			return &Number{Value: result}
+		case "def":
+			name := toSymbolName(args[0])
+			e.Set(name, Eval(e, args[1]))
+			return &Symbol{Name: "nil"}
+		case "quote":
+			return args[0]
+		default:
+			panic("Unknown function to evaluate: " + value.Name)
+		}
+	default:
+		panic("First item in list not a symbol: " + value.String())
+	}
+
+	return &Symbol{Name: "nil"}
+}
+
+func toSymbolName(n Node) string {
+	switch value := n.(type) {
+	case *Symbol:
+		return value.Name
+	}
+
+	panic("Not a symbol: " + n.String())
+}
+
+/*
 func Compile(m *ast.Module) (result string) {
 	for i, n := range m.Nodes {
 		switch value := n.(type) {
@@ -64,3 +114,4 @@ func CompileFunctionCall(list *ast.List) (r string) {
 	r += ")"
 	return
 }
+*/

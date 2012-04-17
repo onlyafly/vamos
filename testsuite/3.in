@@ -1,5 +1,3 @@
-(package main)
-
-(defn main () (two))
-
-(defn two () (print 44))
+(def x 22)
+(def y 20)
+(+ x y)

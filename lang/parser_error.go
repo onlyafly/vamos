@@ -1,12 +1,11 @@
-package parsing
+package lang
 
 import (
 	"fmt"
-	"vamos/lang/scanning"
 )
 
 type ParserError struct {
-	Pos     scanning.TokenPosition
+	Pos     TokenPosition
 	Message string
 }
 
@@ -21,7 +20,7 @@ func NewParserErrorList() ParserErrorList {
 	return make(ParserErrorList, 0)
 }
 
-func (p *ParserErrorList) Add(pos scanning.TokenPosition, msg string) {
+func (p *ParserErrorList) Add(pos TokenPosition, msg string) {
 	*p = append(*p, &ParserError{pos, msg})
 }
 

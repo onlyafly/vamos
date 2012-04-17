@@ -3,7 +3,7 @@ See "Lexical Scanning in Go" by Rob Pike for the basic theory behind this
 module: http://www.youtube.com/watch?v=HxaD_trXwRE
 */
 
-package scanning
+package lang
 
 import (
 	"fmt"
@@ -174,9 +174,19 @@ Outer:
 			s.emit(TC_LEFT_PAREN)
 		case r == ')':
 			s.emit(TC_RIGHT_PAREN)
-		case r == '+' || r == '-' || '0' <= r && r <= '9':
+		case '0' <= r && r <= '9':
 			s.backup()
 			return scanNumber
+		case r == '+' || r == '-':
+			rnext := s.next()
+			if ('0' <= rnext && rnext <= '9') {
+				s.backup()
+				s.backup()
+				return scanNumber
+			} else {
+				s.backup()
+				return scanSymbol
+			}
 		case r == '^':
 			s.emit(TC_CARET)
 		case isSymbolic(r):
@@ -256,7 +266,7 @@ func isSymbolic(r rune) bool {
 		return true
 	case 'A' <= r && r <= 'Z':
 		return true
-	case r == '?':
+	case r == '?' || r == '+' || r == '-':
 		return true
 	}
 

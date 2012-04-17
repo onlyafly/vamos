@@ -1,7 +1,1 @@
-func main() {
-	print(44)
-}
-
-func two() {
-	print(44)
-}
+42
