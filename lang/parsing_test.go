@@ -1,8 +1,8 @@
 package lang
 
 import (
-	"testing"
 	"../util"
+	"testing"
 )
 
 func TestParseAtom(t *testing.T) {

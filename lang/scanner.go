@@ -179,7 +179,7 @@ Outer:
 			return scanNumber
 		case r == '+' || r == '-':
 			rnext := s.next()
-			if ('0' <= rnext && rnext <= '9') {
+			if '0' <= rnext && rnext <= '9' {
 				s.backup()
 				s.backup()
 				return scanNumber

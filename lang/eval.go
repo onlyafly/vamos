@@ -1,7 +1,6 @@
 package lang
 
-import (
-)
+import ()
 
 ////////// Evaluation
 
@@ -16,7 +15,7 @@ func Eval(e Env, n Node) Node {
 	default:
 		panic("Unknown form to evaluate: " + value.String())
 	}
-	
+
 	return &Symbol{Name: "nil"}
 }
 
@@ -24,7 +23,7 @@ func evalList(e Env, l *List) Node {
 	elements := l.Nodes
 	proc := elements[0]
 	args := elements[1:]
-	
+
 	switch value := proc.(type) {
 	case *Symbol:
 		switch value.Name {

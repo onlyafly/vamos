@@ -1,10 +1,10 @@
 package lang
 
 import (
+	"../util"
 	"io/ioutil"
 	"strings"
 	"testing"
-	"../util"
 )
 
 const (
