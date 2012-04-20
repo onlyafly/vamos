@@ -33,7 +33,7 @@ func main() {
 			fmt.Println("Wrote output.go")
 	*/
 
-	env := lang.NewMapEnv()
+	env := lang.NewTopLevelMapEnv()
 
 	for {
 		fmt.Print("> ")

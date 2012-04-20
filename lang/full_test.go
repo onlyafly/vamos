@@ -52,7 +52,7 @@ func testInputFile(inFileName string, t *testing.T) {
 	if errors.Len() != 0 {
 		verify(t, testNumber, input, expected, errors.String())
 	} else {
-		e := NewMapEnv()
+		e := NewTopLevelMapEnv()
 
 		var result Node
 		var evalError error

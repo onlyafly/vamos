@@ -116,6 +116,22 @@ func (this *Primitive) String() string {
 func (this *Primitive) Children() []Node { return nil }
 func (this *Primitive) isExpr() bool     { return true }
 
+////////// Function
+
+type Function struct {
+	Name       string
+	Parameters []Node
+	Body       Node
+	LocalEnv   Env
+}
+
+func (this *Function) String() string {
+	return "#function<" + this.Name + ">"
+}
+
+func (this *Function) Children() []Node { return nil }
+func (this *Function) isExpr() bool     { return true }
+
 ////////// Helpers
 
 func toNumberValue(n Node) float64 {

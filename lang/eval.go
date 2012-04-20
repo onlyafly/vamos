@@ -63,6 +63,8 @@ func evalList(e Env, l *List) Node {
 			} else {
 				return evalNode(e, args[2])
 			}
+		case "fn":
+			return evalFunctionDefinition(e, args)
 		case "quote":
 			return args[0]
 		}
@@ -74,11 +76,39 @@ func evalList(e Env, l *List) Node {
 	case *Primitive:
 		f := value.Value
 		return f(evalEachNode(e, args))
+	case *Function:
+		return evalFunctionApplication(value, evalEachNode(e, args))
 	default:
 		panicEvalError("First item in list not a function: " + value.String())
 	}
 
 	return &Symbol{Name: "nil"}
+}
+
+func evalFunctionApplication(f *Function, args []Node) Node {
+	e := f.LocalEnv
+
+	// Save arguments into parameters
+	for i, arg := range args {
+		paramName := toSymbolName(f.Parameters[i])
+		e.Set(paramName, arg)
+	}
+
+	return evalNode(e, f.Body)
+}
+
+func evalFunctionDefinition(e Env, args []Node) *Function {
+	parameterList := args[0]
+	parameterNodes := parameterList.Children()
+
+	localEnv := NewMapEnv(e)
+
+	return &Function{
+		Name:       "anonymous",
+		Parameters: parameterNodes,
+		Body:       args[1],
+		LocalEnv:   localEnv,
+	}
 }
 
 func panicEvalError(s string) {
