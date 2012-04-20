@@ -10,7 +10,12 @@ func Parse(input string) (Nodes, ParserErrorList) {
 	p := &parser{s: s}
 
 	nodes := parseNodes(p, &errorList)
-	return nodes, errorList
+
+	if errorList.Len() > 0 {
+		return nil, errorList
+	}
+
+	return nodes, nil
 }
 
 ////////// Parser

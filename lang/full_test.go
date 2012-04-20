@@ -55,11 +55,20 @@ func testInputFile(inFileName string, t *testing.T) {
 		e := NewMapEnv()
 
 		var result Node
+		var evalError error
 		for _, n := range nodes {
-			result = Eval(e, n)
+			result, evalError = Eval(e, n)
+			if evalError != nil {
+				break
+			}
 		}
 
-		actual := result.String()
+		var actual string
+		if evalError == nil {
+			actual = result.String()
+		} else {
+			actual = evalError.Error()
+		}
 		verify(t, testNumber, input, expected, actual)
 	}
 }

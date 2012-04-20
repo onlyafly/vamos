@@ -102,38 +102,19 @@ func (self *List) isExpr() bool         { return true }
 func (this *List) Annotation() Node     { return this.annotation }
 func (this *List) SetAnnotation(n Node) { this.annotation = n }
 
-////////// Function Decl
+////////// Primitive
 
-type FunctionDecl struct {
-	Name      *Symbol
-	Arguments *List
-	Body      []Node
+type Primitive struct {
+	Name  string
+	Value primitiveFunction
 }
 
-func (self *FunctionDecl) String() string {
-	return "(defn " +
-		self.Name.String() + " " + self.Arguments.String() + " " +
-		strings.Join(nodesToStrings(self.Body), " ") +
-		")"
+func (this *Primitive) String() string {
+	return "#primitive<" + this.Name + ">"
 }
 
-func (self *FunctionDecl) Children() []Node { return nil }
-
-func (self *FunctionDecl) isDecl() bool { return true }
-
-////////// Package Declaration
-
-type PackageDecl struct {
-	Name *Symbol
-}
-
-func (self *PackageDecl) String() string {
-	return fmt.Sprintf("(package %v)", self.Name)
-}
-
-func (self *PackageDecl) Children() []Node { return []Node{self.Name} }
-
-func (self *PackageDecl) isDecl() bool { return true }
+func (this *Primitive) Children() []Node { return nil }
+func (this *Primitive) isExpr() bool     { return true }
 
 ////////// Helpers
 
@@ -153,6 +134,15 @@ func toSymbolValue(exp Expr) string {
 	}
 
 	panic("Expression is not a symbol: " + exp.String())
+}
+
+func toBooleanValue(n Node) bool {
+	switch value := n.(type) {
+	case *Symbol:
+		return value.Name == "true"
+	}
+
+	panic("Expression is not a symbol: " + n.String())
 }
 
 func nodesToStrings(nodes []Node) []string {

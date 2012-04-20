@@ -14,6 +14,7 @@ func (p *ParserError) Error() string {
 	return fmt.Sprintf("Error at %v: %v", p.Pos, p.Message)
 }
 
+// Implements the error interface
 type ParserErrorList []*ParserError
 
 func NewParserErrorList() ParserErrorList {
@@ -22,6 +23,10 @@ func NewParserErrorList() ParserErrorList {
 
 func (p *ParserErrorList) Add(pos TokenPosition, msg string) {
 	*p = append(*p, &ParserError{pos, msg})
+}
+
+func (p ParserErrorList) Error() string {
+	return p.String()
 }
 
 func (p ParserErrorList) Len() int {

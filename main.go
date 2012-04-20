@@ -38,13 +38,28 @@ func main() {
 	for {
 		fmt.Print("> ")
 		input := util.ReadLine()
-		nodes, _ := lang.Parse(input)
+		nodes, parseErrors := lang.Parse(input)
 
-		var result lang.Node
-		for _, n := range nodes {
-			result = lang.Eval(env, n)
+		if parseErrors != nil {
+			fmt.Println(parseErrors.String())
+		} else {
+			var result lang.Node
+			var evalError error
+			for _, n := range nodes {
+				result, evalError = lang.Eval(env, n)
+				if evalError != nil {
+					break
+				}
+			}
+
+			var actual string
+			if evalError == nil {
+				actual = result.String()
+			} else {
+				actual = evalError.Error()
+			}
+
+			fmt.Println(actual)
 		}
-
-		fmt.Println(result)
 	}
 }
