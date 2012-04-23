@@ -35,3 +35,8 @@ $ make
 
 Windows:
 > build.cmd
+
+Running Vamos
+-------------
+
+> vamos

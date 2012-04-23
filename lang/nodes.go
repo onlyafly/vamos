@@ -122,7 +122,7 @@ type Function struct {
 	Name       string
 	Parameters []Node
 	Body       Node
-	LocalEnv   Env
+	ParentEnv  Env
 }
 
 func (this *Function) String() string {
@@ -155,10 +155,15 @@ func toSymbolValue(exp Expr) string {
 func toBooleanValue(n Node) bool {
 	switch value := n.(type) {
 	case *Symbol:
-		return value.Name == "true"
+		switch value.Name {
+		case "true":
+			return true
+		case "false":
+			return false
+		}
 	}
 
-	panic("Expression is not a symbol: " + n.String())
+	panic("Non-boolean in boolean context: " + n.String())
 }
 
 func nodesToStrings(nodes []Node) []string {

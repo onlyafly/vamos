@@ -86,7 +86,8 @@ func evalList(e Env, l *List) Node {
 }
 
 func evalFunctionApplication(f *Function, args []Node) Node {
-	e := f.LocalEnv
+
+	e := NewMapEnv(f.ParentEnv)
 
 	// Save arguments into parameters
 	for i, arg := range args {
@@ -101,13 +102,11 @@ func evalFunctionDefinition(e Env, args []Node) *Function {
 	parameterList := args[0]
 	parameterNodes := parameterList.Children()
 
-	localEnv := NewMapEnv(e)
-
 	return &Function{
 		Name:       "anonymous",
 		Parameters: parameterNodes,
 		Body:       args[1],
-		LocalEnv:   localEnv,
+		ParentEnv:  e,
 	}
 }
 

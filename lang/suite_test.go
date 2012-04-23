@@ -73,15 +73,15 @@ func testInputFile(inFileName string, t *testing.T) {
 	}
 }
 
-func verify(t *testing.T, testNumber, input, expected, actual string) {
+func verify(t *testing.T, testCaseName, input, expected, actual string) {
 	if expected != actual {
 		t.Errorf(
-			"TEST CASE #%s FAILED...\n"+
-				"<<<<<INPUT>>>>>\n%v\n"+
-				"<<<<<EXPECTED>>>>>\n%v\n"+
-				"<<<<<ACTUAL>>>>>\n%v\n"+
-				"<<<<<END>>>>>\n",
-			testNumber,
+			"\n===== TEST SUITE CASE FAILED: %s\n"+
+				"===== INPUT\n%v\n"+
+				"===== EXPECTED\n%v\n"+
+				"===== ACTUAL\n%v\n"+
+				"===== END\n",
+			testCaseName,
 			input,
 			expected,
 			actual)
