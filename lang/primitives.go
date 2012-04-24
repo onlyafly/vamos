@@ -9,7 +9,10 @@ var trueSymbol, falseSymbol *Symbol
 func initializePrimitives(e Env) {
 	addPrimitive(e, "+", primAdd)
 	addPrimitive(e, "-", primSubtract)
+	addPrimitive(e, "*", primMult)
+	addPrimitive(e, "/", primDiv)
 	addPrimitive(e, "=", primEquals)
+	addPrimitive(e, "<", primLt)
 
 	trueSymbol = &Symbol{Name: "true"}
 	falseSymbol = &Symbol{Name: "false"}
@@ -39,4 +42,22 @@ func primEquals(args []Node) Node {
 	}
 
 	return falseSymbol
+}
+
+func primLt(args []Node) Node {
+	if toNumberValue(args[0]) < toNumberValue(args[1]) {
+		return trueSymbol
+	}
+
+	return falseSymbol
+}
+
+func primDiv(args []Node) Node {
+	result := toNumberValue(args[0]) / toNumberValue(args[1])
+	return &Number{Value: result}
+}
+
+func primMult(args []Node) Node {
+	result := toNumberValue(args[0]) * toNumberValue(args[1])
+	return &Number{Value: result}
 }

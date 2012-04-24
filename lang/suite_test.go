@@ -20,7 +20,7 @@ func TestFullSuite(t *testing.T) {
 
 	for _, fileInfo := range fileInfos {
 		name := fileInfo.Name()
-		if strings.HasSuffix(name, ".in") {
+		if strings.HasSuffix(name, ".v") {
 			testInputFile(name, t)
 		}
 	}
