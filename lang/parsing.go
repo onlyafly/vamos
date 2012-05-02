@@ -86,6 +86,8 @@ func parseAnnotatedNode(p *parser, errors *ParserErrorList) AnnotatedNode {
 		return parseSymbol(token)
 	case TC_CARET:
 		return parseAnnotation(p, errors)
+	case TC_SINGLE_QUOTE:
+		return parseQuote(p, errors)
 	default:
 		errors.Add(token.Pos, "Unrecognized token: "+token.String())
 	}
@@ -98,6 +100,13 @@ func parseAnnotation(p *parser, errors *ParserErrorList) AnnotatedNode {
 	annotatee := parseAnnotatedNode(p, errors)
 	annotatee.SetAnnotation(annotation)
 	return annotatee
+}
+
+func parseQuote(p *parser, errors *ParserErrorList) AnnotatedNode {
+	node := parseAnnotatedNode(p, errors)
+	list := make([]Node, 0)
+	list = append(list, &Symbol{Name: "quote"}, node)
+	return &List{Nodes: list}
 }
 
 func parseNumber(t Token, errors *ParserErrorList) *Number {

@@ -10,7 +10,7 @@ Special Forms
 
 (fn (x y z) (+ x (+ y z)))
 
-(quote x)
+(quote x) --OR-- 'x
 
 (if <BOOL> <THEN> <ELSE>)
 
@@ -18,10 +18,10 @@ Built-in Functions
 ------------------
 
 Math: +, -
-Logical: =
+Logical: =, <, >
 
 Boolean Values
 --------------
 
-False values: false (the symbol)
-True values: true (the symbol)
+False values: false (the symbol), which is also stored in false (the variable)
+True values: true (the symbol), also stored in true (the variable)

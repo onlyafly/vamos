@@ -140,7 +140,8 @@ func toNumberValue(n Node) float64 {
 		return value.Value
 	}
 
-	panic("Expression is not a number: " + n.String())
+	panicEvalError("Expression is not a number: " + n.String())
+	return 0.0
 }
 
 func toSymbolValue(exp Expr) string {
@@ -149,7 +150,8 @@ func toSymbolValue(exp Expr) string {
 		return value.Name
 	}
 
-	panic("Expression is not a symbol: " + exp.String())
+	panicEvalError("Expression is not a symbol: " + exp.String())
+	return ""
 }
 
 func toBooleanValue(n Node) bool {
@@ -163,7 +165,8 @@ func toBooleanValue(n Node) bool {
 		}
 	}
 
-	panic("Non-boolean in boolean context: " + n.String())
+	panicEvalError("Non-boolean in boolean context: " + n.String())
+	return false
 }
 
 func nodesToStrings(nodes []Node) []string {

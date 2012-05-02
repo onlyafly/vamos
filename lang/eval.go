@@ -2,6 +2,37 @@ package lang
 
 import ()
 
+////////// Trampoline Support
+
+type packet struct {
+	Thunk thunk
+	Node  Node
+}
+
+func bounce(t thunk) packet {
+	return packet{Thunk: t}
+}
+
+func respond(n Node) packet {
+	return packet{Node: n}
+}
+
+type thunk func() packet
+
+func trampoline(currentThunk thunk) Node {
+	for currentThunk != nil {
+		next := currentThunk()
+
+		if next.Thunk != nil {
+			currentThunk = next.Thunk
+		} else {
+			return next.Node
+		}
+	}
+
+	return nil
+}
+
 ////////// Evaluation
 
 func Eval(e Env, n Node) (result Node, err error) {
@@ -18,33 +49,41 @@ func Eval(e Env, n Node) (result Node, err error) {
 		}
 	}()
 
-	return evalNode(e, n), nil
+	startThunk := func() packet {
+		return evalNode(false, e, n)
+	}
+
+	return trampoline(startThunk), nil
 }
 
 func evalEachNode(e Env, ns []Node) []Node {
 	result := make([]Node, len(ns))
 	for i, n := range ns {
-		result[i] = evalNode(e, n)
+		evalNodeThunk := func() packet {
+			return evalNode(false, e, n)
+		}
+		result[i] = trampoline(evalNodeThunk)
 	}
 	return result
 }
 
-func evalNode(e Env, n Node) Node {
+func evalNode(isTail bool, e Env, n Node) packet {
+
 	switch value := n.(type) {
 	case *Number:
-		return value
+		return respond(value)
 	case *Symbol:
-		return e.Get(value.Name)
+		return respond(e.Get(value.Name))
 	case *List:
-		return evalList(e, value)
+		return bounce(func() packet { return evalList(isTail, e, value) })
 	default:
 		panicEvalError("Unknown form to evaluate: " + value.String())
 	}
 
-	return &Symbol{Name: "nil"}
+	return respond(&Symbol{Name: "nil"})
 }
 
-func evalList(e Env, l *List) Node {
+func evalList(isTail bool, e Env, l *List) packet {
 	elements := l.Nodes
 	head := elements[0]
 	args := elements[1:]
@@ -54,40 +93,68 @@ func evalList(e Env, l *List) Node {
 		switch value.Name {
 		case "def":
 			name := toSymbolName(args[0])
-			e.Set(name, evalNode(e, args[1]))
-			return &Symbol{Name: "nil"}
+			e.Set(name, trampoline(func() packet {
+				return evalNode(false, e, args[1])
+			}))
+			return respond(&Symbol{Name: "nil"})
 		case "if":
-			predicate := toBooleanValue(evalNode(e, args[0]))
+			predicate := toBooleanValue(trampoline(func() packet {
+				return evalNode(false, e, args[0])
+			}))
 			if predicate {
-				return evalNode(e, args[1])
+				return bounce(func() packet {
+					return evalNode(isTail, e, args[1])
+				})
 			} else {
-				return evalNode(e, args[2])
+				return bounce(func() packet {
+					return evalNode(isTail, e, args[2])
+				})
 			}
 		case "fn":
-			return evalFunctionDefinition(e, args)
+			return bounce(func() packet {
+				return evalFunctionDefinition(e, args)
+			})
 		case "quote":
-			return args[0]
+			return respond(args[0])
 		}
 	}
 
-	headValue := evalNode(e, head)
+	var headNode Node = trampoline(func() packet {
+		return evalNode(false, e, head)
+	})
 
-	switch value := headValue.(type) {
+	switch value := headNode.(type) {
 	case *Primitive:
 		f := value.Value
-		return f(evalEachNode(e, args))
+		return respond(f(evalEachNode(e, args)))
 	case *Function:
-		return evalFunctionApplication(value, evalEachNode(e, args))
+		arguments := evalEachNode(e, args)
+
+		return bounce(func() packet {
+			return evalFunctionApplication(isTail, value, arguments)
+		})
 	default:
 		panicEvalError("First item in list not a function: " + value.String())
 	}
 
-	return &Symbol{Name: "nil"}
+	return respond(&Symbol{Name: "nil"})
 }
 
-func evalFunctionApplication(f *Function, args []Node) Node {
+func evalFunctionApplication(isTail bool, f *Function, args []Node) packet {
 
-	e := NewMapEnv(f.ParentEnv)
+	var e Env
+	e = NewMapEnv(f.Name, f.ParentEnv)
+
+	// TODO
+	/*
+		print(
+			"evalFunctionApplication:\n   name=",
+			e.String(), "\n   body=",
+			f.Body.String(), "\n   parent=",
+			f.ParentEnv.String(), "\n   args=",
+			fmt.Sprintf("%v", args), "\n   isTail=",
+			fmt.Sprintf("%v", isTail), "\n")
+	*/
 
 	// Save arguments into parameters
 	for i, arg := range args {
@@ -95,19 +162,21 @@ func evalFunctionApplication(f *Function, args []Node) Node {
 		e.Set(paramName, arg)
 	}
 
-	return evalNode(e, f.Body)
+	return bounce(func() packet {
+		return evalNode(true, e, f.Body)
+	})
 }
 
-func evalFunctionDefinition(e Env, args []Node) *Function {
+func evalFunctionDefinition(e Env, args []Node) packet {
 	parameterList := args[0]
 	parameterNodes := parameterList.Children()
 
-	return &Function{
+	return respond(&Function{
 		Name:       "anonymous",
 		Parameters: parameterNodes,
 		Body:       args[1],
 		ParentEnv:  e,
-	}
+	})
 }
 
 func panicEvalError(s string) {

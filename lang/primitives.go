@@ -13,9 +13,12 @@ func initializePrimitives(e Env) {
 	addPrimitive(e, "/", primDiv)
 	addPrimitive(e, "=", primEquals)
 	addPrimitive(e, "<", primLt)
+	addPrimitive(e, ">", primGt)
 
 	trueSymbol = &Symbol{Name: "true"}
 	falseSymbol = &Symbol{Name: "false"}
+	e.Set("true", trueSymbol)
+	e.Set("false", falseSymbol)
 }
 
 func addPrimitive(e Env, name string, f func([]Node) Node) {
@@ -48,7 +51,13 @@ func primLt(args []Node) Node {
 	if toNumberValue(args[0]) < toNumberValue(args[1]) {
 		return trueSymbol
 	}
+	return falseSymbol
+}
 
+func primGt(args []Node) Node {
+	if toNumberValue(args[0]) > toNumberValue(args[1]) {
+		return trueSymbol
+	}
 	return falseSymbol
 }
 

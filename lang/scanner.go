@@ -45,6 +45,7 @@ const (
 	TC_SYMBOL
 	TC_NUMBER
 	TC_CARET
+	TC_SINGLE_QUOTE
 	TC_EOF
 )
 
@@ -189,6 +190,8 @@ Outer:
 			}
 		case r == '^':
 			s.emit(TC_CARET)
+		case r == '\'':
+			s.emit(TC_SINGLE_QUOTE)
 		case isSymbolic(r):
 			s.backup()
 			return scanSymbol
@@ -268,7 +271,7 @@ func isSymbolic(r rune) bool {
 		return true
 	case r == '?' ||
 		r == '+' || r == '-' || r == '*' || r == '/' ||
-		r == '=' || r == '<':
+		r == '=' || r == '<' || r == '>':
 		return true
 	}
 
