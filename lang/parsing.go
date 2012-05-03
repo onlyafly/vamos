@@ -50,7 +50,8 @@ func (p *parser) peek() Token {
 }
 
 func (p *parser) inputEmpty() bool {
-	if p.peek().Code == TC_EOF {
+	c := p.peek().Code
+	if c == TC_EOF || c == TC_ERROR {
 		return true
 	}
 
@@ -74,6 +75,11 @@ func parseAnnotatedNode(p *parser, errors *ParserErrorList) AnnotatedNode {
 	case TC_LEFT_PAREN:
 		list := make([]Node, 0)
 		for p.peek().Code != TC_RIGHT_PAREN {
+			if p.peek().Code == TC_EOF {
+				errors.Add(token.Pos, "Unbalanced parentheses")
+				p.next()
+				return &Symbol{Name: "nil"}
+			}
 			list = append(list, parseAnnotatedNode(p, errors))
 		}
 		p.next()

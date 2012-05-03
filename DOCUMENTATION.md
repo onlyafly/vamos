@@ -12,6 +12,8 @@ Special Forms
 
 (quote x) --OR-- 'x
 
+(list 1 2 3)
+
 (if <BOOL> <THEN> <ELSE>)
 
 Built-in Functions
@@ -19,6 +21,7 @@ Built-in Functions
 
 Math: +, -
 Logical: =, <, >
+Lists: first, rest, list
 
 Boolean Values
 --------------

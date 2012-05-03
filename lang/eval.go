@@ -85,6 +85,12 @@ func evalNode(isTail bool, e Env, n Node) packet {
 
 func evalList(isTail bool, e Env, l *List) packet {
 	elements := l.Nodes
+
+	if len(elements) == 0 {
+		panicEvalError("Empty list cannot be evaluated: " + l.String())
+		return respond(nil)
+	}
+
 	head := elements[0]
 	args := elements[1:]
 

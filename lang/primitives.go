@@ -14,6 +14,9 @@ func initializePrimitives(e Env) {
 	addPrimitive(e, "=", primEquals)
 	addPrimitive(e, "<", primLt)
 	addPrimitive(e, ">", primGt)
+	addPrimitive(e, "list", primList)
+	addPrimitive(e, "first", primFirst)
+	addPrimitive(e, "rest", primRest)
 
 	trueSymbol = &Symbol{Name: "true"}
 	falseSymbol = &Symbol{Name: "false"}
@@ -69,4 +72,30 @@ func primDiv(args []Node) Node {
 func primMult(args []Node) Node {
 	result := toNumberValue(args[0]) * toNumberValue(args[1])
 	return &Number{Value: result}
+}
+
+func primList(args []Node) Node {
+	return &List{Nodes: args}
+}
+
+func primFirst(args []Node) Node {
+	arg := args[0]
+	switch val := arg.(type) {
+	case *List:
+		return val.Nodes[0]
+	}
+
+	panicEvalError("Argument to first not a list: " + arg.String())
+	return nil
+}
+
+func primRest(args []Node) Node {
+	arg := args[0]
+	switch val := arg.(type) {
+	case *List:
+		return &List{Nodes: val.Nodes[1:]}
+	}
+
+	panicEvalError("Argument to rest not a list: " + arg.String())
+	return nil
 }
