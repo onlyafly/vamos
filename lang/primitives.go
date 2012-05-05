@@ -43,10 +43,9 @@ func primSubtract(args []Node) Node {
 }
 
 func primEquals(args []Node) Node {
-	if toNumberValue(args[0]) == toNumberValue(args[1]) {
+	if args[0].Equals(args[1]) {
 		return trueSymbol
 	}
-
 	return falseSymbol
 }
 

@@ -19,6 +19,7 @@ func (ns Nodes) String() string {
 type Node interface {
 	fmt.Stringer
 	Children() []Node
+	Equals(Node) bool
 	//TODO Pos() int
 }
 
@@ -57,11 +58,12 @@ type Symbol struct {
 	annotation Node
 }
 
-func (s *Symbol) String() string       { return displayAnnotation(s, s.Name) }
-func (s *Symbol) Children() []Node     { return nil }
-func (s *Symbol) isExpr() bool         { return true }
-func (s *Symbol) Annotation() Node     { return s.annotation }
-func (s *Symbol) SetAnnotation(n Node) { s.annotation = n }
+func (this *Symbol) String() string       { return displayAnnotation(this, this.Name) }
+func (this *Symbol) Children() []Node     { return nil }
+func (this *Symbol) isExpr() bool         { return true }
+func (this *Symbol) Annotation() Node     { return this.annotation }
+func (this *Symbol) SetAnnotation(n Node) { this.annotation = n }
+func (this *Symbol) Equals(n Node) bool   { return this.Name == asSymbol(n).Name }
 
 ////////// Number
 
@@ -84,6 +86,7 @@ func (this *Number) Children() []Node     { return nil }
 func (this *Number) isExpr() bool         { return true }
 func (this *Number) Annotation() Node     { return this.annotation }
 func (this *Number) SetAnnotation(n Node) { this.annotation = n }
+func (this *Number) Equals(n Node) bool   { return this.Value == asNumber(n).Value }
 
 ////////// List
 
@@ -101,6 +104,23 @@ func (self *List) Children() []Node     { return self.Nodes }
 func (self *List) isExpr() bool         { return true }
 func (this *List) Annotation() Node     { return this.annotation }
 func (this *List) SetAnnotation(n Node) { this.annotation = n }
+func (this *List) Equals(n Node) bool {
+	other := asList(n)
+
+	// Compare lengths
+	if len(this.Nodes) != len(other.Nodes) {
+		return false
+	}
+
+	// Compare contents
+	for i, v := range this.Nodes {
+		if !v.Equals(other.Nodes[i]) {
+			return false
+		}
+	}
+
+	return true
+}
 
 ////////// Primitive
 
@@ -115,6 +135,11 @@ func (this *Primitive) String() string {
 
 func (this *Primitive) Children() []Node { return nil }
 func (this *Primitive) isExpr() bool     { return true }
+func (this *Primitive) Equals(n Node) bool {
+	panicEvalError("Cannot compare the values of primitive procedures: " +
+		this.String() + " and " + n.String())
+	return false
+}
 
 ////////// Function
 
@@ -131,8 +156,45 @@ func (this *Function) String() string {
 
 func (this *Function) Children() []Node { return nil }
 func (this *Function) isExpr() bool     { return true }
+func (this *Function) Equals(n Node) bool {
+	panicEvalError("Cannot compare the values of functions: " +
+		this.String() + " and " + n.String())
+	return false
+}
 
 ////////// Helpers
+
+func asSymbol(n Node) *Symbol {
+	if result, ok := n.(*Symbol); ok {
+		return result
+	}
+	panicEvalError("Expected symbol: " + n.String())
+	return nil
+}
+func asNumber(n Node) *Number {
+	if result, ok := n.(*Number); ok {
+		return result
+	}
+	panicEvalError("Expected number: " + n.String())
+	return nil
+}
+func asList(n Node) *List {
+	if result, ok := n.(*List); ok {
+		return result
+	}
+	panicEvalError("Expected list: " + n.String())
+	return nil
+}
+
+func toListValue(n Node) *List {
+	switch value := n.(type) {
+	case *List:
+		return value
+	}
+
+	panicEvalError("Expression is not a list: " + n.String())
+	return nil
+}
 
 func toNumberValue(n Node) float64 {
 	switch value := n.(type) {
