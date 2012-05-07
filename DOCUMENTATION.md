@@ -16,11 +16,19 @@ Special Forms
 
 (if <BOOL> <THEN> <ELSE>)
 
+(let (x 4
+      y (+ 1 x))
+  (* x y))
+
 Built-in Functions
 ------------------
 
 Math: +, -
-Logical: =, <, >
+
+Logical (on all types): =
+
+Logical (on numbers): <, >
+
 Lists: first, rest, list
 
 Boolean Values

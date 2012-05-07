@@ -122,6 +122,10 @@ func evalList(isTail bool, e Env, l *List) packet {
 			})
 		case "quote":
 			return respond(args[0])
+		case "let":
+			return bounce(func() packet {
+				return evalLet(e, args)
+			})
 		}
 	}
 
@@ -148,8 +152,7 @@ func evalList(isTail bool, e Env, l *List) packet {
 
 func evalFunctionApplication(isTail bool, f *Function, args []Node) packet {
 
-	var e Env
-	e = NewMapEnv(f.Name, f.ParentEnv)
+	var e Env = NewMapEnv(f.Name, f.ParentEnv)
 
 	// TODO
 	/*
@@ -182,6 +185,30 @@ func evalFunctionDefinition(e Env, args []Node) packet {
 		Parameters: parameterNodes,
 		Body:       args[1],
 		ParentEnv:  e,
+	})
+}
+
+func evalLet(parentEnv Env, args []Node) packet {
+	variableList := args[0]
+	body := args[1]
+	variableNodes := variableList.Children()
+
+	var e Env = NewMapEnv("let", parentEnv)
+
+	// Evaluate variable assignments
+	for i := 0; i < len(variableNodes); i += 2 {
+		variable := variableNodes[i]
+		expression := variableNodes[i+1]
+		variableName := toSymbolName(variable)
+
+		e.Set(variableName, trampoline(func() packet {
+			return evalNode(false, e, expression)
+		}))
+	}
+
+	// Evaluate body
+	return bounce(func() packet {
+		return evalNode(true, e, body)
 	})
 }
 
