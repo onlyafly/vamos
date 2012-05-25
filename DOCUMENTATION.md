@@ -16,9 +16,15 @@ Special Forms
 
 (if <BOOL> <THEN> <ELSE>)
 
+(cond
+    (isTheAnswer 42
+     (findResult?) 'foo))
+
 (let (x 4
       y (+ 1 x))
   (* x y))
+  
+(apply + '(1 3))
 
 Built-in Functions
 ------------------
@@ -30,6 +36,8 @@ Logical (on all types): =
 Logical (on numbers): <, >
 
 Lists: first, rest, list
+
+Higher-order: apply
 
 Boolean Values
 --------------

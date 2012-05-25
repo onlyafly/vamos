@@ -50,7 +50,7 @@ func Eval(e Env, n Node) (result Node, err error) {
 	}()
 
 	startThunk := func() packet {
-		return evalNode(false, e, n)
+		return evalNode(e, n)
 	}
 
 	return trampoline(startThunk), nil
@@ -60,14 +60,14 @@ func evalEachNode(e Env, ns []Node) []Node {
 	result := make([]Node, len(ns))
 	for i, n := range ns {
 		evalNodeThunk := func() packet {
-			return evalNode(false, e, n)
+			return evalNode(e, n)
 		}
 		result[i] = trampoline(evalNodeThunk)
 	}
 	return result
 }
 
-func evalNode(isTail bool, e Env, n Node) packet {
+func evalNode(e Env, n Node) packet {
 
 	switch value := n.(type) {
 	case *Number:
@@ -75,7 +75,7 @@ func evalNode(isTail bool, e Env, n Node) packet {
 	case *Symbol:
 		return respond(e.Get(value.Name))
 	case *List:
-		return bounce(func() packet { return evalList(isTail, e, value) })
+		return bounce(func() packet { return evalList(e, value) })
 	default:
 		panicEvalError("Unknown form to evaluate: " + value.String())
 	}
@@ -83,7 +83,7 @@ func evalNode(isTail bool, e Env, n Node) packet {
 	return respond(&Symbol{Name: "nil"})
 }
 
-func evalList(isTail bool, e Env, l *List) packet {
+func evalList(e Env, l *List) packet {
 	elements := l.Nodes
 
 	if len(elements) == 0 {
@@ -100,22 +100,35 @@ func evalList(isTail bool, e Env, l *List) packet {
 		case "def":
 			name := toSymbolName(args[0])
 			e.Set(name, trampoline(func() packet {
-				return evalNode(false, e, args[1])
+				return evalNode(e, args[1])
 			}))
 			return respond(&Symbol{Name: "nil"})
 		case "if":
 			predicate := toBooleanValue(trampoline(func() packet {
-				return evalNode(false, e, args[0])
+				return evalNode(e, args[0])
 			}))
 			if predicate {
 				return bounce(func() packet {
-					return evalNode(isTail, e, args[1])
+					return evalNode(e, args[1])
 				})
 			} else {
 				return bounce(func() packet {
-					return evalNode(isTail, e, args[2])
+					return evalNode(e, args[2])
 				})
 			}
+		case "cond":
+			for i := 0; i < len(args); i += 2 {
+				predicate := toBooleanValue(trampoline(func() packet {
+					return evalNode(e, args[i])
+				}))
+
+				if predicate {
+					return bounce(func() packet {
+						return evalNode(e, args[i+1])
+					})
+				}
+			}
+			panicEvalError("No matching cond clause: " + l.String())
 		case "fn":
 			return bounce(func() packet {
 				return evalFunctionDefinition(e, args)
@@ -130,7 +143,7 @@ func evalList(isTail bool, e Env, l *List) packet {
 	}
 
 	var headNode Node = trampoline(func() packet {
-		return evalNode(false, e, head)
+		return evalNode(e, head)
 	})
 
 	switch value := headNode.(type) {
@@ -141,7 +154,7 @@ func evalList(isTail bool, e Env, l *List) packet {
 		arguments := evalEachNode(e, args)
 
 		return bounce(func() packet {
-			return evalFunctionApplication(isTail, value, arguments)
+			return evalFunctionApplication(value, arguments)
 		})
 	default:
 		panicEvalError("First item in list not a function: " + value.String())
@@ -150,7 +163,7 @@ func evalList(isTail bool, e Env, l *List) packet {
 	return respond(&Symbol{Name: "nil"})
 }
 
-func evalFunctionApplication(isTail bool, f *Function, args []Node) packet {
+func evalFunctionApplication(f *Function, args []Node) packet {
 
 	var e Env = NewMapEnv(f.Name, f.ParentEnv)
 
@@ -172,7 +185,7 @@ func evalFunctionApplication(isTail bool, f *Function, args []Node) packet {
 	}
 
 	return bounce(func() packet {
-		return evalNode(true, e, f.Body)
+		return evalNode(e, f.Body)
 	})
 }
 
@@ -202,13 +215,13 @@ func evalLet(parentEnv Env, args []Node) packet {
 		variableName := toSymbolName(variable)
 
 		e.Set(variableName, trampoline(func() packet {
-			return evalNode(false, e, expression)
+			return evalNode(e, expression)
 		}))
 	}
 
 	// Evaluate body
 	return bounce(func() packet {
-		return evalNode(true, e, body)
+		return evalNode(e, body)
 	})
 }
 
