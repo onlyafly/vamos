@@ -97,6 +97,15 @@ func evalList(e Env, l *List) packet {
 	switch value := head.(type) {
 	case *Symbol:
 		switch value.Name {
+		case "apply":
+			f := args[0]
+			l := toListValue(trampoline(func() packet {
+				return evalNode(e, args[1])
+			}))
+			nodes := append([]Node{f}, l.Nodes...)
+			return respond(trampoline(func() packet {
+				return evalList(e, &List{Nodes: nodes})
+			}))
 		case "def":
 			name := toSymbolName(args[0])
 			e.Set(name, trampoline(func() packet {
