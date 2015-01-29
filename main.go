@@ -7,8 +7,13 @@ import (
 	"vamos/util"
 )
 
+const (
+	version     = `0.1.1`
+	versionDate = `2015-01-29`
+)
+
 func main() {
-	fmt.Println("Vamos 0.1.1 (2015-01-29)")
+	fmt.Printf("Vamos %s (%s)\n", version, versionDate)
 
 	/*
 			fmt.Fprint

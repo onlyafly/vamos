@@ -1,10 +1,8 @@
-Vamos Documentation
-===================
+# Vamos Language Documentation
 
 * See http://hyperpolyglot.org/lisp for comparison of different Lisps.
 
-Special Forms
--------------
+## Special Forms
 
 (def x 4)
 
@@ -26,8 +24,7 @@ Special Forms
 
 (apply + '(1 3))
 
-Built-in Functions
-------------------
+## Built-in Functions
 
 Math: +, -
 
@@ -39,8 +36,7 @@ Lists: first, rest, list
 
 Higher-order: apply
 
-Boolean Values
---------------
+## Boolean Values
 
 False values: false (the symbol), which is also stored in false (the variable)
 True values: true (the symbol), also stored in true (the variable)
