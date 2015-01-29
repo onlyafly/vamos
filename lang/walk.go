@@ -1,12 +1,10 @@
 package lang
 
-import ()
-
 type Visitor interface {
 	Visit(node Node) (childVisitor Visitor)
 }
 
-// Traverses the AST in depth-first order. 
+// DepthFirstWalk traverses the AST in depth-first order.
 func DepthFirstWalk(visitor Visitor, node Node) {
 	childVisitor := visitor.Visit(node)
 

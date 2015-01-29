@@ -6,6 +6,9 @@ import (
 
 ////////// Env
 
+// Env represents an environment.
+// An environment (AKA a scope) contains symbols that are in scope and which
+// environment, if any, is the parent of this environment.
 type Env interface {
 	Set(name string, value Node)
 	Update(name string, value Node)
@@ -16,6 +19,7 @@ type Env interface {
 
 ////////// MapEnv
 
+// MapEnv is an implementation of an environment using a hash map.
 type MapEnv struct {
 	name    string
 	symbols map[string]Node

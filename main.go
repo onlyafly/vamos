@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	fmt.Println("Vamos!")
+	fmt.Println("Vamos 0.1.1 (2015-01-29)")
 
 	/*
 			fmt.Fprint

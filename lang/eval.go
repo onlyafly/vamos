@@ -1,7 +1,5 @@
 package lang
 
-import ()
-
 ////////// Trampoline Support
 
 type packet struct {
@@ -120,11 +118,10 @@ func evalList(e Env, l *List) packet {
 				return bounce(func() packet {
 					return evalNode(e, args[1])
 				})
-			} else {
-				return bounce(func() packet {
-					return evalNode(e, args[2])
-				})
 			}
+			return bounce(func() packet {
+				return evalNode(e, args[2])
+			})
 		case "cond":
 			for i := 0; i < len(args); i += 2 {
 				predicate := toBooleanValue(trampoline(func() packet {
@@ -151,14 +148,14 @@ func evalList(e Env, l *List) packet {
 		}
 	}
 
-	var headNode Node = trampoline(func() packet {
+	headNode := trampoline(func() packet {
 		return evalNode(e, head)
 	})
 
 	switch value := headNode.(type) {
 	case *Primitive:
 		f := value.Value
-		return respond(f(evalEachNode(e, args)))
+		return respond(f(e, evalEachNode(e, args)))
 	case *Function:
 		arguments := evalEachNode(e, args)
 
@@ -174,7 +171,7 @@ func evalList(e Env, l *List) packet {
 
 func evalFunctionApplication(f *Function, args []Node) packet {
 
-	var e Env = NewMapEnv(f.Name, f.ParentEnv)
+	e := NewMapEnv(f.Name, f.ParentEnv)
 
 	// TODO
 	/*
@@ -215,7 +212,7 @@ func evalLet(parentEnv Env, args []Node) packet {
 	body := args[1]
 	variableNodes := variableList.Children()
 
-	var e Env = NewMapEnv("let", parentEnv)
+	e := NewMapEnv("let", parentEnv)
 
 	// Evaluate variable assignments
 	for i := 0; i < len(variableNodes); i += 2 {

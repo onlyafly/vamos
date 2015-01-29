@@ -2,7 +2,7 @@ package lang
 
 ////////// Primitive Support
 
-type primitiveFunction func([]Node) Node
+type primitiveFunction func(Env, []Node) Node
 
 var trueSymbol, falseSymbol *Symbol
 
@@ -18,13 +18,15 @@ func initializePrimitives(e Env) {
 	addPrimitive(e, "first", primFirst)
 	addPrimitive(e, "rest", primRest)
 
+	addPrimitive(e, "env", primInspectEnv)
+
 	trueSymbol = &Symbol{Name: "true"}
 	falseSymbol = &Symbol{Name: "false"}
 	e.Set("true", trueSymbol)
 	e.Set("false", falseSymbol)
 }
 
-func addPrimitive(e Env, name string, f func([]Node) Node) {
+func addPrimitive(e Env, name string, f primitiveFunction) {
 	e.Set(
 		name,
 		&Primitive{Name: name, Value: primitiveFunction(f)})
@@ -32,52 +34,52 @@ func addPrimitive(e Env, name string, f func([]Node) Node) {
 
 ////////// Primitives
 
-func primAdd(args []Node) Node {
+func primAdd(e Env, args []Node) Node {
 	result := toNumberValue(args[0]) + toNumberValue(args[1])
 	return &Number{Value: result}
 }
 
-func primSubtract(args []Node) Node {
+func primSubtract(e Env, args []Node) Node {
 	result := toNumberValue(args[0]) - toNumberValue(args[1])
 	return &Number{Value: result}
 }
 
-func primEquals(args []Node) Node {
+func primEquals(e Env, args []Node) Node {
 	if args[0].Equals(args[1]) {
 		return trueSymbol
 	}
 	return falseSymbol
 }
 
-func primLt(args []Node) Node {
+func primLt(e Env, args []Node) Node {
 	if toNumberValue(args[0]) < toNumberValue(args[1]) {
 		return trueSymbol
 	}
 	return falseSymbol
 }
 
-func primGt(args []Node) Node {
+func primGt(e Env, args []Node) Node {
 	if toNumberValue(args[0]) > toNumberValue(args[1]) {
 		return trueSymbol
 	}
 	return falseSymbol
 }
 
-func primDiv(args []Node) Node {
+func primDiv(e Env, args []Node) Node {
 	result := toNumberValue(args[0]) / toNumberValue(args[1])
 	return &Number{Value: result}
 }
 
-func primMult(args []Node) Node {
+func primMult(e Env, args []Node) Node {
 	result := toNumberValue(args[0]) * toNumberValue(args[1])
 	return &Number{Value: result}
 }
 
-func primList(args []Node) Node {
+func primList(e Env, args []Node) Node {
 	return &List{Nodes: args}
 }
 
-func primFirst(args []Node) Node {
+func primFirst(e Env, args []Node) Node {
 	arg := args[0]
 	switch val := arg.(type) {
 	case *List:
@@ -88,7 +90,7 @@ func primFirst(args []Node) Node {
 	return nil
 }
 
-func primRest(args []Node) Node {
+func primRest(e Env, args []Node) Node {
 	arg := args[0]
 	switch val := arg.(type) {
 	case *List:
@@ -97,4 +99,9 @@ func primRest(args []Node) Node {
 
 	panicEvalError("Argument to rest not a list: " + arg.String())
 	return nil
+}
+
+func primInspectEnv(e Env, args []Node) Node {
+	print(e.String(), "\n")
+	return falseSymbol
 }

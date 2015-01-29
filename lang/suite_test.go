@@ -1,10 +1,11 @@
 package lang
 
 import (
-	"../util"
 	"io/ioutil"
 	"strings"
 	"testing"
+
+	"../util"
 )
 
 const (
@@ -39,14 +40,15 @@ func testInputFile(inFileName string, t *testing.T) {
 		return
 	}
 
-	expected, errOut := util.ReadFile(outFilePath)
+	expectedRaw, errOut := util.ReadFile(outFilePath)
 	if errOut != nil {
 		t.Errorf("Error reading file <" + outFilePath + ">: " + errOut.Error())
 		return
 	}
 
 	// Remove any carriage return line endings from .out file
-	expected = strings.Replace(expected, "\r", "", -1)
+	expectedWithUntrimmed := strings.Replace(expectedRaw, "\r", "", -1)
+	expected := strings.TrimSpace(expectedWithUntrimmed)
 
 	nodes, errors := Parse(input)
 	if errors.Len() != 0 {
