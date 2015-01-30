@@ -13,5 +13,3 @@
 - Make use of the Decl interface
 
 ## Tool
-
-- up arrow on prompt shows last line
