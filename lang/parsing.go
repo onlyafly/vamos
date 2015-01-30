@@ -1,8 +1,6 @@
 package lang
 
-import (
-	"strconv"
-)
+import "strconv"
 
 func Parse(input string) (Nodes, ParserErrorList) {
 	s, _ := Scan("parserCreated", input)
@@ -51,7 +49,7 @@ func (p *parser) peek() Token {
 
 func (p *parser) inputEmpty() bool {
 	c := p.peek().Code
-	if c == TC_EOF || c == TC_ERROR {
+	if c == TcEOF || c == TcError {
 		return true
 	}
 
@@ -61,7 +59,8 @@ func (p *parser) inputEmpty() bool {
 ////////// Parsing
 
 func parseNodes(p *parser, errors *ParserErrorList) []Node {
-	nodes := make([]Node, 0)
+	var nodes []Node
+	//TODO nodes := make([]Node, 0)
 	for !p.inputEmpty() {
 		nodes = append(nodes, parseAnnotatedNode(p, errors))
 	}
@@ -72,10 +71,10 @@ func parseAnnotatedNode(p *parser, errors *ParserErrorList) AnnotatedNode {
 	token := p.next()
 
 	switch token.Code {
-	case TC_LEFT_PAREN:
-		list := make([]Node, 0)
-		for p.peek().Code != TC_RIGHT_PAREN {
-			if p.peek().Code == TC_EOF {
+	case TcLeftParen:
+		var list []Node
+		for p.peek().Code != TcRightParen {
+			if p.peek().Code == TcEOF {
 				errors.Add(token.Pos, "Unbalanced parentheses")
 				p.next()
 				return &Symbol{Name: "nil"}
@@ -84,15 +83,15 @@ func parseAnnotatedNode(p *parser, errors *ParserErrorList) AnnotatedNode {
 		}
 		p.next()
 		return &List{Nodes: list}
-	case TC_RIGHT_PAREN:
+	case TcRightParen:
 		errors.Add(token.Pos, "Unbalanced parentheses")
-	case TC_NUMBER:
+	case TcNumber:
 		return parseNumber(token, errors)
-	case TC_SYMBOL:
+	case TcSymbol:
 		return parseSymbol(token)
-	case TC_CARET:
+	case TcCaret:
 		return parseAnnotation(p, errors)
-	case TC_SINGLE_QUOTE:
+	case TcSingleQuote:
 		return parseQuote(p, errors)
 	default:
 		errors.Add(token.Pos, "Unrecognized token: "+token.String())
@@ -110,7 +109,7 @@ func parseAnnotation(p *parser, errors *ParserErrorList) AnnotatedNode {
 
 func parseQuote(p *parser, errors *ParserErrorList) AnnotatedNode {
 	node := parseAnnotatedNode(p, errors)
-	list := make([]Node, 0)
+	var list []Node
 	list = append(list, &Symbol{Name: "quote"}, node)
 	return &List{Nodes: list}
 }

@@ -64,23 +64,23 @@ func parseEval(env lang.Env, input string) {
 
 	if parseErrors != nil {
 		fmt.Println(parseErrors.String())
-	} else {
-		var result lang.Node
-		var evalError error
-		for _, n := range nodes {
-			result, evalError = lang.Eval(env, n)
-			if evalError != nil {
-				break
-			}
-		}
-
-		var actual string
-		if evalError == nil {
-			actual = result.String()
-		} else {
-			actual = evalError.Error()
-		}
-
-		fmt.Println(actual)
 	}
+
+	var result lang.Node
+	var evalError error
+	for _, n := range nodes {
+		result, evalError = lang.Eval(env, n)
+		if evalError != nil {
+			break
+		}
+	}
+
+	var actual string
+	if evalError == nil {
+		actual = result.String()
+	} else {
+		actual = evalError.Error()
+	}
+
+	fmt.Println(actual)
 }

@@ -4,5 +4,8 @@ all:
 fmt:
 	go fmt . ./...
 
-test: all fmt
-	go test . ./...
+test: fmt all
+	go test ./...
+
+run: fmt all
+	vamos

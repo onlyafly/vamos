@@ -8,6 +8,7 @@ import (
 
 ////////// Slice of Nodes
 
+// Nodes type represents an array of Nodes.
 type Nodes []Node
 
 func (ns Nodes) String() string {
@@ -16,6 +17,7 @@ func (ns Nodes) String() string {
 
 ////////// Node
 
+// Node represents a parsed lisp node.
 type Node interface {
 	fmt.Stringer
 	Children() []Node
@@ -25,6 +27,7 @@ type Node interface {
 
 ////////// AnnotatedNode
 
+// AnnotatedNode represents a node with an annotation (^foo) before it.
 type AnnotatedNode interface {
 	Node
 	Annotation() Node
@@ -41,11 +44,14 @@ func displayAnnotation(an AnnotatedNode, rawRepresentation string) string {
 
 ////////// Expressions and Declarations
 
+// Expr is a node representing an expression
 type Expr interface {
 	Node
 	isExpr() bool
 }
 
+// Decl is a node representing a declaration
+// TODO unused!
 type Decl interface {
 	Node
 	isDecl() bool
@@ -58,12 +64,12 @@ type Symbol struct {
 	annotation Node
 }
 
-func (this *Symbol) String() string       { return displayAnnotation(this, this.Name) }
-func (this *Symbol) Children() []Node     { return nil }
-func (this *Symbol) isExpr() bool         { return true }
-func (this *Symbol) Annotation() Node     { return this.annotation }
-func (this *Symbol) SetAnnotation(n Node) { this.annotation = n }
-func (this *Symbol) Equals(n Node) bool   { return this.Name == asSymbol(n).Name }
+func (s *Symbol) String() string       { return displayAnnotation(s, s.Name) }
+func (s *Symbol) Children() []Node     { return nil }
+func (s *Symbol) isExpr() bool         { return true }
+func (s *Symbol) Annotation() Node     { return s.annotation }
+func (s *Symbol) SetAnnotation(n Node) { s.annotation = n }
+func (s *Symbol) Equals(n Node) bool   { return s.Name == asSymbol(n).Name }
 
 ////////// Number
 
@@ -72,21 +78,21 @@ type Number struct {
 	annotation Node
 }
 
-func (n *Number) String() string {
+func (num *Number) String() string {
 	rep := strconv.FormatFloat(
-		n.Value,
+		num.Value,
 		'f',
 		-1,
 		64)
 
-	return displayAnnotation(n, rep)
+	return displayAnnotation(num, rep)
 }
 
-func (this *Number) Children() []Node     { return nil }
-func (this *Number) isExpr() bool         { return true }
-func (this *Number) Annotation() Node     { return this.annotation }
-func (this *Number) SetAnnotation(n Node) { this.annotation = n }
-func (this *Number) Equals(n Node) bool   { return this.Value == asNumber(n).Value }
+func (num *Number) Children() []Node     { return nil }
+func (num *Number) isExpr() bool         { return true }
+func (num *Number) Annotation() Node     { return num.annotation }
+func (num *Number) SetAnnotation(n Node) { num.annotation = n }
+func (num *Number) Equals(n Node) bool   { return num.Value == asNumber(n).Value }
 
 ////////// List
 
@@ -95,25 +101,25 @@ type List struct {
 	annotation Node
 }
 
-func (this *List) String() string {
-	raw := "(" + strings.Join(nodesToStrings(this.Nodes), " ") + ")"
-	return displayAnnotation(this, raw)
+func (l *List) String() string {
+	raw := "(" + strings.Join(nodesToStrings(l.Nodes), " ") + ")"
+	return displayAnnotation(l, raw)
 }
 
-func (self *List) Children() []Node     { return self.Nodes }
-func (self *List) isExpr() bool         { return true }
-func (this *List) Annotation() Node     { return this.annotation }
-func (this *List) SetAnnotation(n Node) { this.annotation = n }
-func (this *List) Equals(n Node) bool {
+func (l *List) Children() []Node     { return l.Nodes }
+func (l *List) isExpr() bool         { return true }
+func (l *List) Annotation() Node     { return l.annotation }
+func (l *List) SetAnnotation(n Node) { l.annotation = n }
+func (l *List) Equals(n Node) bool {
 	other := asList(n)
 
 	// Compare lengths
-	if len(this.Nodes) != len(other.Nodes) {
+	if len(l.Nodes) != len(other.Nodes) {
 		return false
 	}
 
 	// Compare contents
-	for i, v := range this.Nodes {
+	for i, v := range l.Nodes {
 		if !v.Equals(other.Nodes[i]) {
 			return false
 		}
@@ -129,15 +135,15 @@ type Primitive struct {
 	Value primitiveFunction
 }
 
-func (this *Primitive) String() string {
-	return "#primitive<" + this.Name + ">"
+func (p *Primitive) String() string {
+	return "#primitive<" + p.Name + ">"
 }
 
-func (this *Primitive) Children() []Node { return nil }
-func (this *Primitive) isExpr() bool     { return true }
-func (this *Primitive) Equals(n Node) bool {
+func (p *Primitive) Children() []Node { return nil }
+func (p *Primitive) isExpr() bool     { return true }
+func (p *Primitive) Equals(n Node) bool {
 	panicEvalError("Cannot compare the values of primitive procedures: " +
-		this.String() + " and " + n.String())
+		p.String() + " and " + n.String())
 	return false
 }
 
@@ -150,15 +156,15 @@ type Function struct {
 	ParentEnv  Env
 }
 
-func (this *Function) String() string {
-	return "#function<" + this.Name + ">"
+func (f *Function) String() string {
+	return "#function<" + f.Name + ">"
 }
 
-func (this *Function) Children() []Node { return nil }
-func (this *Function) isExpr() bool     { return true }
-func (this *Function) Equals(n Node) bool {
+func (f *Function) Children() []Node { return nil }
+func (f *Function) isExpr() bool     { return true }
+func (f *Function) Equals(n Node) bool {
 	panicEvalError("Cannot compare the values of functions: " +
-		this.String() + " and " + n.String())
+		f.String() + " and " + n.String())
 	return false
 }
 

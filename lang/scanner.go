@@ -25,9 +25,9 @@ type Token struct {
 
 func (t Token) String() string {
 	switch t.Code {
-	case TC_EOF:
+	case TcEOF:
 		return "EOF"
-	case TC_ERROR:
+	case TcError:
 		return t.Value
 	}
 
@@ -39,14 +39,14 @@ func (t Token) String() string {
 type TokenCode int
 
 const (
-	TC_ERROR TokenCode = iota
-	TC_LEFT_PAREN
-	TC_RIGHT_PAREN
-	TC_SYMBOL
-	TC_NUMBER
-	TC_CARET
-	TC_SINGLE_QUOTE
-	TC_EOF
+	TcError TokenCode = iota
+	TcLeftParen
+	TcRightParen
+	TcSymbol
+	TcNumber
+	TcCaret
+	TcSingleQuote
+	TcEOF
 )
 
 const eof = -1
@@ -143,7 +143,7 @@ func (s *Scanner) emitErrorf(format string, args ...interface{}) {
 
 	s.Tokens <- Token{
 		Pos:   TokenPosition(s.start),
-		Code:  TC_ERROR,
+		Code:  TcError,
 		Value: s.input[s.start:s.pos],
 	}
 	s.start = s.pos
@@ -172,26 +172,27 @@ Outer:
 		case isSpace(r):
 			s.ignore()
 		case r == '(':
-			s.emit(TC_LEFT_PAREN)
+			s.emit(TcLeftParen)
 		case r == ')':
-			s.emit(TC_RIGHT_PAREN)
+			s.emit(TcRightParen)
 		case '0' <= r && r <= '9':
 			s.backup()
 			return scanNumber
 		case r == '+' || r == '-':
 			rnext := s.next()
+
 			if '0' <= rnext && rnext <= '9' {
 				s.backup()
 				s.backup()
 				return scanNumber
-			} else {
-				s.backup()
-				return scanSymbol
 			}
+
+			s.backup()
+			return scanSymbol
 		case r == '^':
-			s.emit(TC_CARET)
+			s.emit(TcCaret)
 		case r == '\'':
-			s.emit(TC_SINGLE_QUOTE)
+			s.emit(TcSingleQuote)
 		case isSymbolic(r):
 			s.backup()
 			return scanSymbol
@@ -202,7 +203,7 @@ Outer:
 		}
 	}
 
-	s.emit(TC_EOF)
+	s.emit(TcEOF)
 	return nil
 }
 
@@ -210,7 +211,7 @@ func scanSymbol(s *Scanner) stateFn {
 	for isSymbolic(s.next()) {
 	}
 	s.backup()
-	s.emit(TC_SYMBOL)
+	s.emit(TcSymbol)
 	return scanBegin
 }
 
@@ -240,7 +241,7 @@ func scanNumber(s *Scanner) stateFn {
 		s.next()
 		s.emitErrorf("bad number syntax: %q", s.input[s.start:s.pos])
 	} else {
-		s.emit(TC_NUMBER)
+		s.emit(TcNumber)
 	}
 
 	return scanBegin

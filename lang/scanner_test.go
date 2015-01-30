@@ -1,8 +1,9 @@
 package lang
 
 import (
-	"../util"
 	"testing"
+
+	"../util"
 )
 
 func TestScan(t *testing.T) {

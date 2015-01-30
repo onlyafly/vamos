@@ -14,7 +14,8 @@ func (p *ParserError) Error() string {
 	return fmt.Sprintf("Error at %v: %v", p.Pos, p.Message)
 }
 
-// Implements the error interface
+// ParserErrorList is a list of ParserError pointers.
+// Implements the error interface.
 type ParserErrorList []*ParserError
 
 func NewParserErrorList() ParserErrorList {
