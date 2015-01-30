@@ -2,29 +2,36 @@ package lang
 
 ////////// Trampoline Support
 
+// Packet contains a thunk or a Node.
+// A packet is the result of the evaluation of a thunk.
 type packet struct {
 	Thunk thunk
 	Node  Node
 }
 
+// Bounce continues the trampolining session by placing a new thunk in the chain.
 func bounce(t thunk) packet {
 	return packet{Thunk: t}
 }
 
+// Respond exits a trampolining session by placing a Node on the end of the
+// chain.
 func respond(n Node) packet {
 	return packet{Node: n}
 }
 
 type thunk func() packet
 
+// Trampoline iteratively calls a chain of thunks until there is no next thunk,
+// at which point it pulls the resulting Node out of the packet and returns it.
 func trampoline(currentThunk thunk) Node {
 	for currentThunk != nil {
-		next := currentThunk()
+		nextPacket := currentThunk()
 
-		if next.Thunk != nil {
-			currentThunk = next.Thunk
+		if nextPacket.Thunk != nil {
+			currentThunk = nextPacket.Thunk
 		} else {
-			return next.Node
+			return nextPacket.Node
 		}
 	}
 
@@ -108,6 +115,12 @@ func evalList(e Env, l *List) packet {
 		case "def":
 			name := toSymbolName(args[0])
 			e.Set(name, trampoline(func() packet {
+				return evalNode(e, args[1])
+			}))
+			return respond(&Symbol{Name: "nil"})
+		case "set!":
+			name := toSymbolName(args[0])
+			e.Update(name, trampoline(func() packet {
 				return evalNode(e, args[1])
 			}))
 			return respond(&Symbol{Name: "nil"})

@@ -6,6 +6,8 @@
 
 (def x 4)
 
+(set! x 1)
+
 (fn (x y z) (+ x (+ y z)))
 
 (quote x) --OR-- 'x
