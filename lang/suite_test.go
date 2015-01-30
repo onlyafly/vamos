@@ -1,7 +1,8 @@
 package lang
 
 import (
-	"io/ioutil"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -13,36 +14,44 @@ const (
 )
 
 func TestFullSuite(t *testing.T) {
-	fileInfos, err := ioutil.ReadDir(testsuiteDir)
-	if err != nil {
-		t.Errorf("Unable to find test suite directory")
-		return
-	}
-
-	for _, fileInfo := range fileInfos {
-		name := fileInfo.Name()
-		if strings.HasSuffix(name, ".v") {
-			testInputFile(name, t)
+	filepath.Walk(testsuiteDir, func(fp string, fi os.FileInfo, err error) error {
+		if err != nil {
+			return nil // Can't visit this node, but continue walking elsewhere
 		}
-	}
+		if !!fi.IsDir() {
+			return nil // Not a file, ignore.
+		}
+
+		name := fi.Name()
+		matched, err := filepath.Match("*.v", name)
+		if err != nil {
+			return err // malformed pattern
+		}
+
+		if matched {
+			testInputFile(fp, t)
+		}
+
+		return nil
+	})
 }
 
-func testInputFile(inFileName string, t *testing.T) {
-	parts := strings.Split(inFileName, ".")
-	testNumber := parts[0]
+func testInputFile(sourceFilePath string, t *testing.T) {
+	sourceDirPart, sourceFileNamePart := filepath.Split(sourceFilePath)
+	parts := strings.Split(sourceFileNamePart, ".")
+	testName := parts[0]
 
-	inFilePath := testsuiteDir + "/" + inFileName
-	outFilePath := testsuiteDir + "/" + testNumber + ".out"
+	outputFilePath := sourceDirPart + testName + ".out"
 
-	input, errIn := util.ReadFile(inFilePath)
+	input, errIn := util.ReadFile(sourceFilePath)
 	if errIn != nil {
-		t.Errorf("Error reading file <" + inFilePath + ">: " + errIn.Error())
+		t.Errorf("Error reading file <" + sourceFilePath + ">: " + errIn.Error())
 		return
 	}
 
-	expectedRaw, errOut := util.ReadFile(outFilePath)
+	expectedRaw, errOut := util.ReadFile(outputFilePath)
 	if errOut != nil {
-		t.Errorf("Error reading file <" + outFilePath + ">: " + errOut.Error())
+		t.Errorf("Error reading file <" + outputFilePath + ">: " + errOut.Error())
 		return
 	}
 
@@ -52,7 +61,7 @@ func testInputFile(inFileName string, t *testing.T) {
 
 	nodes, errors := Parse(input)
 	if errors.Len() != 0 {
-		verify(t, testNumber, input, expected, errors.String())
+		verify(t, sourceFilePath, input, expected, errors.String())
 	} else {
 		e := NewTopLevelMapEnv()
 
@@ -71,7 +80,7 @@ func testInputFile(inFileName string, t *testing.T) {
 		} else {
 			actual = evalError.Error()
 		}
-		verify(t, testNumber, input, expected, actual)
+		verify(t, sourceFilePath, input, expected, actual)
 	}
 }
 
