@@ -17,8 +17,9 @@
 (if <BOOL> <THEN> <ELSE>)
 
 (cond
-    (isTheAnswer 42
-     (findResult?) 'foo))
+  <BOOL 1> <THEN 1>
+  <BOOL 2> <THEN 2>
+  <BOOL 3> <THEN 3>)
 
 (let (x 4
       y (+ 1 x))

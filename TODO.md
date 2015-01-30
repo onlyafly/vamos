@@ -3,7 +3,7 @@
 ## Tech Debt
 
 - Make use of the unused walk.go
-- Add explanatory comments to eval.go on trampoline code
+- Clean up eval.go
 
 ## Language
 
