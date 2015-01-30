@@ -33,6 +33,7 @@ func trampoline(currentThunk thunk) Node {
 
 ////////// Evaluation
 
+// Eval evaluates a node in an environment.
 func Eval(e Env, n Node) (result Node, err error) {
 	defer func() {
 		if e := recover(); e != nil {

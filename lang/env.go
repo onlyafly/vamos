@@ -26,6 +26,8 @@ type MapEnv struct {
 	parent  Env
 }
 
+// NewTopLevelMapEnv creates a new top-level environment, which is initialized
+// with the primitives.
 func NewTopLevelMapEnv() *MapEnv {
 	e := &MapEnv{
 		name:    "TopLevel",
@@ -38,6 +40,7 @@ func NewTopLevelMapEnv() *MapEnv {
 	return e
 }
 
+// NewMapEnv creates a new (non-top-level) environment.
 func NewMapEnv(name string, parent Env) *MapEnv {
 	return &MapEnv{
 		name:    name,
@@ -46,6 +49,7 @@ func NewMapEnv(name string, parent Env) *MapEnv {
 	}
 }
 
+// Set sets the initial value of a symbol.
 func (e *MapEnv) Set(name string, value Node) {
 	if _, exists := e.symbols[name]; exists {
 		panicEvalError("Cannot redefine a name: " + name)
@@ -54,6 +58,7 @@ func (e *MapEnv) Set(name string, value Node) {
 	}
 }
 
+// Update updates the value of an existing symbol.
 func (e *MapEnv) Update(name string, value Node) {
 	if _, exists := e.symbols[name]; exists {
 		e.symbols[name] = value
@@ -62,6 +67,7 @@ func (e *MapEnv) Update(name string, value Node) {
 	}
 }
 
+// Get returns the value of a symbol.
 func (e *MapEnv) Get(name string) Node {
 	value, exists := e.symbols[name]
 
@@ -76,6 +82,7 @@ func (e *MapEnv) Get(name string) Node {
 	return value
 }
 
+// Parent returns the parent environment.
 func (e *MapEnv) Parent() Env {
 	return e.parent
 }

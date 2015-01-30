@@ -117,13 +117,13 @@ func parseQuote(p *parser, errors *ParserErrorList) AnnotatedNode {
 
 func parseNumber(t Token, errors *ParserErrorList) *Number {
 	f, ferr := strconv.ParseFloat(t.Value, 64)
-	if ferr == nil {
-		return &Number{Value: f}
-	} else {
+
+	if ferr != nil {
 		errors.Add(t.Pos, "Invalid number: "+t.Value)
+		return &Number{Value: 0.0}
 	}
 
-	return &Number{Value: 0.0}
+	return &Number{Value: f}
 }
 
 func parseSymbol(t Token) *Symbol {
