@@ -29,6 +29,12 @@
 
 (eval '(+ 1 2))
 
+(def defn
+  (macro (name args body)
+    (list 'def name
+      (list 'fn args
+        body))))
+
 ## Built-in Functions
 
 Math: +, -

@@ -141,7 +141,7 @@ func evalList(e Env, l *List) packet {
 		})
 	case *Macro:
 		return bounce(func() packet {
-			return evalMacroApplication(value, args)
+			return evalMacroApplication(e, value, args)
 		})
 	default:
 		panicEvalError("First item in list not a function: " + value.String())
@@ -178,13 +178,14 @@ func evalFunctionApplication(f *Function, args []Node) packet {
 	})
 }
 
-func evalMacroApplication(m *Macro, args []Node) packet {
+func evalMacroApplication(dynamicEnv Env, m *Macro, args []Node) packet {
 
 	ensureArgsMatchParameters(m.Name, &args, &m.Parameters)
 
 	e := NewMapEnv(m.Name, m.ParentEnv)
 
 	// TODO
+
 	/*
 		print(
 			"evalMacroApplication:\n   name=",
@@ -200,8 +201,17 @@ func evalMacroApplication(m *Macro, args []Node) packet {
 		e.Set(paramName, arg)
 	}
 
-	return bounce(func() packet {
+	macroResult := trampoline(func() packet {
 		return evalNode(e, m.Body)
+	})
+
+	/*
+		println("Macro result: " + macroResult.String())
+	*/
+
+	return bounce(func() packet {
+		// This is executed in the dynamic environment, not the macro's local environment
+		return evalNode(dynamicEnv, macroResult)
 	})
 }
 
