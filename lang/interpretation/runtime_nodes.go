@@ -43,3 +43,24 @@ func (f *Function) Equals(n Node) bool {
 		f.String() + " and " + n.String())
 	return false
 }
+
+////////// Macro
+
+type Macro struct {
+	Name       string
+	Parameters []Node
+	Body       Node
+	ParentEnv  Env
+}
+
+func (m *Macro) String() string {
+	return "#macro<" + m.Name + ">"
+}
+
+func (m *Macro) Children() []Node { return nil }
+func (m *Macro) isExpr() bool     { return true }
+func (m *Macro) Equals(n Node) bool {
+	panicEvalError("Cannot compare the values of macros: " +
+		m.String() + " and " + n.String())
+	return false
+}

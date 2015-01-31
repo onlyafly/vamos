@@ -1,49 +1,9 @@
 package interpretation
 
 import (
-	"strconv"
+	"fmt"
 	. "vamos/lang/ast"
 )
-
-////////// Trampoline Support
-
-// Packet contains a thunk or a Node.
-// A packet is the result of the evaluation of a thunk.
-type packet struct {
-	Thunk thunk
-	Node  Node
-}
-
-// Bounce continues the trampolining session by placing a new thunk in the chain.
-func bounce(t thunk) packet {
-	return packet{Thunk: t}
-}
-
-// Respond exits a trampolining session by placing a Node on the end of the
-// chain.
-func respond(n Node) packet {
-	return packet{Node: n}
-}
-
-type thunk func() packet
-
-// Trampoline iteratively calls a chain of thunks until there is no next thunk,
-// at which point it pulls the resulting Node out of the packet and returns it.
-func trampoline(currentThunk thunk) Node {
-	for currentThunk != nil {
-		nextPacket := currentThunk()
-
-		if nextPacket.Thunk != nil {
-			currentThunk = nextPacket.Thunk
-		} else {
-			return nextPacket.Node
-		}
-	}
-
-	return nil
-}
-
-////////// Evaluation
 
 // Eval evaluates a node in an environment.
 func Eval(e Env, n Node) (result Node, err error) {
@@ -94,28 +54,6 @@ func evalNode(e Env, n Node) packet {
 	return respond(&Symbol{Name: "nil"})
 }
 
-func evalDef(e Env, args []Node) packet {
-	ensureArgCount("def", args, 2)
-
-	name := toSymbolName(args[0])
-	e.Set(name, trampoline(func() packet {
-		return evalNode(e, args[1])
-	}))
-	return respond(&Symbol{Name: "nil"})
-}
-
-func evalEval(e Env, args []Node) packet {
-	ensureArgCount("eval", args, 1)
-
-	node := trampoline(func() packet {
-		return evalNode(e, args[0])
-	})
-
-	return bounce(func() packet {
-		return evalNode(e, node)
-	})
-}
-
 func evalList(e Env, l *List) packet {
 	elements := l.Nodes
 
@@ -140,9 +78,9 @@ func evalList(e Env, l *List) packet {
 				return evalList(e, &List{Nodes: nodes})
 			}))
 		case "def":
-			return evalDef(e, args)
+			return evalSpecialDef(e, args)
 		case "eval":
-			return evalEval(e, args)
+			return evalSpecialEval(e, args)
 		case "set!":
 			name := toSymbolName(args[0])
 			e.Update(name, trampoline(func() packet {
@@ -175,9 +113,9 @@ func evalList(e Env, l *List) packet {
 			}
 			panicEvalError("No matching cond clause: " + l.String())
 		case "fn":
-			return bounce(func() packet {
-				return evalFunctionDefinition(e, args)
-			})
+			return evalSpecialFn(e, args)
+		case "macro":
+			return evalSpecialMacro(e, args)
 		case "quote":
 			return respond(args[0])
 		case "let":
@@ -201,6 +139,10 @@ func evalList(e Env, l *List) packet {
 		return bounce(func() packet {
 			return evalFunctionApplication(value, arguments)
 		})
+	case *Macro:
+		return bounce(func() packet {
+			return evalMacroApplication(value, args)
+		})
 	default:
 		panicEvalError("First item in list not a function: " + value.String())
 	}
@@ -209,6 +151,8 @@ func evalList(e Env, l *List) packet {
 }
 
 func evalFunctionApplication(f *Function, args []Node) packet {
+
+	ensureArgsMatchParameters(f.Name, &args, &f.Parameters)
 
 	e := NewMapEnv(f.Name, f.ParentEnv)
 
@@ -234,15 +178,30 @@ func evalFunctionApplication(f *Function, args []Node) packet {
 	})
 }
 
-func evalFunctionDefinition(e Env, args []Node) packet {
-	parameterList := args[0]
-	parameterNodes := parameterList.Children()
+func evalMacroApplication(m *Macro, args []Node) packet {
 
-	return respond(&Function{
-		Name:       "anonymous",
-		Parameters: parameterNodes,
-		Body:       args[1],
-		ParentEnv:  e,
+	ensureArgsMatchParameters(m.Name, &args, &m.Parameters)
+
+	e := NewMapEnv(m.Name, m.ParentEnv)
+
+	// TODO
+	/*
+		print(
+			"evalMacroApplication:\n   name=",
+			e.String(), "\n   body=",
+			m.Body.String(), "\n   parent=",
+			m.ParentEnv.String(), "\n   args=",
+			fmt.Sprintf("%v", args), "\n")
+	*/
+
+	// Save arguments into parameters
+	for i, arg := range args {
+		paramName := toSymbolName(m.Parameters[i])
+		e.Set(paramName, arg)
+	}
+
+	return bounce(func() packet {
+		return evalNode(e, m.Body)
 	})
 }
 
@@ -270,9 +229,23 @@ func evalLet(parentEnv Env, args []Node) packet {
 	})
 }
 
-func ensureArgCount(formName string, args []Node, count int) {
-	if len(args) != count {
-		panicEvalError("Form '" + formName + "' requires exactly " + strconv.Itoa(count) + " argument(s), but was given " + strconv.Itoa(len(args)))
+func ensureArgCount(formName string, args []Node, paramCount int) {
+	if len(args) != paramCount {
+		panicEvalError(fmt.Sprintf(
+			"Form '%v' expects %v argument(s), but was given %v",
+			formName,
+			paramCount,
+			len(args)))
+	}
+}
+
+func ensureArgsMatchParameters(procedureName string, args *[]Node, params *[]Node) {
+	if len(*args) != len(*params) {
+		panicEvalError(fmt.Sprintf(
+			"Procedure '%v' expects %v argument(s), but was given %v",
+			procedureName,
+			len(*params),
+			len(*args)))
 	}
 }
 
