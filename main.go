@@ -73,7 +73,6 @@ func main() {
 
 	fileName := flag.String("l", "", "load a file at startup")
 	flag.Parse()
-	println(fileName)
 
 	// Setup liner
 
@@ -88,7 +87,6 @@ func main() {
 	fmt.Printf("Press Ctrl+C or type :quit to exit\n\n")
 
 	env := lang.NewTopLevelMapEnv()
-	println(env)
 
 	// Loading of files
 
@@ -123,6 +121,13 @@ func main() {
 }
 
 func parseEval(env lang.Env, input string) {
+	defer func() {
+		// Some non-application triggered panic has occurred
+		if e := recover(); e != nil {
+			fmt.Printf("Host environment error: %v\n", e)
+		}
+	}()
+
 	nodes, parseErrors := lang.Parse(input)
 
 	if parseErrors != nil {

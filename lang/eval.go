@@ -1,5 +1,7 @@
 package lang
 
+import "strconv"
+
 ////////// Trampoline Support
 
 // Packet contains a thunk or a Node.
@@ -46,7 +48,7 @@ func Eval(e Env, n Node) (result Node, err error) {
 		if e := recover(); e != nil {
 			result = nil
 			switch errorValue := e.(type) {
-			case EvalError:
+			case *EvalError:
 				err = errorValue
 				return
 			default:
@@ -89,6 +91,16 @@ func evalNode(e Env, n Node) packet {
 	return respond(&Symbol{Name: "nil"})
 }
 
+func evalDef(e Env, args []Node) packet {
+	ensureArgCount("def", args, 2)
+
+	name := toSymbolName(args[0])
+	e.Set(name, trampoline(func() packet {
+		return evalNode(e, args[1])
+	}))
+	return respond(&Symbol{Name: "nil"})
+}
+
 func evalList(e Env, l *List) packet {
 	elements := l.Nodes
 
@@ -113,11 +125,7 @@ func evalList(e Env, l *List) packet {
 				return evalList(e, &List{Nodes: nodes})
 			}))
 		case "def":
-			name := toSymbolName(args[0])
-			e.Set(name, trampoline(func() packet {
-				return evalNode(e, args[1])
-			}))
-			return respond(&Symbol{Name: "nil"})
+			return evalDef(e, args)
 		case "set!":
 			name := toSymbolName(args[0])
 			e.Update(name, trampoline(func() packet {
@@ -245,8 +253,14 @@ func evalLet(parentEnv Env, args []Node) packet {
 	})
 }
 
+func ensureArgCount(formName string, args []Node, count int) {
+	if len(args) != count {
+		panicEvalError("Form '" + formName + "' requires exactly " + strconv.Itoa(count) + " argument(s), but was given " + strconv.Itoa(len(args)))
+	}
+}
+
 func panicEvalError(s string) {
-	panic(EvalError(s))
+	panic(NewEvalError(s))
 }
 
 func toSymbolName(n Node) string {
