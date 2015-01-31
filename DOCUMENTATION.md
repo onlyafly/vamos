@@ -27,6 +27,8 @@
 
 (apply + '(1 3))
 
+(eval '(+ 1 2))
+
 ## Built-in Functions
 
 Math: +, -

@@ -101,6 +101,18 @@ func evalDef(e Env, args []Node) packet {
 	return respond(&Symbol{Name: "nil"})
 }
 
+func evalEval(e Env, args []Node) packet {
+	ensureArgCount("eval", args, 1)
+
+	node := trampoline(func() packet {
+		return evalNode(e, args[0])
+	})
+
+	return bounce(func() packet {
+		return evalNode(e, node)
+	})
+}
+
 func evalList(e Env, l *List) packet {
 	elements := l.Nodes
 
@@ -126,6 +138,8 @@ func evalList(e Env, l *List) packet {
 			}))
 		case "def":
 			return evalDef(e, args)
+		case "eval":
+			return evalEval(e, args)
 		case "set!":
 			name := toSymbolName(args[0])
 			e.Update(name, trampoline(func() packet {
