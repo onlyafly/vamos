@@ -19,8 +19,9 @@ const (
 )
 
 var (
-	commandCompletions = []string{":quit", ":load"}
-	//TODO wordCompletions    = []string{"def", "set!"}
+	// TODO add functionality for these missing commands
+	commandCompletions = []string{":quit", ":load", ":reset", ":help"}
+	// TODO wordCompletions    = []string{"def", "set!"}
 )
 
 func configureLiner(linerState *liner.State) {
@@ -69,6 +70,11 @@ func writeLinerHistory(line *liner.State) {
 }
 
 func main() {
+
+	fileName := flag.String("l", "", "load a file at startup")
+	flag.Parse()
+	println(fileName)
+
 	// Setup liner
 
 	line := liner.NewLiner()
@@ -79,13 +85,12 @@ func main() {
 	// Initialize
 
 	fmt.Printf("Vamos %s (%s)\n", version, versionDate)
+	fmt.Printf("Press Ctrl+C or type :quit to exit\n\n")
 
 	env := lang.NewTopLevelMapEnv()
+	println(env)
 
 	// Loading of files
-
-	fileName := flag.String("l", "", "load a file at startup")
-	flag.Parse()
 
 	if fileName != nil && len(*fileName) > 0 {
 		content, _ := util.ReadFile(*fileName)
