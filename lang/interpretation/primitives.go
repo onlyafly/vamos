@@ -1,8 +1,10 @@
-package lang
+package interpretation
+
+import (
+	. "vamos/lang/ast"
+)
 
 ////////// Primitive Support
-
-type primitiveFunction func(Env, []Node) Node
 
 var trueSymbol, falseSymbol *Symbol
 

@@ -1,8 +1,7 @@
-package lang
+package interpretation
 
-import (
-	"fmt"
-)
+import "fmt"
+import . "vamos/lang/ast"
 
 ////////// Env
 

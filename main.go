@@ -6,7 +6,9 @@ import (
 	"log"
 	"os"
 	"strings"
-	"vamos/lang"
+	"vamos/lang/ast"
+	"vamos/lang/interpretation"
+	"vamos/lang/parsing"
 	"vamos/util"
 
 	"github.com/peterh/liner"
@@ -86,7 +88,7 @@ func main() {
 	fmt.Printf("Vamos %s (%s)\n", version, versionDate)
 	fmt.Printf("Press Ctrl+C or type :quit to exit\n\n")
 
-	env := lang.NewTopLevelMapEnv()
+	env := interpretation.NewTopLevelMapEnv()
 
 	// Loading of files
 
@@ -120,7 +122,7 @@ func main() {
 	}
 }
 
-func parseEval(env lang.Env, input string) {
+func parseEval(env interpretation.Env, input string) {
 	defer func() {
 		// Some non-application triggered panic has occurred
 		if e := recover(); e != nil {
@@ -128,16 +130,16 @@ func parseEval(env lang.Env, input string) {
 		}
 	}()
 
-	nodes, parseErrors := lang.Parse(input)
+	nodes, parseErrors := parsing.Parse(input)
 
 	if parseErrors != nil {
 		fmt.Println(parseErrors.String())
 	}
 
-	var result lang.Node
+	var result ast.Node
 	var evalError error
 	for _, n := range nodes {
-		result, evalError = lang.Eval(env, n)
+		result, evalError = interpretation.Eval(env, n)
 		if evalError != nil {
 			break
 		}

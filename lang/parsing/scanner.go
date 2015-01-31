@@ -3,7 +3,7 @@ See "Lexical Scanning in Go" by Rob Pike for the basic theory behind this
 module: http://www.youtube.com/watch?v=HxaD_trXwRE
 */
 
-package lang
+package parsing
 
 import (
 	"fmt"

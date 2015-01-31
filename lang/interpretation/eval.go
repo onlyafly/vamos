@@ -1,6 +1,9 @@
-package lang
+package interpretation
 
-import "strconv"
+import (
+	"strconv"
+	. "vamos/lang/ast"
+)
 
 ////////// Trampoline Support
 

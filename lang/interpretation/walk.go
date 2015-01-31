@@ -1,4 +1,6 @@
-package lang
+package interpretation
+
+import . "vamos/lang/ast"
 
 type Visitor interface {
 	Visit(node Node) (childVisitor Visitor)

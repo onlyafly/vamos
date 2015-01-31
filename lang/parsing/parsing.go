@@ -1,6 +1,9 @@
-package lang
+package parsing
 
-import "strconv"
+import (
+	"strconv"
+	. "vamos/lang/ast"
+)
 
 func Parse(input string) (Nodes, ParserErrorList) {
 	s, _ := Scan("parserCreated", input)

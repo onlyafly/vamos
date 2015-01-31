@@ -1,4 +1,4 @@
-package lang
+package ast
 
 import (
 	"fmt"
@@ -128,113 +128,25 @@ func (l *List) Equals(n Node) bool {
 	return true
 }
 
-////////// Primitive
-
-type Primitive struct {
-	Name  string
-	Value primitiveFunction
-}
-
-func (p *Primitive) String() string {
-	return "#primitive<" + p.Name + ">"
-}
-
-func (p *Primitive) Children() []Node { return nil }
-func (p *Primitive) isExpr() bool     { return true }
-func (p *Primitive) Equals(n Node) bool {
-	panicEvalError("Cannot compare the values of primitive procedures: " +
-		p.String() + " and " + n.String())
-	return false
-}
-
-////////// Function
-
-type Function struct {
-	Name       string
-	Parameters []Node
-	Body       Node
-	ParentEnv  Env
-}
-
-func (f *Function) String() string {
-	return "#function<" + f.Name + ">"
-}
-
-func (f *Function) Children() []Node { return nil }
-func (f *Function) isExpr() bool     { return true }
-func (f *Function) Equals(n Node) bool {
-	panicEvalError("Cannot compare the values of functions: " +
-		f.String() + " and " + n.String())
-	return false
-}
-
 ////////// Helpers
 
 func asSymbol(n Node) *Symbol {
 	if result, ok := n.(*Symbol); ok {
 		return result
 	}
-	panicEvalError("Expected symbol: " + n.String())
-	return nil
+	return &Symbol{}
 }
 func asNumber(n Node) *Number {
 	if result, ok := n.(*Number); ok {
 		return result
 	}
-	panicEvalError("Expected number: " + n.String())
-	return nil
+	return &Number{}
 }
 func asList(n Node) *List {
 	if result, ok := n.(*List); ok {
 		return result
 	}
-	panicEvalError("Expected list: " + n.String())
-	return nil
-}
-
-func toListValue(n Node) *List {
-	switch value := n.(type) {
-	case *List:
-		return value
-	}
-
-	panicEvalError("Expression is not a list: " + n.String())
-	return nil
-}
-
-func toNumberValue(n Node) float64 {
-	switch value := n.(type) {
-	case *Number:
-		return value.Value
-	}
-
-	panicEvalError("Expression is not a number: " + n.String())
-	return 0.0
-}
-
-func toSymbolValue(exp Expr) string {
-	switch value := exp.(type) {
-	case *Symbol:
-		return value.Name
-	}
-
-	panicEvalError("Expression is not a symbol: " + exp.String())
-	return ""
-}
-
-func toBooleanValue(n Node) bool {
-	switch value := n.(type) {
-	case *Symbol:
-		switch value.Name {
-		case "true":
-			return true
-		case "false":
-			return false
-		}
-	}
-
-	panicEvalError("Non-boolean in boolean context: " + n.String())
-	return false
+	return &List{}
 }
 
 func nodesToStrings(nodes []Node) []string {
