@@ -12,3 +12,7 @@
 - Make use of the Decl interface
 
 ## Tool
+
+## Other
+
+- Build up a metacircular evaluator (v2)
