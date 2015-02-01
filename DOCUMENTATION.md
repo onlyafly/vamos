@@ -61,11 +61,14 @@ Lists: first, rest, list
 
 Higher-order: apply
 
+Other:
+
+(typeof 4)
+=> number
+
 ### Evaluation and environments
 
 (current-environment)
-
-(inspect-environment (current-environment))
 
 ## Boolean Values
 
