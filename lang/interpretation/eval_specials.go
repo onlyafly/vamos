@@ -3,7 +3,7 @@ package interpretation
 import . "vamos/lang/ast"
 
 func evalSpecialDef(e Env, args []Node) packet {
-	ensureArgCount("def", args, 2)
+	ensureSpecialArgsCountEquals("def", args, 2)
 
 	name := toSymbolName(args[0])
 	e.Set(name, trampoline(func() packet {
@@ -13,19 +13,39 @@ func evalSpecialDef(e Env, args []Node) packet {
 }
 
 func evalSpecialEval(e Env, args []Node) packet {
-	ensureArgCount("eval", args, 1)
+	ensureSpecialArgsCountInRange("eval", args, 1, 2)
 
 	node := trampoline(func() packet {
 		return evalNode(e, args[0])
 	})
 
-	return bounce(func() packet {
-		return evalNode(e, node)
-	})
+	switch len(args) {
+	case 1:
+		return bounce(func() packet {
+			return evalNode(e, node)
+		})
+	case 2:
+		nodeArg1 := trampoline(func() packet {
+			return evalNode(e, args[1])
+		})
+
+		switch environmentNode := nodeArg1.(type) {
+		case *EnvNode:
+			return bounce(func() packet {
+				return evalNode(environmentNode.Env, node)
+			})
+		default:
+			panicEvalError("Second arg to 'eval' must be an environment: " + environmentNode.String())
+			return respond(nil)
+		}
+	default:
+		panicEvalError("Unexpected number of args")
+		return respond(nil)
+	}
 }
 
 func evalSpecialFn(e Env, args []Node) packet {
-	ensureArgCount("fn", args, 2)
+	ensureSpecialArgsCountEquals("fn", args, 2)
 
 	parameterList := args[0]
 	parameterNodes := parameterList.Children()
@@ -39,7 +59,7 @@ func evalSpecialFn(e Env, args []Node) packet {
 }
 
 func evalSpecialMacro(e Env, args []Node) packet {
-	ensureArgCount("macro", args, 2)
+	ensureSpecialArgsCountEquals("macro", args, 2)
 
 	parameterList := args[0]
 	parameterNodes := parameterList.Children()
@@ -53,7 +73,7 @@ func evalSpecialMacro(e Env, args []Node) packet {
 }
 
 func evalSpecialMacroexpand1(e Env, args []Node) packet {
-	ensureArgCount("macroexpand1", args, 1)
+	ensureSpecialArgsCountEquals("macroexpand1", args, 1)
 
 	expansionNode := trampoline(func() packet {
 		return evalNode(e, args[0])

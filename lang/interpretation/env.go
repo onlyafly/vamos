@@ -14,6 +14,7 @@ type Env interface {
 	Get(name string) Node
 	String() string
 	Parent() Env
+	Name() string
 }
 
 ////////// MapEnv
@@ -88,4 +89,8 @@ func (e *MapEnv) Parent() Env {
 
 func (e *MapEnv) String() string {
 	return fmt.Sprintf("%v:%v", e.name, e.symbols)
+}
+
+func (e *MapEnv) Name() string {
+	return e.name
 }

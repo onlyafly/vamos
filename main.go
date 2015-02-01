@@ -22,7 +22,7 @@ const (
 
 var (
 	// TODO add functionality for these missing commands
-	commandCompletions = []string{":quit", ":load", ":reset", ":help"}
+	commandCompletions = []string{":quit" /*":load ", ":reset", ":help",*/, ":inspect "}
 	// TODO wordCompletions    = []string{"def", "set!"}
 )
 
@@ -88,13 +88,13 @@ func main() {
 	fmt.Printf("Vamos %s (%s)\n", version, versionDate)
 	fmt.Printf("Press Ctrl+C or type :quit to exit\n\n")
 
-	env := interpretation.NewTopLevelMapEnv()
+	topLevelEnv := interpretation.NewTopLevelMapEnv()
 
 	// Loading of files
 
 	if fileName != nil && len(*fileName) > 0 {
 		content, _ := util.ReadFile(*fileName)
-		parseEval(env, content)
+		parseEvalPrint(topLevelEnv, content)
 	}
 
 	// REPL
@@ -111,18 +111,46 @@ func main() {
 			return
 		}
 
-		if input == ":quit" {
-			return
-		}
-
 		line.AppendHistory(input)
 		writeLinerHistory(line)
 
-		parseEval(env, input)
+		switch {
+		case input == ":quit":
+			return
+		case strings.HasPrefix(input, ":inspect "):
+			withoutInspectPrefix := strings.Split(input, ":inspect ")[1]
+			if result, err := parseEval(topLevelEnv, withoutInspectPrefix); err == nil {
+				inspect(result)
+			} else {
+				fmt.Println(err.Error())
+			}
+		default:
+			parseEvalPrint(topLevelEnv, input)
+		}
 	}
 }
 
-func parseEval(env interpretation.Env, input string) {
+func parseEvalPrint(env interpretation.Env, input string) {
+	if result, err := parseEval(env, input); err == nil {
+		fmt.Println(result.String())
+	} else {
+		fmt.Println(err.Error())
+	}
+}
+
+func inspect(arg ast.Node) {
+	switch val := arg.(type) {
+	case *interpretation.EnvNode:
+		fmt.Printf(
+			"Environment\n  Name='%v'\n  Env=%v\n",
+			val.Name(),
+			val.Env.String())
+	default:
+		fmt.Printf("Don't know how to inspect: %v\n", val.String())
+	}
+}
+
+func parseEval(env interpretation.Env, input string) (ast.Node, error) {
 	defer func() {
 		// Some non-application triggered panic has occurred
 		if e := recover(); e != nil {
@@ -145,12 +173,9 @@ func parseEval(env interpretation.Env, input string) {
 		}
 	}
 
-	var actual string
 	if evalError == nil {
-		actual = result.String()
+		return result, nil
 	} else {
-		actual = evalError.Error()
+		return nil, evalError
 	}
-
-	fmt.Println(actual)
 }

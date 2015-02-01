@@ -248,12 +248,23 @@ func evalLet(parentEnv Env, args []Node) packet {
 	})
 }
 
-func ensureArgCount(formName string, args []Node, paramCount int) {
+func ensureSpecialArgsCountEquals(formName string, args []Node, paramCount int) {
 	if len(args) != paramCount {
 		panicEvalError(fmt.Sprintf(
-			"Form '%v' expects %v argument(s), but was given %v",
+			"Special form '%v' expects %v argument(s), but was given %v",
 			formName,
 			paramCount,
+			len(args)))
+	}
+}
+
+func ensureSpecialArgsCountInRange(specialName string, args []Node, paramCountMin int, paramCountMax int) {
+	if !(paramCountMin <= len(args) && len(args) <= paramCountMax) {
+		panicEvalError(fmt.Sprintf(
+			"Special form '%v' expects between %v and %v arguments, but was given %v",
+			specialName,
+			paramCountMin,
+			paramCountMax,
 			len(args)))
 	}
 }

@@ -1,8 +1,6 @@
 package interpretation
 
-import (
-	. "vamos/lang/ast"
-)
+import . "vamos/lang/ast"
 
 ////////// Primitive Support
 
@@ -20,8 +18,6 @@ func initializePrimitives(e Env) {
 	addPrimitive(e, "first", primFirst)
 	addPrimitive(e, "rest", primRest)
 	addPrimitive(e, "current-environment", primCurrentEnvironment)
-
-	addPrimitive(e, "env", primInspectEnv)
 
 	trueSymbol = &Symbol{Name: "true"}
 	falseSymbol = &Symbol{Name: "false"}
@@ -104,11 +100,6 @@ func primRest(e Env, args []Node) Node {
 	return nil
 }
 
-func primInspectEnv(e Env, args []Node) Node {
-	print(e.String(), "\n")
-	return falseSymbol
-}
-
 func primCurrentEnvironment(e Env, args []Node) Node {
-	return &EnvNode{Name: "local", Env: e}
+	return NewEnvNode(e)
 }

@@ -5,12 +5,19 @@ import . "vamos/lang/ast"
 ////////// EnvNode
 
 type EnvNode struct {
-	Name string
-	Env  Env
+	Env Env
+}
+
+func NewEnvNode(e Env) *EnvNode {
+	return &EnvNode{Env: e}
+}
+
+func (en *EnvNode) Name() string {
+	return en.Env.Name()
 }
 
 func (en *EnvNode) String() string {
-	return "#environment<" + en.Name + ">"
+	return "#environment<" + en.Env.Name() + ">"
 }
 
 func (en *EnvNode) Children() []Node { return nil }

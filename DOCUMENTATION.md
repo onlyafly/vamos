@@ -50,6 +50,12 @@ Lists: first, rest, list
 
 Higher-order: apply
 
+### Evaluation and environments
+
+(current-environment)
+
+(inspect-environment (current-environment))
+
 ## Boolean Values
 
 False values: false (the symbol), which is also stored in false (the variable)
