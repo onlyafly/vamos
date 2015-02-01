@@ -51,3 +51,22 @@ func evalSpecialMacro(e Env, args []Node) packet {
 		ParentEnv:  e,
 	})
 }
+
+func evalSpecialMacroexpand1(e Env, args []Node) packet {
+	ensureArgCount("macroexpand1", args, 1)
+
+	expansionNode := trampoline(func() packet {
+		return evalNode(e, args[0])
+	})
+
+	switch value := expansionNode.(type) {
+	case *List:
+		expansionResult := trampoline(func() packet {
+			return evalList(e, value, false)
+		})
+		return respond(expansionResult)
+	default:
+		panicEvalError("macroexpand1 expected a list but got: " + value.String())
+		return respond(nil)
+	}
+}

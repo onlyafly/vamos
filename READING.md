@@ -26,6 +26,7 @@
 ### Macros
 
 - First-class macros: http://matt.might.net/articles/metacircular-evaluation-and-first-class-run-time-macros/
+- https://xivilization.net/~marek/blog/2013/09/17/clojure-and-hygienic-macros/
 
 ### Compilation
 

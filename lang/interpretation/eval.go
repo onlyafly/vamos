@@ -46,7 +46,7 @@ func evalNode(e Env, n Node) packet {
 	case *Symbol:
 		return respond(e.Get(value.Name))
 	case *List:
-		return bounce(func() packet { return evalList(e, value) })
+		return bounce(func() packet { return evalList(e, value, true) })
 	default:
 		panicEvalError("Unknown form to evaluate: " + value.String())
 	}
@@ -54,7 +54,7 @@ func evalNode(e Env, n Node) packet {
 	return respond(&Symbol{Name: "nil"})
 }
 
-func evalList(e Env, l *List) packet {
+func evalList(e Env, l *List, shouldEvalMacros bool) packet {
 	elements := l.Nodes
 
 	if len(elements) == 0 {
@@ -75,7 +75,7 @@ func evalList(e Env, l *List) packet {
 			}))
 			nodes := append([]Node{f}, l.Nodes...)
 			return respond(trampoline(func() packet {
-				return evalList(e, &List{Nodes: nodes})
+				return evalList(e, &List{Nodes: nodes}, true)
 			}))
 		case "def":
 			return evalSpecialDef(e, args)
@@ -116,6 +116,8 @@ func evalList(e Env, l *List) packet {
 			return evalSpecialFn(e, args)
 		case "macro":
 			return evalSpecialMacro(e, args)
+		case "macroexpand1":
+			return evalSpecialMacroexpand1(e, args)
 		case "quote":
 			return respond(args[0])
 		case "let":
@@ -141,7 +143,7 @@ func evalList(e Env, l *List) packet {
 		})
 	case *Macro:
 		return bounce(func() packet {
-			return evalMacroApplication(e, value, args)
+			return evalMacroApplication(e, value, args, shouldEvalMacros)
 		})
 	default:
 		panicEvalError("First item in list not a function: " + value.String())
@@ -178,7 +180,21 @@ func evalFunctionApplication(f *Function, args []Node) packet {
 	})
 }
 
-func evalMacroApplication(dynamicEnv Env, m *Macro, args []Node) packet {
+func evalMacroApplication(applicationEnv Env, m *Macro, args []Node, shouldEvalMacros bool) packet {
+	macroResult := expandMacro(m, args)
+
+	if shouldEvalMacros {
+		return bounce(func() packet {
+			// This is executed in the environment of its application, not the
+			// environment of its definition
+			return evalNode(applicationEnv, macroResult)
+		})
+	} else {
+		return respond(macroResult)
+	}
+}
+
+func expandMacro(m *Macro, args []Node) Node {
 
 	ensureArgsMatchParameters(m.Name, &args, &m.Parameters)
 
@@ -205,14 +221,7 @@ func evalMacroApplication(dynamicEnv Env, m *Macro, args []Node) packet {
 		return evalNode(e, m.Body)
 	})
 
-	/*
-		println("Macro result: " + macroResult.String())
-	*/
-
-	return bounce(func() packet {
-		// This is executed in the dynamic environment, not the macro's local environment
-		return evalNode(dynamicEnv, macroResult)
-	})
+	return macroResult
 }
 
 func evalLet(parentEnv Env, args []Node) packet {

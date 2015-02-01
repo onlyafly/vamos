@@ -35,6 +35,10 @@
       (list 'fn args
         body))))
 
+      
+(macroexpand1 '(defn inc (a) (+ 1 a)))
+=> (def inc (fn (a) (+ 1 a)))
+
 ## Built-in Functions
 
 Math: +, -
