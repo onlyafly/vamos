@@ -8,7 +8,6 @@
 ## Language
 
 - Get ideas from comparison of different lisps at: http://hyperpolyglot.org/lisp
-- Macros
 - Make use of unused annotation functionality (see test 0100)
 - Make use of the Decl interface
 

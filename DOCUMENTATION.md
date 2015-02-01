@@ -29,6 +29,8 @@
 
 (eval '(+ 1 2))
 
+## Metaprogramming
+
 (def defn
   (macro (name args body)
     (list 'def name
@@ -37,6 +39,15 @@
 
 (macroexpand1 '(defn inc (a) (+ 1 a)))
 => (def inc (fn (a) (+ 1 a)))
+
+(function-params inc)
+=> (n)
+
+(function-body inc)
+=> (+ 1 n)
+
+(function-environment inc)
+=> #environment<TopLevel>
 
 ## Built-in Functions
 

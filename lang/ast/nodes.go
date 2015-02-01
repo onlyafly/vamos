@@ -101,6 +101,10 @@ type List struct {
 	annotation Node
 }
 
+func NewList(nodes []Node) *List {
+	return &List{Nodes: nodes}
+}
+
 func (l *List) String() string {
 	raw := "(" + strings.Join(nodesToStrings(l.Nodes), " ") + ")"
 	return displayAnnotation(l, raw)

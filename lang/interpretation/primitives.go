@@ -17,7 +17,12 @@ func initializePrimitives(e Env) {
 	addPrimitive(e, "list", primList)
 	addPrimitive(e, "first", primFirst)
 	addPrimitive(e, "rest", primRest)
+
 	addPrimitive(e, "current-environment", primCurrentEnvironment)
+
+	addPrimitive(e, "function-params", primFunctionParams)
+	addPrimitive(e, "function-body", primFunctionBody)
+	addPrimitive(e, "function-environment", primFunctionEnvironment)
 
 	trueSymbol = &Symbol{Name: "true"}
 	falseSymbol = &Symbol{Name: "false"}
@@ -102,4 +107,40 @@ func primRest(e Env, args []Node) Node {
 
 func primCurrentEnvironment(e Env, args []Node) Node {
 	return NewEnvNode(e)
+}
+
+func primFunctionParams(e Env, args []Node) Node {
+	arg := args[0]
+	switch val := arg.(type) {
+	case *Function:
+		return NewList(val.Parameters)
+	default:
+		panicEvalError("Argument to 'function-params' not a function: " + arg.String())
+	}
+
+	return nil
+}
+
+func primFunctionBody(e Env, args []Node) Node {
+	arg := args[0]
+	switch val := arg.(type) {
+	case *Function:
+		return val.Body
+	default:
+		panicEvalError("Argument to 'function-body' not a function: " + arg.String())
+	}
+
+	return nil
+}
+
+func primFunctionEnvironment(e Env, args []Node) Node {
+	arg := args[0]
+	switch val := arg.(type) {
+	case *Function:
+		return NewEnvNode(val.ParentEnv)
+	default:
+		panicEvalError("Argument to 'function-environment' not a function: " + arg.String())
+	}
+
+	return nil
 }
