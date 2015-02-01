@@ -2,6 +2,25 @@ package interpretation
 
 import . "vamos/lang/ast"
 
+////////// EnvNode
+
+type EnvNode struct {
+	Name string
+	Env  Env
+}
+
+func (en *EnvNode) String() string {
+	return "#environment<" + en.Name + ">"
+}
+
+func (en *EnvNode) Children() []Node { return nil }
+func (en *EnvNode) isExpr() bool     { return true }
+func (en *EnvNode) Equals(n Node) bool {
+	panicEvalError("Cannot compare the values of environments: " +
+		en.String() + " and " + n.String())
+	return false
+}
+
 ////////// Primitive
 
 type primitiveFunction func(Env, []Node) Node
