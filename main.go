@@ -73,7 +73,7 @@ func writeLinerHistory(line *liner.State) {
 
 func main() {
 
-	fileName := flag.String("l", "", "load a file at startup")
+	startupFileName := flag.String("l", "", "load a file at startup")
 	flag.Parse()
 
 	// Setup liner
@@ -92,10 +92,11 @@ func main() {
 
 	// Loading of files
 
-	if fileName != nil && len(*fileName) > 0 {
-		content, _ := util.ReadFile(*fileName)
-		parseEvalPrint(topLevelEnv, content)
+	if startupFileName != nil {
+		loadFile(*startupFileName, topLevelEnv)
 	}
+
+	loadFile("prelude.v", topLevelEnv)
 
 	// REPL
 
@@ -126,6 +127,17 @@ func main() {
 			}
 		default:
 			parseEvalPrint(topLevelEnv, input)
+		}
+	}
+}
+
+func loadFile(fileName string, env interpretation.Env) {
+	if len(fileName) > 0 {
+		content, err := util.ReadFile(fileName)
+		if err != nil {
+			fmt.Printf("Error while loading file <%v>: %v\n", fileName, err.Error())
+		} else {
+			parseEvalPrint(env, content)
 		}
 	}
 }

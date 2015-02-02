@@ -1,4 +1,5 @@
 all:
+	cp -f ./prelude.v ../../bin/prelude.v
 	go install
 
 fmt:
