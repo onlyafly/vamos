@@ -4,4 +4,19 @@
       (list 'fn args
         body))))
 
-'(loaded prelude version 1)
+(defn not (b)
+  (cond
+    (= b false) true
+    (= b true)  false
+    true        false))
+
+(defn list? (n)
+  (= (typeof n) 'list))
+
+(defn symbol? (n)
+  (= (typeof n) 'symbol))
+
+(defn atom? (n)
+  (not (list? n)))
+
+'(loaded prelude version 2)

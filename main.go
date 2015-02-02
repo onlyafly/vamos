@@ -92,11 +92,11 @@ func main() {
 
 	// Loading of files
 
+	loadFile("prelude.v", topLevelEnv)
+
 	if startupFileName != nil {
 		loadFile(*startupFileName, topLevelEnv)
 	}
-
-	loadFile("prelude.v", topLevelEnv)
 
 	// REPL
 
