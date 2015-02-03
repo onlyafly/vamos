@@ -8,6 +8,8 @@
 
 ## Language
 
+- variable number of arguments
+- Associate source information with Function nodes (filename, line number, etc)
 - Comments
 - 'begin'
 - Get ideas from comparison of different lisps at: http://hyperpolyglot.org/lisp
