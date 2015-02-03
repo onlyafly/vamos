@@ -272,7 +272,8 @@ func isSymbolic(r rune) bool {
 		return true
 	case r == '?' ||
 		r == '+' || r == '-' || r == '*' || r == '/' ||
-		r == '=' || r == '<' || r == '>' || r == '!':
+		r == '=' || r == '<' || r == '>' || r == '!' ||
+		r == '&':
 		return true
 	}
 

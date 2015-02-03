@@ -4,71 +4,89 @@
 
 ## Special Forms
 
-(def x 4)
+    (def x 4)
 
-(set! x 1)
+    (set! x 1)
 
-(fn (x y z) (+ x (+ y z)))
+    (quote x) --OR-- 'x
 
-(quote x) --OR-- 'x
+    (list 1 2 3)
 
-(list 1 2 3)
+    (if <BOOL> <THEN> <ELSE>)
 
-(if <BOOL> <THEN> <ELSE>)
+    (cond
+      <BOOL 1> <THEN 1>
+      <BOOL 2> <THEN 2>
+      <BOOL 3> <THEN 3>)
 
-(cond
-  <BOOL 1> <THEN 1>
-  <BOOL 2> <THEN 2>
-  <BOOL 3> <THEN 3>)
+    (let (x 4
+          y (+ 1 x))
+      (* x y))
 
-(let (x 4
-      y (+ 1 x))
-  (* x y))
+    (apply + '(1 3))
 
-(apply + '(1 3))
+    (eval '(+ 1 2))
 
-(eval '(+ 1 2))
+### Functions
+
+    (fn (x y z)
+      (+ x (+ y z)))
+
+Variable number of arguments:
+
+    (fn (x y &rest z)
+      (+ x (+ y z)))
 
 ## Metaprogramming
 
-(def defn
-  (macro (name args body)
-    (list 'def name
-      (list 'fn args
-        body))))
+    (def defn
+      (macro (name args body)
+        (list 'def name
+          (list 'fn args
+            body))))
 
-(macroexpand1 '(defn inc (a) (+ 1 a)))
-=> (def inc (fn (a) (+ 1 a)))
+    (macroexpand1 '(defn inc (a) (+ 1 a)))
+    => (def inc (fn (a) (+ 1 a)))
 
-(function-params inc)
-=> (n)
+    (function-params inc)
+    => (n)
 
-(function-body inc)
-=> (+ 1 n)
+    (function-body inc)
+    => (+ 1 n)
 
-(function-environment inc)
-=> #environment<TopLevel>
+    (function-environment inc)
+    => #environment<TopLevel>
 
 ## Built-in Functions
 
-Math: +, -
+Math:
 
-Logical (on all types): =
+    +, -
 
-Logical (on numbers): <, >
+Logical (on all types):
 
-Lists: first, rest, list
+    =
 
-Higher-order: apply
+Logical (on numbers):
+
+    <, >
+
+Lists:
+
+    first, rest, list
+
+Higher-order:
+
+    apply
 
 Other:
 
-(typeof 4)
-=> number
+    (typeof 4)
+    => number
 
 ### Evaluation and environments
 
-(current-environment)
+    (current-environment)
 
 ## Boolean Values
 

@@ -154,7 +154,16 @@ func evalList(e Env, l *List, shouldEvalMacros bool) packet {
 
 func evalFunctionApplication(f *Function, args []Node) packet {
 
-	ensureArgsMatchParameters(f.Name, &args, &f.Parameters)
+	isVariableNumberOfParams := false
+	for _, param := range f.Parameters {
+		paramName := toSymbolName(param)
+		if paramName == "&rest" {
+			isVariableNumberOfParams = true
+		}
+	}
+	if !isVariableNumberOfParams {
+		ensureArgsMatchParameters(f.Name, &args, &f.Parameters)
+	}
 
 	e := NewMapEnv(f.Name, f.ParentEnv)
 
@@ -169,10 +178,21 @@ func evalFunctionApplication(f *Function, args []Node) packet {
 			fmt.Sprintf("%v", isTail), "\n")
 	*/
 
-	// Save arguments into parameters
-	for i, arg := range args {
-		paramName := toSymbolName(f.Parameters[i])
-		e.Set(paramName, arg)
+	// Map arguments to parameters
+	isMappingRestArgs := false
+	iarg := 0
+	for iparam, param := range f.Parameters {
+		paramName := toSymbolName(param)
+		if isMappingRestArgs {
+			restArgs := args[iarg:]
+			restList := NewList(restArgs)
+			e.Set(paramName, restList)
+		} else if paramName == "&rest" {
+			isMappingRestArgs = true
+		} else {
+			e.Set(paramName, args[iparam])
+			iarg++
+		}
 	}
 
 	return bounce(func() packet {
@@ -195,7 +215,6 @@ func evalMacroApplication(applicationEnv Env, m *Macro, args []Node, shouldEvalM
 }
 
 func expandMacro(m *Macro, args []Node) Node {
-
 	ensureArgsMatchParameters(m.Name, &args, &m.Parameters)
 
 	e := NewMapEnv(m.Name, m.ParentEnv)
