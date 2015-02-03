@@ -193,6 +193,8 @@ Outer:
 			s.emit(TcCaret)
 		case r == '\'':
 			s.emit(TcSingleQuote)
+		case r == ';':
+			return scanSingleLineComment
 		case isSymbolic(r):
 			s.backup()
 			return scanSymbol
@@ -205,6 +207,12 @@ Outer:
 
 	s.emit(TcEOF)
 	return nil
+}
+
+func scanSingleLineComment(s *Scanner) stateFn {
+	for !isNewLine(s.next()) {
+	}
+	return scanBegin
 }
 
 func scanSymbol(s *Scanner) stateFn {
@@ -286,6 +294,17 @@ func isSpace(r rune) bool {
 		return true
 	case '\t':
 		return true
+	case '\r':
+		return true
+	case '\n':
+		return true
+	}
+
+	return false
+}
+
+func isNewLine(r rune) bool {
+	switch r {
 	case '\r':
 		return true
 	case '\n':
