@@ -12,18 +12,24 @@
 
 (def else true)
 
-(defn simple-or (a b)
+(defn binary-or (a b)
   (cond
     (= a true) true
     (= b true) true
     else       false))
 
-(defn simple-and (a b)
+(defn binary-and (a b)
   (if (= a true)
     (if (= b true)
       true
       false)
     false))
+
+(defn or (&rest xs)
+  (fold binary-or false xs))
+
+(defn and (&rest xs)
+  (fold binary-and true xs))
 
 (defn not (b)
   (cond
