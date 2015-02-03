@@ -1,3 +1,5 @@
+;;;;;;;;;; Procedures
+
 (def defn
   (macro (name args body)
     (list 'def name
@@ -9,6 +11,8 @@
     (list 'def name
       (list 'macro args
         body))))
+
+;;;;;;;;;; Logic
 
 (def else true)
 
@@ -37,12 +41,16 @@
     (= b true)  false
     else        false))
 
+;;;;;;;;;; Higher Order Functions
+
 (defn fold (f init xs)
   (if (= xs '())
     init
     (fold f
           (f init (first xs))
           (rest xs))))
+
+;;;;;;;;;; Type Predicates
 
 (defn list? (n)
   (= (typeof n) 'list))
@@ -65,6 +73,9 @@
 (defn primitive? (n)
   (= (typeof n) 'primitive))
 
+(defn string? (n)
+  (= (typeof n) 'string))
+
 (defn atom? (n)
   (not (list? n)))
 
@@ -73,4 +84,6 @@
         (= n false) true
         else false))
 
-'(loaded prelude version 2)
+;;;;;;;;;;
+
+'(loaded prelude version "2015-02-03")
