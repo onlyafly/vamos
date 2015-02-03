@@ -8,6 +8,7 @@
 
 ## Language
 
+- strings
 - variable number of arguments
 - Associate source information with Function nodes (filename, line number, etc)
 - Comments

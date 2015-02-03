@@ -62,4 +62,9 @@
 (defn atom? (n)
   (not (list? n)))
 
+(defn boolean? (n)
+  (cond (= n true) true
+        (= n false) true
+        else false))
+
 '(loaded prelude version 2)
