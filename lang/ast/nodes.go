@@ -22,6 +22,7 @@ type Node interface {
 	fmt.Stringer
 	Children() []Node
 	Equals(Node) bool
+	TypeName() string
 	//TODO Pos() int
 }
 
@@ -57,6 +58,23 @@ type Decl interface {
 	isDecl() bool
 }
 
+////////// StringNode
+
+type StringNode struct {
+	Value      string
+	annotation Node
+}
+
+func NewStringNode(value string) *StringNode { return &StringNode{Value: value} }
+
+func (s *StringNode) String() string       { return displayAnnotation(s, "\""+s.Value+"\"") }
+func (s *StringNode) Children() []Node     { return nil }
+func (s *StringNode) isExpr() bool         { return true }
+func (s *StringNode) Annotation() Node     { return s.annotation }
+func (s *StringNode) SetAnnotation(n Node) { s.annotation = n }
+func (s *StringNode) Equals(n Node) bool   { return s.Value == asStringNode(n).Value }
+func (s *StringNode) TypeName() string     { return "string" }
+
 ////////// Symbol
 
 type Symbol struct {
@@ -70,6 +88,7 @@ func (s *Symbol) isExpr() bool         { return true }
 func (s *Symbol) Annotation() Node     { return s.annotation }
 func (s *Symbol) SetAnnotation(n Node) { s.annotation = n }
 func (s *Symbol) Equals(n Node) bool   { return s.Name == asSymbol(n).Name }
+func (s *Symbol) TypeName() string     { return "symbol" }
 
 ////////// Number
 
@@ -93,6 +112,7 @@ func (num *Number) isExpr() bool         { return true }
 func (num *Number) Annotation() Node     { return num.annotation }
 func (num *Number) SetAnnotation(n Node) { num.annotation = n }
 func (num *Number) Equals(n Node) bool   { return num.Value == asNumber(n).Value }
+func (num *Number) TypeName() string     { return "number" }
 
 ////////// List
 
@@ -114,6 +134,7 @@ func (l *List) Children() []Node     { return l.Nodes }
 func (l *List) isExpr() bool         { return true }
 func (l *List) Annotation() Node     { return l.annotation }
 func (l *List) SetAnnotation(n Node) { l.annotation = n }
+func (l *List) TypeName() string     { return "list" }
 func (l *List) Equals(n Node) bool {
 	other := asList(n)
 
@@ -134,6 +155,12 @@ func (l *List) Equals(n Node) bool {
 
 ////////// Helpers
 
+func asStringNode(n Node) *StringNode {
+	if result, ok := n.(*StringNode); ok {
+		return result
+	}
+	return &StringNode{}
+}
 func asSymbol(n Node) *Symbol {
 	if result, ok := n.(*Symbol); ok {
 		return result

@@ -45,6 +45,8 @@ func evalNode(e Env, n Node) packet {
 		return respond(value)
 	case *Symbol:
 		return respond(e.Get(value.Name))
+	case *StringNode:
+		return respond(value)
 	case *List:
 		return bounce(func() packet { return evalList(e, value, true) })
 	default:

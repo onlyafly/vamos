@@ -22,6 +22,7 @@ func (en *EnvNode) String() string {
 
 func (en *EnvNode) Children() []Node { return nil }
 func (en *EnvNode) isExpr() bool     { return true }
+func (en *EnvNode) TypeName() string { return "environment" }
 func (en *EnvNode) Equals(n Node) bool {
 	panicEvalError("Cannot compare the values of environments: " +
 		en.String() + " and " + n.String())
@@ -43,6 +44,7 @@ func (p *Primitive) String() string {
 
 func (p *Primitive) Children() []Node { return nil }
 func (p *Primitive) isExpr() bool     { return true }
+func (p *Primitive) TypeName() string { return "primitive" }
 func (p *Primitive) Equals(n Node) bool {
 	panicEvalError("Cannot compare the values of primitive procedures: " +
 		p.String() + " and " + n.String())
@@ -64,6 +66,7 @@ func (f *Function) String() string {
 
 func (f *Function) Children() []Node { return nil }
 func (f *Function) isExpr() bool     { return true }
+func (f *Function) TypeName() string { return "function" }
 func (f *Function) Equals(n Node) bool {
 	panicEvalError("Cannot compare the values of functions: " +
 		f.String() + " and " + n.String())
@@ -85,6 +88,7 @@ func (m *Macro) String() string {
 
 func (m *Macro) Children() []Node { return nil }
 func (m *Macro) isExpr() bool     { return true }
+func (m *Macro) TypeName() string { return "macro" }
 func (m *Macro) Equals(n Node) bool {
 	panicEvalError("Cannot compare the values of macros: " +
 		m.String() + " and " + n.String())

@@ -10,7 +10,6 @@
 
 - strings
 - Associate source information with Function nodes (filename, line number, etc)
-- Comments
 - 'begin'
 - Get ideas from comparison of different lisps at: http://hyperpolyglot.org/lisp
 - Make use of unused annotation functionality (see test 0100)

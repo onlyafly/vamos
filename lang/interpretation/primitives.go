@@ -148,24 +148,5 @@ func primFunctionEnvironment(e Env, args []Node) Node {
 
 func primTypeof(e Env, args []Node) Node {
 	arg := args[0]
-	switch arg.(type) {
-	case *Function:
-		return &Symbol{Name: "function"}
-	case *Number:
-		return &Symbol{Name: "number"}
-	case *Symbol:
-		return &Symbol{Name: "symbol"}
-	case *Macro:
-		return &Symbol{Name: "macro"}
-	case *Primitive:
-		return &Symbol{Name: "primitive"}
-	case *List:
-		return &Symbol{Name: "list"}
-	case *EnvNode:
-		return &Symbol{Name: "environment"}
-	default:
-		panicEvalError("Argument to 'typeof' not of a recognized type: " + arg.String())
-	}
-
-	return nil
+	return &Symbol{Name: arg.TypeName()}
 }

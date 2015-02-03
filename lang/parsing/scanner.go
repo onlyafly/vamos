@@ -47,6 +47,7 @@ const (
 	TcCaret
 	TcSingleQuote
 	TcEOF
+	TcString
 )
 
 const eof = -1
@@ -202,6 +203,8 @@ Outer:
 		case isSymbolic(r):
 			s.backup()
 			return scanSymbol
+		case r == '"':
+			return scanString
 		case r == eof:
 			break Outer
 		default:
@@ -218,6 +221,13 @@ func scanSingleLineComment(s *Scanner) stateFn {
 	}
 	s.backup()
 	s.emitNothing()
+	return scanBegin
+}
+
+func scanString(s *Scanner) stateFn {
+	for isStringContent(s.next()) {
+	}
+	s.emit(TcString)
 	return scanBegin
 }
 
@@ -316,7 +326,17 @@ func isSingleLineCommentContent(r rune) bool {
 	case '\n':
 		return false
 	case eof:
-		// EOF returns false because
+		return false
+	}
+
+	return true
+}
+
+func isStringContent(r rune) bool {
+	switch r {
+	case '"':
+		return false
+	case eof:
 		return false
 	}
 

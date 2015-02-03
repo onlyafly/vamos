@@ -63,7 +63,6 @@ func (p *parser) inputEmpty() bool {
 
 func parseNodes(p *parser, errors *ParserErrorList) []Node {
 	var nodes []Node
-	//TODO nodes := make([]Node, 0)
 	for !p.inputEmpty() {
 		nodes = append(nodes, parseAnnotatedNode(p, errors))
 	}
@@ -92,6 +91,8 @@ func parseAnnotatedNode(p *parser, errors *ParserErrorList) AnnotatedNode {
 		return parseNumber(token, errors)
 	case TcSymbol:
 		return parseSymbol(token)
+	case TcString:
+		return parseString(token)
 	case TcCaret:
 		return parseAnnotation(p, errors)
 	case TcSingleQuote:
@@ -130,6 +131,11 @@ func parseNumber(t Token, errors *ParserErrorList) *Number {
 
 func parseSymbol(t Token) *Symbol {
 	return &Symbol{Name: t.Value}
+}
+
+func parseString(t Token) *StringNode {
+	content := t.Value[1 : len(t.Value)-1]
+	return &StringNode{Value: content}
 }
 
 ////////// Helper Functions

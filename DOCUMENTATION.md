@@ -2,6 +2,16 @@
 
 * See http://hyperpolyglot.org/lisp for comparison of different Lisps.
 
+## Literals
+
+    "This is a string"
+
+    42
+    
+    'this_is_a_quoted_symbol
+
+    '()
+
 ## Special Forms
 
     ; This is a (single-line) comment
