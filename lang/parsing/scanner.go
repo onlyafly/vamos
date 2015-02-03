@@ -88,6 +88,10 @@ func (s *Scanner) emit(code TokenCode) {
 	s.start = s.pos
 }
 
+func (s *Scanner) emitNothing() {
+	s.start = s.pos
+}
+
 func (s *Scanner) next() (r rune) {
 	if s.pos >= len(s.input) {
 		s.width = 0
@@ -210,8 +214,10 @@ Outer:
 }
 
 func scanSingleLineComment(s *Scanner) stateFn {
-	for !isNewLine(s.next()) {
+	for isSingleLineCommentContent(s.next()) {
 	}
+	s.backup()
+	s.emitNothing()
 	return scanBegin
 }
 
@@ -303,13 +309,16 @@ func isSpace(r rune) bool {
 	return false
 }
 
-func isNewLine(r rune) bool {
+func isSingleLineCommentContent(r rune) bool {
 	switch r {
 	case '\r':
-		return true
+		return false
 	case '\n':
-		return true
+		return false
+	case eof:
+		// EOF returns false because
+		return false
 	}
 
-	return false
+	return true
 }

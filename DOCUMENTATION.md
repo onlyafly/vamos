@@ -4,6 +4,8 @@
 
 ## Special Forms
 
+    ; This is a (single-line) comment
+
     (def x 4)
 
     (set! x 1)

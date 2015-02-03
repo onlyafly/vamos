@@ -144,7 +144,10 @@ func loadFile(fileName string, env interpretation.Env) {
 
 func parseEvalPrint(env interpretation.Env, input string) {
 	if result, err := parseEval(env, input); err == nil {
-		fmt.Println(result.String())
+		// Can be null if nothing was entered
+		if result != nil {
+			fmt.Println(result.String())
+		}
 	} else {
 		fmt.Println(err.Error())
 	}
