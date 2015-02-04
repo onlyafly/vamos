@@ -83,7 +83,7 @@ func evalList(e Env, l *List, shouldEvalMacros bool) packet {
 			return evalSpecialDef(e, args)
 		case "eval":
 			return evalSpecialEval(e, args)
-		case "set!":
+		case "update!":
 			name := toSymbolName(args[0])
 			e.Update(name, trampoline(func() packet {
 				return evalNode(e, args[1])
@@ -124,7 +124,11 @@ func evalList(e Env, l *List, shouldEvalMacros bool) packet {
 			return respond(args[0])
 		case "let":
 			return bounce(func() packet {
-				return evalLet(e, args)
+				return evalSpecialLet(e, args)
+			})
+		case "begin":
+			return bounce(func() packet {
+				return evalSpecialBegin(e, args)
 			})
 		}
 	}
@@ -243,30 +247,6 @@ func expandMacro(m *Macro, args []Node) Node {
 	})
 
 	return macroResult
-}
-
-func evalLet(parentEnv Env, args []Node) packet {
-	variableList := args[0]
-	body := args[1]
-	variableNodes := variableList.Children()
-
-	e := NewMapEnv("let", parentEnv)
-
-	// Evaluate variable assignments
-	for i := 0; i < len(variableNodes); i += 2 {
-		variable := variableNodes[i]
-		expression := variableNodes[i+1]
-		variableName := toSymbolName(variable)
-
-		e.Set(variableName, trampoline(func() packet {
-			return evalNode(e, expression)
-		}))
-	}
-
-	// Evaluate body
-	return bounce(func() packet {
-		return evalNode(e, body)
-	})
 }
 
 func ensureSpecialArgsCountEquals(formName string, args []Node, paramCount int) {

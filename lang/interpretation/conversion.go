@@ -45,6 +45,6 @@ func toBooleanValue(n Node) bool {
 		}
 	}
 
-	panicEvalError("Non-boolean in boolean context: " + n.String())
+	// All other values are treated as false
 	return false
 }

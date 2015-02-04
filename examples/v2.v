@@ -1,18 +1,31 @@
 (defn lookup (exp env)
   (eval exp env))
 
-(defn e2 (exp env)
-  (if (atom? exp)
+(defn get (l n)
+  (if (= n 0)
+    (first l)
+    (get (rest l) (- n 1))))
+
+(defn e2 (e env)
+  (if (atom? e)
+
     ;; Handle atoms
     (cond
-      (symbol? exp) (lookup exp env)
-      (or (number? exp) (string? exp) (boolean? exp)) exp
+      (symbol? e) (lookup e env)
+      (or (number? e) (string? e) (boolean? e)) e
       else 'CANNOT_EVALUATE)
-    ;; Handle non-atoms
-    (let (proc (first exp))
-      (cond
-        (= proc 'quote) (first (rest exp))
-        (= proc 'if)    (if (e2)
 
-        ))
-    'NOT_YET_IMPLEMENTED))
+    ;; Handle non-atoms
+    (let (proc (first e))
+      (cond
+        (= proc 'quote)  (get e 1)
+        (= proc 'if)     (if (e2 (get e 1) env)
+                             (e2 (get e 2) env)
+                             (e2 (get e 3) env))
+        ;;TODO (= proc 'begin)  (e2begin (rest e) env)
+        ;;TODO (= proc 'set!)   (update! (get e 1) env (e2 (get e 2) env))
+        ;;TODO (= prod 'fn)     (make-function (get e 0) (get e 1) env)
+        ;;TODO else (invoke (e2 (first e) env)
+        ;;TODO              (evlis (rest e) env))
+        else (list 'NOT_YET_IMPLEMENTED proc)
+        ))))

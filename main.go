@@ -23,7 +23,7 @@ const (
 var (
 	// TODO add functionality for these missing commands
 	commandCompletions = []string{":quit" /*":load ", ":reset", ":help",*/, ":inspect "}
-	// TODO wordCompletions    = []string{"def", "set!"}
+	// TODO wordCompletions    = []string{"def", "update!"}
 )
 
 func configureLiner(linerState *liner.State) {

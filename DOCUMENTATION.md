@@ -7,10 +7,16 @@
     "This is a string"
 
     42
-    
+
     'this_is_a_quoted_symbol
 
     '()
+
+    true
+    => 'true
+
+    false
+    => 'false
 
 ## Special Forms
 
@@ -18,7 +24,7 @@
 
     (def x 4)
 
-    (set! x 1)
+    (update! x 1)
 
     (quote x) --OR-- 'x
 

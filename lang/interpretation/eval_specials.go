@@ -2,6 +2,40 @@ package interpretation
 
 import . "vamos/lang/ast"
 
+func evalSpecialLet(parentEnv Env, args []Node) packet {
+	variableList := args[0]
+	body := args[1]
+	variableNodes := variableList.Children()
+
+	e := NewMapEnv("let", parentEnv)
+
+	// Evaluate variable assignments
+	for i := 0; i < len(variableNodes); i += 2 {
+		variable := variableNodes[i]
+		expression := variableNodes[i+1]
+		variableName := toSymbolName(variable)
+
+		e.Set(variableName, trampoline(func() packet {
+			return evalNode(e, expression)
+		}))
+	}
+
+	// Evaluate body
+	return bounce(func() packet {
+		return evalNode(e, body)
+	})
+}
+
+func evalSpecialBegin(e Env, args []Node) packet {
+	results := evalEachNode(e, args)
+
+	if len(results) == 0 {
+		return respond(&Symbol{Name: "nil"})
+	}
+
+	return respond(results[len(results)-1])
+}
+
 func evalSpecialDef(e Env, args []Node) packet {
 	ensureSpecialArgsCountEquals("def", args, 2)
 

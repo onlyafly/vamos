@@ -1,1 +1,0 @@
-(if (quote true) 1 2)

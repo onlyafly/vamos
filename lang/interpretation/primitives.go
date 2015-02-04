@@ -4,7 +4,7 @@ import . "vamos/lang/ast"
 
 ////////// Primitive Support
 
-var trueSymbol, falseSymbol *Symbol
+var trueSymbol, falseSymbol, nilSymbol *Symbol
 
 func initializePrimitives(e Env) {
 	addPrimitive(e, "+", primAdd)
@@ -29,6 +29,9 @@ func initializePrimitives(e Env) {
 	falseSymbol = &Symbol{Name: "false"}
 	e.Set("true", trueSymbol)
 	e.Set("false", falseSymbol)
+
+	nilSymbol = &Symbol{Name: "nil"}
+	e.Set("nil", nilSymbol)
 }
 
 func addPrimitive(e Env, name string, f primitiveFunction) {
