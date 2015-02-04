@@ -4,15 +4,19 @@ import (
 	"fmt"
 )
 
+////////// ParserError
+
 type ParserError struct {
-	Pos     TokenPosition
+	Loc     *TokenLocation
 	Message string
 }
 
 // Implements the error interface
-func (p *ParserError) Error() string {
-	return fmt.Sprintf("Error at %v: %v", p.Pos, p.Message)
+func (pe *ParserError) Error() string {
+	return fmt.Sprintf("Error (line %v): %v", pe.Loc.Line, pe.Message)
 }
+
+////////// ParserErrorList
 
 // ParserErrorList is a list of ParserError pointers.
 // Implements the error interface.
@@ -22,8 +26,8 @@ func NewParserErrorList() ParserErrorList {
 	return make(ParserErrorList, 0)
 }
 
-func (p *ParserErrorList) Add(pos TokenPosition, msg string) {
-	*p = append(*p, &ParserError{pos, msg})
+func (p *ParserErrorList) Add(loc *TokenLocation, msg string) {
+	*p = append(*p, &ParserError{loc, msg})
 }
 
 func (p ParserErrorList) Error() string {

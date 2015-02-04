@@ -11,16 +11,17 @@ import (
 	"unicode/utf8"
 )
 
-////////// TokenPosition and TokenLine
+////////// TokenLocation
 
-type TokenPosition int
-type TokenLine int
+type TokenLocation struct {
+	Pos  int // position within the file
+	Line int
+}
 
 ////////// Token
 
 type Token struct {
-	Line  TokenLine
-	Pos   TokenPosition
+	Loc   *TokenLocation
 	Code  TokenCode
 	Value string
 }
@@ -85,8 +86,7 @@ func (s *Scanner) run() {
 
 func (s *Scanner) emit(code TokenCode) {
 	s.Tokens <- Token{
-		Pos:   TokenPosition(s.start),
-		Line:  TokenLine(s.line),
+		Loc:   &TokenLocation{Pos: s.start, Line: s.line},
 		Code:  code,
 		Value: s.input[s.start:s.pos],
 	}
@@ -147,8 +147,7 @@ func (s *Scanner) emitErrorf(format string, args ...interface{}) {
 	}
 
 	s.Tokens <- Token{
-		Pos:   TokenPosition(s.start),
-		Line:  TokenLine(s.line),
+		Loc:   &TokenLocation{Pos: s.start, Line: s.line},
 		Code:  TcError,
 		Value: s.input[s.start:s.pos],
 	}
@@ -165,6 +164,7 @@ func Scan(name, input string) (*Scanner, chan Token) {
 	s := &Scanner{
 		name:   name,
 		input:  input,
+		line:   1,
 		Tokens: make(chan Token),
 	}
 	go s.run()
@@ -177,6 +177,9 @@ Outer:
 		switch r := s.next(); {
 		case isWhiteSpace(r):
 			s.ignore()
+		case isNewLine(r):
+			s.line++
+			s.ignore()
 		case r == '(':
 			s.emit(TcLeftParen)
 		case r == ')':
@@ -186,13 +189,11 @@ Outer:
 			return scanNumber
 		case r == '+' || r == '-':
 			rnext := s.next()
-
 			if '0' <= rnext && rnext <= '9' {
 				s.backup()
 				s.backup()
 				return scanNumber
 			}
-
 			s.backup()
 			return scanSymbol
 		case r == '^':
