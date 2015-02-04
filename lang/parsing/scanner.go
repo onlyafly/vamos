@@ -11,13 +11,15 @@ import (
 	"unicode/utf8"
 )
 
-////////// TokenPosition
+////////// TokenPosition and TokenLine
 
 type TokenPosition int
+type TokenLine int
 
 ////////// Token
 
 type Token struct {
+	Line  TokenLine
 	Pos   TokenPosition
 	Code  TokenCode
 	Value string
@@ -61,6 +63,7 @@ type Scanner struct {
 	input  string     // the string being scanned
 	start  int        // start position of this item
 	pos    int        // current position in the input
+	line   int        // current line number in the input
 	width  int        // width of last rune read from input
 	Tokens chan Token // channel of scanned items
 
@@ -83,13 +86,10 @@ func (s *Scanner) run() {
 func (s *Scanner) emit(code TokenCode) {
 	s.Tokens <- Token{
 		Pos:   TokenPosition(s.start),
+		Line:  TokenLine(s.line),
 		Code:  code,
 		Value: s.input[s.start:s.pos],
 	}
-	s.start = s.pos
-}
-
-func (s *Scanner) emitNothing() {
 	s.start = s.pos
 }
 
@@ -148,6 +148,7 @@ func (s *Scanner) emitErrorf(format string, args ...interface{}) {
 
 	s.Tokens <- Token{
 		Pos:   TokenPosition(s.start),
+		Line:  TokenLine(s.line),
 		Code:  TcError,
 		Value: s.input[s.start:s.pos],
 	}
@@ -174,7 +175,7 @@ func scanBegin(s *Scanner) stateFn {
 Outer:
 	for {
 		switch r := s.next(); {
-		case isSpace(r):
+		case isWhiteSpace(r):
 			s.ignore()
 		case r == '(':
 			s.emit(TcLeftParen)
@@ -220,7 +221,7 @@ func scanSingleLineComment(s *Scanner) stateFn {
 	for isSingleLineCommentContent(s.next()) {
 	}
 	s.backup()
-	s.emitNothing()
+	s.ignore()
 	return scanBegin
 }
 
@@ -294,6 +295,7 @@ func isSymbolic(r rune) bool {
 		return true
 	case 'A' <= r && r <= 'Z':
 		return true
+	// NOTE: Don't ever allow these characters: [ ] { } ( ) " , ' ` : ; # | \ ~
 	case r == '?' ||
 		r == '+' || r == '-' || r == '*' || r == '/' ||
 		r == '=' || r == '<' || r == '>' || r == '!' ||
@@ -304,12 +306,19 @@ func isSymbolic(r rune) bool {
 	return false
 }
 
-func isSpace(r rune) bool {
+func isWhiteSpace(r rune) bool {
 	switch r {
 	case ' ':
 		return true
 	case '\t':
 		return true
+	}
+
+	return false
+}
+
+func isNewLine(r rune) bool {
+	switch r {
 	case '\r':
 		return true
 	case '\n':

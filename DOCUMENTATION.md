@@ -45,6 +45,11 @@
 
     (eval '(+ 1 2))
 
+    (begin
+      (update! x 10)
+      (number? x))
+    => true
+
 ### Functions
 
     (fn (x y z)

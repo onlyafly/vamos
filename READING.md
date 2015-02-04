@@ -52,7 +52,6 @@
 
 - Description of Scheme2Js's call/cc implementation: http://www-sop.inria.fr/indes/scheme2js/files/schemews2007.pdf
 
-
 ### Typing
 
 - http://docs.racket-lang.org/ts-guide/

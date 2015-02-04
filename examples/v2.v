@@ -1,3 +1,5 @@
+;; Inspired by Lisp in Small Pieces (LiSP)
+
 (defn lookup (exp env)
   (eval exp env))
 
