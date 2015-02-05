@@ -94,7 +94,7 @@ func primFirst(e Env, args []Node) Node {
 		return val.Nodes[0]
 	}
 
-	panicEvalError("Argument to first not a list: " + arg.String())
+	panicEvalError(args[0], "Argument to first not a list: "+arg.String())
 	return nil
 }
 
@@ -105,7 +105,7 @@ func primRest(e Env, args []Node) Node {
 		return &List{Nodes: val.Nodes[1:]}
 	}
 
-	panicEvalError("Argument to rest not a list: " + arg.String())
+	panicEvalError(args[0], "Argument to rest not a list: "+arg.String())
 	return nil
 }
 
@@ -119,7 +119,7 @@ func primFunctionParams(e Env, args []Node) Node {
 	case *Function:
 		return NewList(val.Parameters)
 	default:
-		panicEvalError("Argument to 'function-params' not a function: " + arg.String())
+		panicEvalError(args[0], "Argument to 'function-params' not a function: "+arg.String())
 	}
 
 	return nil
@@ -131,7 +131,7 @@ func primFunctionBody(e Env, args []Node) Node {
 	case *Function:
 		return val.Body
 	default:
-		panicEvalError("Argument to 'function-body' not a function: " + arg.String())
+		panicEvalError(args[0], "Argument to 'function-body' not a function: "+arg.String())
 	}
 
 	return nil
@@ -143,7 +143,7 @@ func primFunctionEnvironment(e Env, args []Node) Node {
 	case *Function:
 		return NewEnvNode(val.ParentEnv)
 	default:
-		panicEvalError("Argument to 'function-environment' not a function: " + arg.String())
+		panicEvalError(args[0], "Argument to 'function-environment' not a function: "+arg.String())
 	}
 
 	return nil

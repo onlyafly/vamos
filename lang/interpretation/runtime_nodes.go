@@ -1,6 +1,9 @@
 package interpretation
 
-import . "vamos/lang/ast"
+import (
+	. "vamos/lang/ast"
+	. "vamos/lang/helpers"
+)
 
 ////////// EnvNode
 
@@ -20,12 +23,13 @@ func (en *EnvNode) String() string {
 	return "#environment<" + en.Env.Name() + ">"
 }
 
-func (en *EnvNode) Children() []Node { return nil }
-func (en *EnvNode) isExpr() bool     { return true }
-func (en *EnvNode) TypeName() string { return "environment" }
+func (en *EnvNode) Children() []Node    { return nil }
+func (en *EnvNode) isExpr() bool        { return true }
+func (en *EnvNode) TypeName() string    { return "environment" }
+func (en *EnvNode) Loc() *TokenLocation { return nil }
 func (en *EnvNode) Equals(n Node) bool {
-	panicEvalError("Cannot compare the values of environments: " +
-		en.String() + " and " + n.String())
+	panicEvalError(n, "Cannot compare the values of environments: "+
+		en.String()+" and "+n.String())
 	return false
 }
 
@@ -42,12 +46,13 @@ func (p *Primitive) String() string {
 	return "#primitive<" + p.Name + ">"
 }
 
-func (p *Primitive) Children() []Node { return nil }
-func (p *Primitive) isExpr() bool     { return true }
-func (p *Primitive) TypeName() string { return "primitive" }
+func (p *Primitive) Children() []Node    { return nil }
+func (p *Primitive) isExpr() bool        { return true }
+func (p *Primitive) TypeName() string    { return "primitive" }
+func (p *Primitive) Loc() *TokenLocation { return nil }
 func (p *Primitive) Equals(n Node) bool {
-	panicEvalError("Cannot compare the values of primitive procedures: " +
-		p.String() + " and " + n.String())
+	panicEvalError(n, "Cannot compare the values of primitive procedures: "+
+		p.String()+" and "+n.String())
 	return false
 }
 
@@ -64,12 +69,13 @@ func (f *Function) String() string {
 	return "#function<" + f.Name + ">"
 }
 
-func (f *Function) Children() []Node { return nil }
-func (f *Function) isExpr() bool     { return true }
-func (f *Function) TypeName() string { return "function" }
+func (f *Function) Children() []Node    { return nil }
+func (f *Function) isExpr() bool        { return true }
+func (f *Function) TypeName() string    { return "function" }
+func (f *Function) Loc() *TokenLocation { return nil }
 func (f *Function) Equals(n Node) bool {
-	panicEvalError("Cannot compare the values of functions: " +
-		f.String() + " and " + n.String())
+	panicEvalError(n, "Cannot compare the values of functions: "+
+		f.String()+" and "+n.String())
 	return false
 }
 
@@ -86,11 +92,12 @@ func (m *Macro) String() string {
 	return "#macro<" + m.Name + ">"
 }
 
-func (m *Macro) Children() []Node { return nil }
-func (m *Macro) isExpr() bool     { return true }
-func (m *Macro) TypeName() string { return "macro" }
+func (m *Macro) Children() []Node    { return nil }
+func (m *Macro) isExpr() bool        { return true }
+func (m *Macro) TypeName() string    { return "macro" }
+func (m *Macro) Loc() *TokenLocation { return nil }
 func (m *Macro) Equals(n Node) bool {
-	panicEvalError("Cannot compare the values of macros: " +
-		m.String() + " and " + n.String())
+	panicEvalError(n, "Cannot compare the values of macros: "+
+		m.String()+" and "+n.String())
 	return false
 }

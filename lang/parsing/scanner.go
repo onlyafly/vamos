@@ -9,14 +9,8 @@ import (
 	"fmt"
 	"strings"
 	"unicode/utf8"
+	. "vamos/lang/helpers"
 )
-
-////////// TokenLocation
-
-type TokenLocation struct {
-	Pos  int // position within the file
-	Line int
-}
 
 ////////// Token
 

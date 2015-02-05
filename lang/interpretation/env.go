@@ -52,7 +52,7 @@ func NewMapEnv(name string, parent Env) *MapEnv {
 // Set sets the initial value of a symbol.
 func (e *MapEnv) Set(name string, value Node) {
 	if _, exists := e.symbols[name]; exists {
-		panicEvalError("Cannot redefine a name: " + name)
+		panicEvalError(value, "Cannot redefine a name: "+name)
 	} else {
 		e.symbols[name] = value
 	}
@@ -63,7 +63,7 @@ func (e *MapEnv) Update(name string, value Node) {
 	if _, exists := e.symbols[name]; exists {
 		e.symbols[name] = value
 	} else {
-		panicEvalError("Cannot update an undefined name: " + name)
+		panicEvalError(value, "Cannot update an undefined name: "+name)
 	}
 }
 
@@ -73,7 +73,7 @@ func (e *MapEnv) Get(name string) Node {
 
 	if !exists {
 		if e.Parent() == nil {
-			panicEvalError("Name not defined: " + name)
+			panicEvalError(value, "Name not defined: "+name)
 		} else {
 			return e.Parent().Get(name)
 		}

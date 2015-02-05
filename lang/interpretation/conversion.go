@@ -10,7 +10,7 @@ func toListValue(n Node) *List {
 		return value
 	}
 
-	panicEvalError("Expression is not a list: " + n.String())
+	panicEvalError(n, "Expression is not a list: "+n.String())
 	return nil
 }
 
@@ -20,17 +20,17 @@ func toNumberValue(n Node) float64 {
 		return value.Value
 	}
 
-	panicEvalError("Expression is not a number: " + n.String())
+	panicEvalError(n, "Expression is not a number: "+n.String())
 	return 0.0
 }
 
-func toSymbolValue(exp Expr) string {
-	switch value := exp.(type) {
+func toSymbolValue(n Node) string {
+	switch value := n.(type) {
 	case *Symbol:
 		return value.Name
 	}
 
-	panicEvalError("Expression is not a symbol: " + exp.String())
+	panicEvalError(n, "Expression is not a symbol: "+n.String())
 	return ""
 }
 

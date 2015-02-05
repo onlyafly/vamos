@@ -31,3 +31,15 @@
         ;;TODO              (evlis (rest e) env))
         else (list 'NOT_YET_IMPLEMENTED proc)
         ))))
+
+(defn test ()
+  (let (env (current-environment)
+    (if (and (= (e2 '2 env)
+                2)
+             (= (e2 "test" env)
+                "test")
+             )
+      "SUCCESS"
+      "TEST FAILED"))))
+
+(test)

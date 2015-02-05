@@ -170,6 +170,7 @@ func parseEval(env interpretation.Env, input string) (ast.Node, error) {
 		// Some non-application triggered panic has occurred
 		if e := recover(); e != nil {
 			fmt.Printf("Host environment error: %v\n", e)
+			panic(e)
 		}
 	}()
 

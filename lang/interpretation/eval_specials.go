@@ -3,6 +3,8 @@ package interpretation
 import . "vamos/lang/ast"
 
 func evalSpecialLet(parentEnv Env, args []Node) packet {
+	ensureSpecialArgsCountEquals("let", args, 2)
+
 	variableList := args[0]
 	body := args[1]
 	variableNodes := variableList.Children()
@@ -69,11 +71,11 @@ func evalSpecialEval(e Env, args []Node) packet {
 				return evalNode(environmentNode.Env, node)
 			})
 		default:
-			panicEvalError("Second arg to 'eval' must be an environment: " + environmentNode.String())
+			panicEvalError(args[0], "Second arg to 'eval' must be an environment: "+environmentNode.String())
 			return respond(nil)
 		}
 	default:
-		panicEvalError("Unexpected number of args")
+		panicEvalError(args[0], "Unexpected number of args")
 		return respond(nil)
 	}
 }
@@ -120,7 +122,7 @@ func evalSpecialMacroexpand1(e Env, args []Node) packet {
 		})
 		return respond(expansionResult)
 	default:
-		panicEvalError("macroexpand1 expected a list but got: " + value.String())
+		panicEvalError(args[0], "macroexpand1 expected a list but got: "+value.String())
 		return respond(nil)
 	}
 }

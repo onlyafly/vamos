@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	. "vamos/lang/helpers"
 )
 
 ////////// Slice of Nodes
@@ -23,7 +24,7 @@ type Node interface {
 	Children() []Node
 	Equals(Node) bool
 	TypeName() string
-	//TODO Pos() int
+	Loc() *TokenLocation
 }
 
 ////////// AnnotatedNode
@@ -63,6 +64,7 @@ type Decl interface {
 type StringNode struct {
 	Value      string
 	annotation Node
+	Location   *TokenLocation
 }
 
 func NewStringNode(value string) *StringNode { return &StringNode{Value: value} }
@@ -74,12 +76,14 @@ func (s *StringNode) Annotation() Node     { return s.annotation }
 func (s *StringNode) SetAnnotation(n Node) { s.annotation = n }
 func (s *StringNode) Equals(n Node) bool   { return s.Value == asStringNode(n).Value }
 func (s *StringNode) TypeName() string     { return "string" }
+func (s *StringNode) Loc() *TokenLocation  { return s.Location }
 
 ////////// Symbol
 
 type Symbol struct {
 	Name       string
 	annotation Node
+	Location   *TokenLocation
 }
 
 func (s *Symbol) String() string       { return displayAnnotation(s, s.Name) }
@@ -89,12 +93,14 @@ func (s *Symbol) Annotation() Node     { return s.annotation }
 func (s *Symbol) SetAnnotation(n Node) { s.annotation = n }
 func (s *Symbol) Equals(n Node) bool   { return s.Name == asSymbol(n).Name }
 func (s *Symbol) TypeName() string     { return "symbol" }
+func (s *Symbol) Loc() *TokenLocation  { return s.Location }
 
 ////////// Number
 
 type Number struct {
 	Value      float64
 	annotation Node
+	Location   *TokenLocation
 }
 
 func (num *Number) String() string {
@@ -113,12 +119,14 @@ func (num *Number) Annotation() Node     { return num.annotation }
 func (num *Number) SetAnnotation(n Node) { num.annotation = n }
 func (num *Number) Equals(n Node) bool   { return num.Value == asNumber(n).Value }
 func (num *Number) TypeName() string     { return "number" }
+func (num *Number) Loc() *TokenLocation  { return num.Location }
 
 ////////// List
 
 type List struct {
 	Nodes      []Node
 	annotation Node
+	Location   *TokenLocation
 }
 
 func NewList(nodes []Node) *List {
@@ -135,6 +143,7 @@ func (l *List) isExpr() bool         { return true }
 func (l *List) Annotation() Node     { return l.annotation }
 func (l *List) SetAnnotation(n Node) { l.annotation = n }
 func (l *List) TypeName() string     { return "list" }
+func (l *List) Loc() *TokenLocation  { return l.Location }
 func (l *List) Equals(n Node) bool {
 	other := asList(n)
 

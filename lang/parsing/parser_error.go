@@ -2,6 +2,7 @@ package parsing
 
 import (
 	"fmt"
+	. "vamos/lang/helpers"
 )
 
 ////////// ParserError

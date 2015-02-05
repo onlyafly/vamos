@@ -3,6 +3,7 @@ package interpretation
 import (
 	"fmt"
 	. "vamos/lang/ast"
+	. "vamos/lang/helpers"
 )
 
 // Eval evaluates a node in an environment.
@@ -50,7 +51,7 @@ func evalNode(e Env, n Node) packet {
 	case *List:
 		return bounce(func() packet { return evalList(e, value, true) })
 	default:
-		panicEvalError("Unknown form to evaluate: " + value.String())
+		panicEvalError(n, "Unknown form to evaluate: "+value.String())
 	}
 
 	return respond(&Symbol{Name: "nil"})
@@ -60,7 +61,7 @@ func evalList(e Env, l *List, shouldEvalMacros bool) packet {
 	elements := l.Nodes
 
 	if len(elements) == 0 {
-		panicEvalError("Empty list cannot be evaluated: " + l.String())
+		panicEvalError(l, "Empty list cannot be evaluated: "+l.String())
 		return respond(nil)
 	}
 
@@ -113,7 +114,7 @@ func evalList(e Env, l *List, shouldEvalMacros bool) packet {
 					})
 				}
 			}
-			panicEvalError("No matching cond clause: " + l.String())
+			panicEvalError(head, "No matching cond clause: "+l.String())
 		case "fn":
 			return evalSpecialFn(e, args)
 		case "macro":
@@ -152,7 +153,7 @@ func evalList(e Env, l *List, shouldEvalMacros bool) packet {
 			return evalMacroApplication(e, value, args, shouldEvalMacros)
 		})
 	default:
-		panicEvalError("First item in list not a function: " + value.String())
+		panicEvalError(head, "First item in list not a function: "+value.String())
 	}
 
 	return respond(&Symbol{Name: "nil"})
@@ -251,7 +252,7 @@ func expandMacro(m *Macro, args []Node) Node {
 
 func ensureSpecialArgsCountEquals(formName string, args []Node, paramCount int) {
 	if len(args) != paramCount {
-		panicEvalError(fmt.Sprintf(
+		panicEvalError(nil, fmt.Sprintf(
 			"Special form '%v' expects %v argument(s), but was given %v",
 			formName,
 			paramCount,
@@ -261,7 +262,7 @@ func ensureSpecialArgsCountEquals(formName string, args []Node, paramCount int) 
 
 func ensureSpecialArgsCountInRange(specialName string, args []Node, paramCountMin int, paramCountMax int) {
 	if !(paramCountMin <= len(args) && len(args) <= paramCountMax) {
-		panicEvalError(fmt.Sprintf(
+		panicEvalError(nil, fmt.Sprintf(
 			"Special form '%v' expects between %v and %v arguments, but was given %v",
 			specialName,
 			paramCountMin,
@@ -272,7 +273,8 @@ func ensureSpecialArgsCountInRange(specialName string, args []Node, paramCountMi
 
 func ensureArgsMatchParameters(procedureName string, args *[]Node, params *[]Node) {
 	if len(*args) != len(*params) {
-		panicEvalError(fmt.Sprintf(
+		argNodes := *args
+		panicEvalError(argNodes[0], fmt.Sprintf(
 			"Procedure '%v' expects %v argument(s), but was given %v",
 			procedureName,
 			len(*params),
@@ -280,8 +282,12 @@ func ensureArgsMatchParameters(procedureName string, args *[]Node, params *[]Nod
 	}
 }
 
-func panicEvalError(s string) {
-	panic(NewEvalError(s))
+func panicEvalError(n Node, s string) {
+	var loc *TokenLocation
+	if n != nil {
+		loc = n.Loc()
+	}
+	panic(NewEvalError(s, loc))
 }
 
 func toSymbolName(n Node) string {

@@ -79,12 +79,12 @@ func parseAnnotatedNode(p *parser, errors *ParserErrorList) AnnotatedNode {
 			if p.peek().Code == TcEOF {
 				errors.Add(token.Loc, "Unbalanced parentheses")
 				p.next()
-				return &Symbol{Name: "nil"}
+				return &Symbol{Name: "nil", Location: token.Loc}
 			}
 			list = append(list, parseAnnotatedNode(p, errors))
 		}
 		p.next()
-		return &List{Nodes: list}
+		return &List{Nodes: list, Location: token.Loc}
 	case TcRightParen:
 		errors.Add(token.Loc, "Unbalanced parentheses")
 	case TcNumber:
@@ -101,7 +101,7 @@ func parseAnnotatedNode(p *parser, errors *ParserErrorList) AnnotatedNode {
 		errors.Add(token.Loc, "Unrecognized token: "+token.String())
 	}
 
-	return &Symbol{Name: "nil"}
+	return &Symbol{Name: "nil", Location: token.Loc}
 }
 
 func parseAnnotation(p *parser, errors *ParserErrorList) AnnotatedNode {
@@ -123,19 +123,19 @@ func parseNumber(t Token, errors *ParserErrorList) *Number {
 
 	if ferr != nil {
 		errors.Add(t.Loc, "Invalid number: "+t.Value)
-		return &Number{Value: 0.0}
+		return &Number{Value: 0.0, Location: t.Loc}
 	}
 
-	return &Number{Value: f}
+	return &Number{Value: f, Location: t.Loc}
 }
 
 func parseSymbol(t Token) *Symbol {
-	return &Symbol{Name: t.Value}
+	return &Symbol{Name: t.Value, Location: t.Loc}
 }
 
 func parseString(t Token) *StringNode {
 	content := t.Value[1 : len(t.Value)-1]
-	return &StringNode{Value: content}
+	return &StringNode{Value: content, Location: t.Loc}
 }
 
 ////////// Helper Functions
