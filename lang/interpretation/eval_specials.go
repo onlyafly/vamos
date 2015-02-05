@@ -2,8 +2,8 @@ package interpretation
 
 import . "vamos/lang/ast"
 
-func evalSpecialLet(parentEnv Env, args []Node) packet {
-	ensureSpecialArgsCountEquals("let", args, 2)
+func evalSpecialLet(parentEnv Env, head Node, args []Node) packet {
+	ensureSpecialArgsCountEquals("let", head, args, 2)
 
 	variableList := args[0]
 	body := args[1]
@@ -28,7 +28,7 @@ func evalSpecialLet(parentEnv Env, args []Node) packet {
 	})
 }
 
-func evalSpecialBegin(e Env, args []Node) packet {
+func evalSpecialBegin(e Env, head Node, args []Node) packet {
 	results := evalEachNode(e, args)
 
 	if len(results) == 0 {
@@ -38,8 +38,8 @@ func evalSpecialBegin(e Env, args []Node) packet {
 	return respond(results[len(results)-1])
 }
 
-func evalSpecialDef(e Env, args []Node) packet {
-	ensureSpecialArgsCountEquals("def", args, 2)
+func evalSpecialDef(e Env, head Node, args []Node) packet {
+	ensureSpecialArgsCountEquals("def", head, args, 2)
 
 	name := toSymbolName(args[0])
 	e.Set(name, trampoline(func() packet {
@@ -48,8 +48,8 @@ func evalSpecialDef(e Env, args []Node) packet {
 	return respond(&Symbol{Name: "nil"})
 }
 
-func evalSpecialEval(e Env, args []Node) packet {
-	ensureSpecialArgsCountInRange("eval", args, 1, 2)
+func evalSpecialEval(e Env, head Node, args []Node) packet {
+	ensureSpecialArgsCountInRange("eval", head, args, 1, 2)
 
 	node := trampoline(func() packet {
 		return evalNode(e, args[0])
@@ -80,8 +80,8 @@ func evalSpecialEval(e Env, args []Node) packet {
 	}
 }
 
-func evalSpecialFn(e Env, args []Node) packet {
-	ensureSpecialArgsCountEquals("fn", args, 2)
+func evalSpecialFn(e Env, head Node, args []Node) packet {
+	ensureSpecialArgsCountEquals("fn", head, args, 2)
 
 	parameterList := args[0]
 	parameterNodes := parameterList.Children()
@@ -94,8 +94,8 @@ func evalSpecialFn(e Env, args []Node) packet {
 	})
 }
 
-func evalSpecialMacro(e Env, args []Node) packet {
-	ensureSpecialArgsCountEquals("macro", args, 2)
+func evalSpecialMacro(e Env, head Node, args []Node) packet {
+	ensureSpecialArgsCountEquals("macro", head, args, 2)
 
 	parameterList := args[0]
 	parameterNodes := parameterList.Children()
@@ -108,8 +108,8 @@ func evalSpecialMacro(e Env, args []Node) packet {
 	})
 }
 
-func evalSpecialMacroexpand1(e Env, args []Node) packet {
-	ensureSpecialArgsCountEquals("macroexpand1", args, 1)
+func evalSpecialMacroexpand1(e Env, head Node, args []Node) packet {
+	ensureSpecialArgsCountEquals("macroexpand1", head, args, 1)
 
 	expansionNode := trampoline(func() packet {
 		return evalNode(e, args[0])

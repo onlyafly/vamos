@@ -81,9 +81,9 @@ func evalList(e Env, l *List, shouldEvalMacros bool) packet {
 				return evalList(e, &List{Nodes: nodes}, true)
 			}))
 		case "def":
-			return evalSpecialDef(e, args)
+			return evalSpecialDef(e, head, args)
 		case "eval":
-			return evalSpecialEval(e, args)
+			return evalSpecialEval(e, head, args)
 		case "update!":
 			name := toSymbolName(args[0])
 			e.Update(name, trampoline(func() packet {
@@ -116,20 +116,20 @@ func evalList(e Env, l *List, shouldEvalMacros bool) packet {
 			}
 			panicEvalError(head, "No matching cond clause: "+l.String())
 		case "fn":
-			return evalSpecialFn(e, args)
+			return evalSpecialFn(e, head, args)
 		case "macro":
-			return evalSpecialMacro(e, args)
+			return evalSpecialMacro(e, head, args)
 		case "macroexpand1":
-			return evalSpecialMacroexpand1(e, args)
+			return evalSpecialMacroexpand1(e, head, args)
 		case "quote":
 			return respond(args[0])
 		case "let":
 			return bounce(func() packet {
-				return evalSpecialLet(e, args)
+				return evalSpecialLet(e, head, args)
 			})
 		case "begin":
 			return bounce(func() packet {
-				return evalSpecialBegin(e, args)
+				return evalSpecialBegin(e, head, args)
 			})
 		}
 	}
@@ -146,11 +146,11 @@ func evalList(e Env, l *List, shouldEvalMacros bool) packet {
 		arguments := evalEachNode(e, args)
 
 		return bounce(func() packet {
-			return evalFunctionApplication(value, arguments)
+			return evalFunctionApplication(value, head, arguments)
 		})
 	case *Macro:
 		return bounce(func() packet {
-			return evalMacroApplication(e, value, args, shouldEvalMacros)
+			return evalMacroApplication(e, value, head, args, shouldEvalMacros)
 		})
 	default:
 		panicEvalError(head, "First item in list not a function: "+value.String())
@@ -159,7 +159,7 @@ func evalList(e Env, l *List, shouldEvalMacros bool) packet {
 	return respond(&Symbol{Name: "nil"})
 }
 
-func evalFunctionApplication(f *Function, args []Node) packet {
+func evalFunctionApplication(f *Function, head Node, args []Node) packet {
 
 	isVariableNumberOfParams := false
 	for _, param := range f.Parameters {
@@ -169,7 +169,7 @@ func evalFunctionApplication(f *Function, args []Node) packet {
 		}
 	}
 	if !isVariableNumberOfParams {
-		ensureArgsMatchParameters(f.Name, &args, &f.Parameters)
+		ensureArgsMatchParameters(f.Name, head, &args, &f.Parameters)
 	}
 
 	e := NewMapEnv(f.Name, f.ParentEnv)
@@ -207,8 +207,8 @@ func evalFunctionApplication(f *Function, args []Node) packet {
 	})
 }
 
-func evalMacroApplication(applicationEnv Env, m *Macro, args []Node, shouldEvalMacros bool) packet {
-	macroResult := expandMacro(m, args)
+func evalMacroApplication(applicationEnv Env, m *Macro, head Node, args []Node, shouldEvalMacros bool) packet {
+	macroResult := expandMacro(m, head, args)
 
 	if shouldEvalMacros {
 		return bounce(func() packet {
@@ -221,8 +221,8 @@ func evalMacroApplication(applicationEnv Env, m *Macro, args []Node, shouldEvalM
 	}
 }
 
-func expandMacro(m *Macro, args []Node) Node {
-	ensureArgsMatchParameters(m.Name, &args, &m.Parameters)
+func expandMacro(m *Macro, head Node, args []Node) Node {
+	ensureArgsMatchParameters(m.Name, head, &args, &m.Parameters)
 
 	e := NewMapEnv(m.Name, m.ParentEnv)
 
@@ -250,9 +250,9 @@ func expandMacro(m *Macro, args []Node) Node {
 	return macroResult
 }
 
-func ensureSpecialArgsCountEquals(formName string, args []Node, paramCount int) {
+func ensureSpecialArgsCountEquals(formName string, head Node, args []Node, paramCount int) {
 	if len(args) != paramCount {
-		panicEvalError(nil, fmt.Sprintf(
+		panicEvalError(head, fmt.Sprintf(
 			"Special form '%v' expects %v argument(s), but was given %v",
 			formName,
 			paramCount,
@@ -260,9 +260,9 @@ func ensureSpecialArgsCountEquals(formName string, args []Node, paramCount int) 
 	}
 }
 
-func ensureSpecialArgsCountInRange(specialName string, args []Node, paramCountMin int, paramCountMax int) {
+func ensureSpecialArgsCountInRange(specialName string, head Node, args []Node, paramCountMin int, paramCountMax int) {
 	if !(paramCountMin <= len(args) && len(args) <= paramCountMax) {
-		panicEvalError(nil, fmt.Sprintf(
+		panicEvalError(head, fmt.Sprintf(
 			"Special form '%v' expects between %v and %v arguments, but was given %v",
 			specialName,
 			paramCountMin,
@@ -271,10 +271,9 @@ func ensureSpecialArgsCountInRange(specialName string, args []Node, paramCountMi
 	}
 }
 
-func ensureArgsMatchParameters(procedureName string, args *[]Node, params *[]Node) {
+func ensureArgsMatchParameters(procedureName string, head Node, args *[]Node, params *[]Node) {
 	if len(*args) != len(*params) {
-		argNodes := *args
-		panicEvalError(argNodes[0], fmt.Sprintf(
+		panicEvalError(head, fmt.Sprintf(
 			"Procedure '%v' expects %v argument(s), but was given %v",
 			procedureName,
 			len(*params),
