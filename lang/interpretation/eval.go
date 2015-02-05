@@ -65,6 +65,22 @@ func evalList(e Env, l *List, shouldEvalMacros bool) packet {
 		return respond(nil)
 	}
 
+	/*
+		Ten Primitives
+
+		McCarthy introduced the ten primitives of lisp in 1960. All other pure lisp
+		functions (i.e. all functions which don't do I/O or interact with the environment)
+		can be implemented with these primitives. Thus, when implementing or porting
+		lisp, these are the only functions which need to be implemented in a lower
+		language. The way the non-primitives of lisp can be constructed from primitives
+		is analogous to the way theorems can be proven from axioms in mathematics.
+
+		The primitives are:
+
+		Lisp:  atom  quote eq car   cdr  cons cond lambda label apply
+		Vamos: atom? quote =  first rest cons cond fn			def		apply
+	*/
+
 	head := elements[0]
 	args := elements[1:]
 

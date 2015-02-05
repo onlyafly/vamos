@@ -84,6 +84,14 @@
         (= n false) true
         else false))
 
+;; (if (= a b) (typeof a) (typeof b))
+;; =>
+;; (cond (= a b) (typeof a)
+;;       true    (typeof b))
+(defmacro if2 (condition consequent alternative)
+  (list 'cond condition consequent
+              true      alternative))
+
 ;;;;;;;;;;
 
-'(loaded prelude version "2015-02-03")
+'(loaded prelude version "2015-02-05")

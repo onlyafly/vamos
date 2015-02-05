@@ -7,23 +7,33 @@ import . "vamos/lang/ast"
 var trueSymbol, falseSymbol, nilSymbol *Symbol
 
 func initializePrimitives(e Env) {
+	// Math
 	addPrimitive(e, "+", primAdd)
 	addPrimitive(e, "-", primSubtract)
 	addPrimitive(e, "*", primMult)
 	addPrimitive(e, "/", primDiv)
-	addPrimitive(e, "=", primEquals)
 	addPrimitive(e, "<", primLt)
 	addPrimitive(e, ">", primGt)
+
+	// Equality
+	addPrimitive(e, "=", primEquals)
+
+	// Lists
 	addPrimitive(e, "list", primList)
 	addPrimitive(e, "first", primFirst)
 	addPrimitive(e, "rest", primRest)
+	addPrimitive(e, "cons", primCons)
 
+	// Environments and types
 	addPrimitive(e, "current-environment", primCurrentEnvironment)
 	addPrimitive(e, "typeof", primTypeof)
 
+	// Metaprogramming
 	addPrimitive(e, "function-params", primFunctionParams)
 	addPrimitive(e, "function-body", primFunctionBody)
 	addPrimitive(e, "function-environment", primFunctionEnvironment)
+
+	//
 
 	trueSymbol = &Symbol{Name: "true"}
 	falseSymbol = &Symbol{Name: "false"}
@@ -106,6 +116,19 @@ func primRest(e Env, args []Node) Node {
 	}
 
 	panicEvalError(args[0], "Argument to rest not a list: "+arg.String())
+	return nil
+}
+
+func primCons(e Env, args []Node) Node {
+	sourceElement := args[0]
+	targetList := args[1]
+	switch val := targetList.(type) {
+	case *List:
+		consResult := append([]Node{sourceElement}, val.Nodes...)
+		return &List{Nodes: consResult}
+	}
+
+	panicEvalError(targetList, "Second argument to 'cons' not a list: "+targetList.String())
 	return nil
 }
 

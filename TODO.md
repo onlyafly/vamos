@@ -1,5 +1,10 @@
 # Todo
 
+- move if to prelude (see "if2")
+- add println to assist in creating an in-Vamos test suite
+- write a test suite in Vamos for Vamos, to enable testing the prelude
+- research lisp primitives
+
 ## Goal
 
 - A compiler written in Vamos, that translates Vamos code to Go code

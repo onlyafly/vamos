@@ -96,7 +96,7 @@ Logical (on numbers):
 
 Lists:
 
-    first, rest, list
+    first, rest, list, cons
 
 Higher-order:
 
