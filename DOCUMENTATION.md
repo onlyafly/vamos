@@ -102,6 +102,10 @@ Higher-order:
 
     apply
 
+IO:
+
+    (println "Test")
+
 Other:
 
     (typeof 4)

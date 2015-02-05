@@ -183,7 +183,7 @@ func parseEval(env interpretation.Env, input string) (ast.Node, error) {
 	var result ast.Node
 	var evalError error
 	for _, n := range nodes {
-		result, evalError = interpretation.Eval(env, n)
+		result, evalError = interpretation.Eval(env, n, os.Stdout)
 		if evalError != nil {
 			break
 		}

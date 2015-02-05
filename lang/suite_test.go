@@ -1,6 +1,7 @@
 package lang
 
 import (
+	"bytes"
 	"os"
 	"path/filepath"
 	"strings"
@@ -68,20 +69,24 @@ func testInputFile(sourceFilePath string, t *testing.T) {
 	} else {
 		e := interpretation.NewTopLevelMapEnv()
 
+		var outputBuffer bytes.Buffer
+
 		var result ast.Node
 		var evalError error
 		for _, n := range nodes {
-			result, evalError = interpretation.Eval(e, n)
+			result, evalError = interpretation.Eval(e, n, &outputBuffer)
 			if evalError != nil {
 				break
 			}
 		}
 
 		var actual string
+		actual = (&outputBuffer).String()
+
 		if evalError == nil {
-			actual = result.String()
+			actual = actual + result.String()
 		} else {
-			actual = evalError.Error()
+			actual = actual + evalError.Error()
 		}
 		verify(t, sourceFilePath, input, expected, actual)
 	}

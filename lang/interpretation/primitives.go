@@ -1,6 +1,9 @@
 package interpretation
 
-import . "vamos/lang/ast"
+import (
+	"fmt"
+	. "vamos/lang/ast"
+)
 
 ////////// Primitive Support
 
@@ -33,11 +36,15 @@ func initializePrimitives(e Env) {
 	addPrimitive(e, "function-body", primFunctionBody)
 	addPrimitive(e, "function-environment", primFunctionEnvironment)
 
-	//
+	// IO
+	addPrimitive(e, "println", primPrintln)
+
+	// Predefined symbols
 
 	trueSymbol = &Symbol{Name: "true"}
-	falseSymbol = &Symbol{Name: "false"}
 	e.Set("true", trueSymbol)
+
+	falseSymbol = &Symbol{Name: "false"}
 	e.Set("false", falseSymbol)
 
 	nilSymbol = &Symbol{Name: "nil"}
@@ -175,4 +182,16 @@ func primFunctionEnvironment(e Env, args []Node) Node {
 func primTypeof(e Env, args []Node) Node {
 	arg := args[0]
 	return &Symbol{Name: arg.TypeName()}
+}
+
+func primPrintln(e Env, args []Node) Node {
+	arg := args[0]
+	switch val := arg.(type) {
+	case *StringNode:
+		fmt.Fprintf(writer, "%v\n", val.Value)
+		return nilSymbol
+	}
+
+	panicEvalError(arg, "Argument to 'println' not a string: "+arg.String())
+	return nil
 }

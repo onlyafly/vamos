@@ -2,12 +2,15 @@ package interpretation
 
 import (
 	"fmt"
+	"io"
 	. "vamos/lang/ast"
 	. "vamos/lang/helpers"
 )
 
+var writer io.Writer
+
 // Eval evaluates a node in an environment.
-func Eval(e Env, n Node) (result Node, err error) {
+func Eval(e Env, n Node, w io.Writer) (result Node, err error) {
 	defer func() {
 		if e := recover(); e != nil {
 			result = nil
@@ -20,6 +23,8 @@ func Eval(e Env, n Node) (result Node, err error) {
 			}
 		}
 	}()
+
+	writer = w
 
 	startThunk := func() packet {
 		return evalNode(e, n)
