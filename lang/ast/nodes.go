@@ -44,6 +44,13 @@ func displayAnnotation(an AnnotatedNode, rawRepresentation string) string {
 	return rawRepresentation
 }
 
+////////// CollectionNode
+
+type CollectionNode interface {
+	Node
+	Append(CollectionNode) CollectionNode
+}
+
 ////////// Expressions and Declarations
 
 // Expr is a node representing an expression

@@ -106,6 +106,11 @@ IO:
 
     (println "Test")
 
+Strings:
+
+    (concat "abc" "de" "fgh")
+    => "abcdefgh"
+
 Other:
 
     (typeof 4)

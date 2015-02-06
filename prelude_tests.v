@@ -23,6 +23,8 @@
                else (println "test failed"))
              (runtests othertests)))))
 
+;;;;;;;;;; Tests
+
 (deftest "Truthful values in 'if'"
   (= (list
        (if (quote true) 1 2)
