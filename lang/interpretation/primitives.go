@@ -21,11 +21,13 @@ func initializePrimitives(e Env) {
 	// Equality
 	addPrimitive(e, "=", primEquals)
 
-	// Lists
 	addPrimitive(e, "list", primList)
+
+	// Collections
 	addPrimitive(e, "first", primFirst)
 	addPrimitive(e, "rest", primRest)
 	addPrimitive(e, "cons", primCons)
+	addPrimitive(e, "concat", primConcat)
 
 	// Environments and types
 	addPrimitive(e, "current-environment", primCurrentEnvironment)
@@ -194,4 +196,40 @@ func primPrintln(e Env, args []Node) Node {
 
 	panicEvalError(arg, "Argument to 'println' not a string: "+arg.String())
 	return nil
+}
+
+func primConcat(e Env, args []Node) Node {
+	var sum Node = nil
+
+	for _, arg := range args {
+		if sum == nil {
+			sum = arg
+		} else {
+			switch sumVal := sum.(type) {
+			case *StringNode:
+				switch argVal := arg.(type) {
+				case *StringNode:
+					sum = NewStringNode(sumVal.Value + argVal.Value)
+				default:
+					panicEvalError(arg, "Cannot concat a string with a non-string: "+arg.String())
+				}
+			case *List:
+				switch argVal := arg.(type) {
+				case *List:
+					sum = NewList(append(sumVal.Nodes, argVal.Nodes...))
+					fmt.Printf("concat: %v\n", sum)
+				default:
+					panicEvalError(arg, "Cannot concat a list with a non-list: "+arg.String())
+				}
+			default:
+				panicEvalError(arg, "Cannot concat a non-collection type: "+sum.String())
+			}
+		}
+	}
+
+	if sum == nil {
+		return &List{}
+	} else {
+		return sum
+	}
 }

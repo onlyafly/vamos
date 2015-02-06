@@ -1,1 +1,5 @@
-(concat "abc" "d" "efgh")
+(list
+  (concat "abc" "d" "efgh")
+  (concat "abc")
+  (concat)
+  )
