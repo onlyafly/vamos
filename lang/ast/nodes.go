@@ -101,7 +101,7 @@ func (s *StringNode) Append(other Coll) Coll {
 }
 func (s *StringNode) Cons(elem Node) Coll {
 	// TODO fix
-	return &ListNode{}
+	panic("Don't know how to cons: " + elem.String())
 }
 
 ////////// NilNode
