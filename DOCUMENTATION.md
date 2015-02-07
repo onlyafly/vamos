@@ -4,19 +4,32 @@
 
 ## Literals
 
+Nil:
+
+    nil
+
+Character:
+
+    \a
+    \newline
+
+String:
+
     "This is a string"
+
+Number:
 
     42
 
+Symbol:
+
     'this_is_a_quoted_symbol
+    true => 'true
+    false => 'false
+
+List:
 
     '()
-
-    true
-    => 'true
-
-    false
-    => 'false
 
 ## Special Forms
 
