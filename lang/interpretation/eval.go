@@ -53,16 +53,18 @@ func evalNode(e Env, n Node) packet {
 		return respond(e.Get(value.Name))
 	case *StringNode:
 		return respond(value)
-	case *List:
+	case *ListNode:
 		return bounce(func() packet { return evalList(e, value, true) })
+	case *NilNode:
+		return respond(&NilNode{})
 	default:
 		panicEvalError(n, "Unknown form to evaluate: "+value.String())
 	}
 
-	return respond(&Symbol{Name: "nil"})
+	return respond(&NilNode{})
 }
 
-func evalList(e Env, l *List, shouldEvalMacros bool) packet {
+func evalList(e Env, l *ListNode, shouldEvalMacros bool) packet {
 	elements := l.Nodes
 
 	if len(elements) == 0 {
@@ -99,7 +101,7 @@ func evalList(e Env, l *List, shouldEvalMacros bool) packet {
 			}))
 			nodes := append([]Node{f}, l.Nodes...)
 			return respond(trampoline(func() packet {
-				return evalList(e, &List{Nodes: nodes}, true)
+				return evalList(e, &ListNode{Nodes: nodes}, true)
 			}))
 		case "def":
 			return evalSpecialDef(e, head, args)
@@ -110,7 +112,7 @@ func evalList(e Env, l *List, shouldEvalMacros bool) packet {
 			e.Update(name, trampoline(func() packet {
 				return evalNode(e, args[1])
 			}))
-			return respond(&Symbol{Name: "nil"})
+			return respond(&NilNode{})
 		case "if":
 			predicate := toBooleanValue(trampoline(func() packet {
 				return evalNode(e, args[0])
@@ -177,7 +179,7 @@ func evalList(e Env, l *List, shouldEvalMacros bool) packet {
 		panicEvalError(head, "First item in list not a function: "+value.String())
 	}
 
-	return respond(&Symbol{Name: "nil"})
+	return respond(&NilNode{})
 }
 
 func evalFunctionApplication(f *Function, head Node, args []Node) packet {

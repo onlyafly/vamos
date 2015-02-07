@@ -44,11 +44,13 @@ func displayAnnotation(an AnnotatedNode, rawRepresentation string) string {
 	return rawRepresentation
 }
 
-////////// CollectionNode
+////////// Coll
 
-type CollectionNode interface {
+type Coll interface {
 	Node
-	Append(CollectionNode) CollectionNode
+	Append(coll Coll) Coll
+	Cons(elem Node) Coll
+	IsEmpty() bool
 }
 
 ////////// Expressions and Declarations
@@ -84,6 +86,52 @@ func (s *StringNode) SetAnnotation(n Node) { s.annotation = n }
 func (s *StringNode) Equals(n Node) bool   { return s.Value == asStringNode(n).Value }
 func (s *StringNode) TypeName() string     { return "string" }
 func (s *StringNode) Loc() *TokenLocation  { return s.Location }
+func (s *StringNode) IsEmpty() bool        { return len(s.Value) == 0 }
+func (s *StringNode) Append(other Coll) Coll {
+	if other.IsEmpty() {
+		return s
+	}
+
+	switch val := other.(type) {
+	case *StringNode:
+		return NewStringNode(s.Value + val.Value)
+	default:
+		panic("Unrecognized collection type: " + val.String())
+	}
+}
+func (s *StringNode) Cons(elem Node) Coll {
+	// TODO fix
+	return &ListNode{}
+}
+
+////////// NilNode
+
+type NilNode struct {
+	Location   *TokenLocation
+	annotation Node
+}
+
+func (n *NilNode) String() string         { return "nil" }
+func (n *NilNode) Children() []Node       { return nil }
+func (n *NilNode) isExpr() bool           { return true }
+func (n *NilNode) Annotation() Node       { return n.annotation }
+func (n *NilNode) SetAnnotation(ann Node) { n.annotation = ann }
+func (n *NilNode) TypeName() string       { return "nil" }
+func (n *NilNode) Loc() *TokenLocation    { return n.Location }
+func (n *NilNode) IsEmpty() bool          { return true }
+func (n *NilNode) Equals(other Node) bool {
+	if _, ok := other.(*NilNode); ok {
+		return true
+	}
+	return false
+}
+func (n *NilNode) Append(other Coll) Coll {
+	return other
+}
+func (n *NilNode) Cons(elem Node) Coll {
+	// TODO fix
+	return &ListNode{}
+}
 
 ////////// Symbol
 
@@ -130,28 +178,28 @@ func (num *Number) Loc() *TokenLocation  { return num.Location }
 
 ////////// List
 
-type List struct {
+type ListNode struct {
 	Nodes      []Node
 	annotation Node
 	Location   *TokenLocation
 }
 
-func NewList(nodes []Node) *List {
-	return &List{Nodes: nodes}
+func NewList(nodes []Node) *ListNode {
+	return &ListNode{Nodes: nodes}
 }
 
-func (l *List) String() string {
+func (l *ListNode) String() string {
 	raw := "(" + strings.Join(nodesToStrings(l.Nodes), " ") + ")"
 	return displayAnnotation(l, raw)
 }
 
-func (l *List) Children() []Node     { return l.Nodes }
-func (l *List) isExpr() bool         { return true }
-func (l *List) Annotation() Node     { return l.annotation }
-func (l *List) SetAnnotation(n Node) { l.annotation = n }
-func (l *List) TypeName() string     { return "list" }
-func (l *List) Loc() *TokenLocation  { return l.Location }
-func (l *List) Equals(n Node) bool {
+func (l *ListNode) Children() []Node     { return l.Nodes }
+func (l *ListNode) isExpr() bool         { return true }
+func (l *ListNode) Annotation() Node     { return l.annotation }
+func (l *ListNode) SetAnnotation(n Node) { l.annotation = n }
+func (l *ListNode) TypeName() string     { return "list" }
+func (l *ListNode) Loc() *TokenLocation  { return l.Location }
+func (l *ListNode) Equals(n Node) bool {
 	other := asList(n)
 
 	// Compare lengths
@@ -167,6 +215,19 @@ func (l *List) Equals(n Node) bool {
 	}
 
 	return true
+}
+func (l *ListNode) Append(other Coll) Coll {
+	if other.IsEmpty() {
+		return l
+	} else {
+		return NewList(append(l.Nodes, other.Children()...))
+	}
+}
+func (l *ListNode) Cons(elem Node) Coll {
+	return &ListNode{}
+}
+func (l *ListNode) IsEmpty() bool {
+	return len(l.Nodes) == 0
 }
 
 ////////// Helpers
@@ -189,11 +250,11 @@ func asNumber(n Node) *Number {
 	}
 	return &Number{}
 }
-func asList(n Node) *List {
-	if result, ok := n.(*List); ok {
+func asList(n Node) *ListNode {
+	if result, ok := n.(*ListNode); ok {
 		return result
 	}
-	return &List{}
+	return &ListNode{}
 }
 
 func nodesToStrings(nodes []Node) []string {

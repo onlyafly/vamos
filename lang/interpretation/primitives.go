@@ -7,7 +7,7 @@ import (
 
 ////////// Primitive Support
 
-var trueSymbol, falseSymbol, nilSymbol *Symbol
+var trueSymbol, falseSymbol *Symbol
 
 func initializePrimitives(e Env) {
 	// Math
@@ -48,9 +48,6 @@ func initializePrimitives(e Env) {
 
 	falseSymbol = &Symbol{Name: "false"}
 	e.Set("false", falseSymbol)
-
-	nilSymbol = &Symbol{Name: "nil"}
-	e.Set("nil", nilSymbol)
 }
 
 func addPrimitive(e Env, name string, f primitiveFunction) {
@@ -103,13 +100,13 @@ func primMult(e Env, args []Node) Node {
 }
 
 func primList(e Env, args []Node) Node {
-	return &List{Nodes: args}
+	return &ListNode{Nodes: args}
 }
 
 func primFirst(e Env, args []Node) Node {
 	arg := args[0]
 	switch val := arg.(type) {
-	case *List:
+	case *ListNode:
 		return val.Nodes[0]
 	}
 
@@ -120,8 +117,8 @@ func primFirst(e Env, args []Node) Node {
 func primRest(e Env, args []Node) Node {
 	arg := args[0]
 	switch val := arg.(type) {
-	case *List:
-		return &List{Nodes: val.Nodes[1:]}
+	case *ListNode:
+		return &ListNode{Nodes: val.Nodes[1:]}
 	}
 
 	panicEvalError(args[0], "Argument to rest not a list: "+arg.String())
@@ -132,9 +129,9 @@ func primCons(e Env, args []Node) Node {
 	sourceElement := args[0]
 	targetList := args[1]
 	switch val := targetList.(type) {
-	case *List:
+	case *ListNode:
 		consResult := append([]Node{sourceElement}, val.Nodes...)
-		return &List{Nodes: consResult}
+		return &ListNode{Nodes: consResult}
 	}
 
 	panicEvalError(targetList, "Second argument to 'cons' not a list: "+targetList.String())
@@ -191,14 +188,15 @@ func primPrintln(e Env, args []Node) Node {
 	switch val := arg.(type) {
 	case *StringNode:
 		fmt.Fprintf(writer, "%v\n", val.Value)
-		return nilSymbol
+		return &NilNode{}
 	}
 
 	panicEvalError(arg, "Argument to 'println' not a string: "+arg.String())
 	return nil
 }
 
-func primConcat(e Env, args []Node) Node {
+// TODO delete me
+func primOldConcat(e Env, args []Node) Node {
 	var sum Node = nil
 
 	for _, arg := range args {
@@ -213,9 +211,9 @@ func primConcat(e Env, args []Node) Node {
 				default:
 					panicEvalError(arg, "Cannot concat a string with a non-string: "+arg.String())
 				}
-			case *List:
+			case *ListNode:
 				switch argVal := arg.(type) {
-				case *List:
+				case *ListNode:
 					sum = NewList(append(sumVal.Nodes, argVal.Nodes...))
 					fmt.Printf("concat: %v\n", sum)
 				default:
@@ -228,7 +226,35 @@ func primConcat(e Env, args []Node) Node {
 	}
 
 	if sum == nil {
-		return &List{}
+		return &ListNode{}
+	} else {
+		return sum
+	}
+}
+
+func primConcat(e Env, args []Node) Node {
+	var sum Node = nil
+
+	for _, arg := range args {
+		if sum == nil {
+			sum = arg
+		} else {
+			switch sumVal := sum.(type) {
+			case Coll:
+				switch argVal := arg.(type) {
+				case Coll:
+					sum = sumVal.Append(argVal)
+				default:
+					panicEvalError(arg, "Cannot concat a collection with a non-collection: "+arg.String())
+				}
+			default:
+				panicEvalError(arg, "Cannot concat a non-collection type: "+sum.String())
+			}
+		}
+	}
+
+	if sum == nil {
+		return &NilNode{}
 	} else {
 		return sum
 	}

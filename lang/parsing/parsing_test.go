@@ -7,7 +7,7 @@ import (
 
 func TestParseAtom(t *testing.T) {
 	result1 := parseSymbol(Token{Value: "fred"})
-	testhelp.CheckEqualString(t, "fred", result1.Name)
+	testhelp.CheckEqualString(t, "fred", result1.String())
 
 	errors := NewParserErrorList()
 

@@ -2,6 +2,7 @@ package lang
 
 import (
 	"bytes"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -84,6 +85,7 @@ func testInputFile(sourceFilePath string, t *testing.T) {
 		actual = (&outputBuffer).String()
 
 		if evalError == nil {
+			fmt.Printf("RESULT(%v): %v\n", sourceFilePath, result)
 			actual = actual + result.String()
 		} else {
 			actual = actual + evalError.Error()

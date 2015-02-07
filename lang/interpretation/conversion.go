@@ -4,9 +4,9 @@ import (
 	. "vamos/lang/ast"
 )
 
-func toListValue(n Node) *List {
+func toListValue(n Node) *ListNode {
 	switch value := n.(type) {
-	case *List:
+	case *ListNode:
 		return value
 	}
 

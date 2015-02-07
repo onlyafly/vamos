@@ -1,5 +1,7 @@
 # Todo
 
+- replace all Symbol{nil} with a nil node
+- collection prims on strings
 - write a test suite in Vamos for Vamos, to enable testing the prelude
 - move if to prelude (see "if2")
 - research lisp primitives

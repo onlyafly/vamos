@@ -96,7 +96,11 @@ Logical (on numbers):
 
 Lists:
 
-    first, rest, list, cons
+    list
+
+Collections (nil, lists, strings):
+
+    cons, concat, first, rest
 
 Higher-order:
 

@@ -32,7 +32,7 @@ func evalSpecialBegin(e Env, head Node, args []Node) packet {
 	results := evalEachNode(e, args)
 
 	if len(results) == 0 {
-		return respond(&Symbol{Name: "nil"})
+		return respond(&NilNode{})
 	}
 
 	return respond(results[len(results)-1])
@@ -45,7 +45,7 @@ func evalSpecialDef(e Env, head Node, args []Node) packet {
 	e.Set(name, trampoline(func() packet {
 		return evalNode(e, args[1])
 	}))
-	return respond(&Symbol{Name: "nil"})
+	return respond(&NilNode{})
 }
 
 func evalSpecialEval(e Env, head Node, args []Node) packet {
@@ -116,7 +116,7 @@ func evalSpecialMacroexpand1(e Env, head Node, args []Node) packet {
 	})
 
 	switch value := expansionNode.(type) {
-	case *List:
+	case *ListNode:
 		expansionResult := trampoline(func() packet {
 			return evalList(e, value, false)
 		})
