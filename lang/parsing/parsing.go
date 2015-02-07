@@ -1,7 +1,9 @@
 package parsing
 
 import (
+	"fmt"
 	"strconv"
+	"unicode/utf8"
 	. "vamos/lang/ast"
 )
 
@@ -90,9 +92,11 @@ func parseAnnotatedNode(p *parser, errors *ParserErrorList) AnnotatedNode {
 	case TcNumber:
 		return parseNumber(token, errors)
 	case TcSymbol:
-		return parseSymbol(token)
+		return parseSymbol(token, errors)
 	case TcString:
-		return parseString(token)
+		return parseString(token, errors)
+	case TcChar:
+		return parseChar(token, errors)
 	case TcCaret:
 		return parseAnnotation(p, errors)
 	case TcSingleQuote:
@@ -129,16 +133,30 @@ func parseNumber(t Token, errors *ParserErrorList) *Number {
 	return &Number{Value: f, Location: t.Loc}
 }
 
-func parseSymbol(t Token) AnnotatedNode {
+func parseSymbol(t Token, errors *ParserErrorList) AnnotatedNode {
 	if t.Value == "nil" {
 		return &NilNode{Location: t.Loc}
 	}
 	return &Symbol{Name: t.Value, Location: t.Loc}
 }
 
-func parseString(t Token) *StringNode {
+func parseString(t Token, errors *ParserErrorList) *StringNode {
 	content := t.Value[1 : len(t.Value)-1]
 	return &StringNode{Value: content, Location: t.Loc}
+}
+
+func parseChar(t Token, errors *ParserErrorList) *CharNode {
+	switch {
+	case t.Value == "\\newline":
+		return &CharNode{Value: '\n'}
+	case len(t.Value) == 2:
+		_, leadingSlashWidth := utf8.DecodeRuneInString(t.Value)
+		r, _ := utf8.DecodeRuneInString(t.Value[leadingSlashWidth:])
+		return &CharNode{Value: r}
+	}
+
+	errors.Add(t.Loc, fmt.Sprintf("Invalid character literal: %v", t.Value))
+	return &CharNode{}
 }
 
 ////////// Helper Functions

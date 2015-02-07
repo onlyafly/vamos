@@ -53,6 +53,8 @@ func evalNode(e Env, n Node) packet {
 		return respond(e.Get(value.Name))
 	case *StringNode:
 		return respond(value)
+	case *CharNode:
+		return respond(value)
 	case *ListNode:
 		return bounce(func() packet { return evalList(e, value, true) })
 	case *NilNode:

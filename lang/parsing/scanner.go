@@ -45,6 +45,7 @@ const (
 	TcSingleQuote
 	TcEOF
 	TcString
+	TcChar
 )
 
 const eof = -1
@@ -194,6 +195,8 @@ Outer:
 			s.emit(TcCaret)
 		case r == '\'':
 			s.emit(TcSingleQuote)
+		case r == '\\':
+			return scanChar
 		case r == ';':
 			return scanSingleLineComment
 		case isSymbolic(r):
@@ -224,6 +227,18 @@ func scanString(s *Scanner) stateFn {
 	for isStringContent(s.next()) {
 	}
 	s.emit(TcString)
+	return scanBegin
+}
+
+func scanChar(s *Scanner) stateFn {
+	s.next() // leading '\'
+	s.next() // first character in literal
+	if isAlpha(s.peek()) {
+		for isAlpha(s.next()) {
+		}
+	}
+	s.backup()
+	s.emit(TcChar)
 	return scanBegin
 }
 
@@ -273,6 +288,17 @@ func isAlphaNumeric(r rune) bool {
 	switch {
 	case '0' <= r && r <= '9':
 		return true
+	case 'a' <= r && r <= 'z':
+		return true
+	case 'A' <= r && r <= 'Z':
+		return true
+	}
+
+	return false
+}
+
+func isAlpha(r rune) bool {
+	switch {
 	case 'a' <= r && r <= 'z':
 		return true
 	case 'A' <= r && r <= 'Z':

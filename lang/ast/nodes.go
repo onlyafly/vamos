@@ -150,6 +150,32 @@ func (s *Symbol) Equals(n Node) bool   { return s.Name == asSymbol(n).Name }
 func (s *Symbol) TypeName() string     { return "symbol" }
 func (s *Symbol) Loc() *TokenLocation  { return s.Location }
 
+////////// CharNode
+
+type CharNode struct {
+	Value      rune
+	annotation Node
+	Location   *TokenLocation
+}
+
+func (cn *CharNode) String() string {
+	var rep string
+	switch cn.Value {
+	case '\n':
+		rep = "\\newline"
+	default:
+		rep = fmt.Sprintf("\\%c", cn.Value)
+	}
+	return displayAnnotation(cn, rep)
+}
+func (cn *CharNode) Children() []Node     { return nil }
+func (cn *CharNode) isExpr() bool         { return true }
+func (cn *CharNode) Annotation() Node     { return cn.annotation }
+func (cn *CharNode) SetAnnotation(n Node) { cn.annotation = n }
+func (cn *CharNode) Equals(n Node) bool   { return cn.Value == asChar(n).Value }
+func (cn *CharNode) TypeName() string     { return "char" }
+func (cn *CharNode) Loc() *TokenLocation  { return cn.Location }
+
 ////////// Number
 
 type Number struct {
@@ -237,6 +263,12 @@ func asStringNode(n Node) *StringNode {
 		return result
 	}
 	return &StringNode{}
+}
+func asChar(n Node) *CharNode {
+	if result, ok := n.(*CharNode); ok {
+		return result
+	}
+	return &CharNode{}
 }
 func asSymbol(n Node) *Symbol {
 	if result, ok := n.(*Symbol); ok {

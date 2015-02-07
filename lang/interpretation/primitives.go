@@ -195,43 +195,6 @@ func primPrintln(e Env, args []Node) Node {
 	return nil
 }
 
-// TODO delete me
-func primOldConcat(e Env, args []Node) Node {
-	var sum Node = nil
-
-	for _, arg := range args {
-		if sum == nil {
-			sum = arg
-		} else {
-			switch sumVal := sum.(type) {
-			case *StringNode:
-				switch argVal := arg.(type) {
-				case *StringNode:
-					sum = NewStringNode(sumVal.Value + argVal.Value)
-				default:
-					panicEvalError(arg, "Cannot concat a string with a non-string: "+arg.String())
-				}
-			case *ListNode:
-				switch argVal := arg.(type) {
-				case *ListNode:
-					sum = NewList(append(sumVal.Nodes, argVal.Nodes...))
-					fmt.Printf("concat: %v\n", sum)
-				default:
-					panicEvalError(arg, "Cannot concat a list with a non-list: "+arg.String())
-				}
-			default:
-				panicEvalError(arg, "Cannot concat a non-collection type: "+sum.String())
-			}
-		}
-	}
-
-	if sum == nil {
-		return &ListNode{}
-	} else {
-		return sum
-	}
-}
-
 func primConcat(e Env, args []Node) Node {
 	var sum Node = nil
 

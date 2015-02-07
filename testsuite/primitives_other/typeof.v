@@ -7,4 +7,6 @@
   (typeof +)
   (typeof 'foo)
   (typeof "foo")
-  (typeof nil))
+  (typeof nil)
+  (typeof \a)
+  )

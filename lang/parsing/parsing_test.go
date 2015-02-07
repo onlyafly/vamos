@@ -6,10 +6,10 @@ import (
 )
 
 func TestParseAtom(t *testing.T) {
-	result1 := parseSymbol(Token{Value: "fred"})
-	testhelp.CheckEqualString(t, "fred", result1.String())
-
 	errors := NewParserErrorList()
+
+	result1 := parseSymbol(Token{Value: "fred"}, &errors)
+	testhelp.CheckEqualString(t, "fred", result1.String())
 
 	result2 := parseNumber(Token{Value: "1"}, &errors)
 	testhelp.CheckEqualFloat(t, 1, result2.Value)
