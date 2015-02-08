@@ -19,8 +19,8 @@
                result (testfn))
            (begin
              (cond
-               (= result true) (println "test passed")
-               else (println "test failed"))
+               (= result true) (println ".")
+               else (println (concat "TEST FAILED: " testname)))
              (runtests othertests)))))
 
 ;;;;;;;;;; Tests
@@ -29,6 +29,6 @@
   (= (list
        (if (quote true) 1 2)
        (if true 1 2))
-     '(1 1)))
+     '(1 2)))
 
 (runtests tests)
