@@ -13,6 +13,14 @@ Principles:
    - http://www.tryclj.com/
 3. Well-documented code in a near literate style
 
+## About the Vision
+
+Quotes from the CSP paper:
+
+* [Processes] may not communicate with each other by updating global variables.
+* In parallel programming coroutines appear as a more fundamental program structure than subroutines, which can be regarded as a special case.
+* [A coroutine] may use input commands to achieve the effect of "multiple entry points" ... [and be] used like a SIMULA class instance as a concrete representation for abstract data.
+
 ## Upcoming Goals
 
 1. Build up a metacircular evaluator (v2.v)
