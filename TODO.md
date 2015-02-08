@@ -9,7 +9,8 @@ Principles:
 
 1. Influenced by Go's concurrency
 2. Influenced by Clojure's take on a Lisp
-  - http://hyperpolyglot.org/lisp
+   - http://hyperpolyglot.org/lisp
+   - http://www.tryclj.com/
 3. Well-documented code in a near literate style
 
 ## Upcoming Goals
@@ -22,7 +23,6 @@ Principles:
 
 ### Next
 
-- collection prims on nil (see http://www.tryclj.com/)
 - write a test suite in Vamos for Vamos, to enable testing the prelude
 - move if to prelude (see "if2")
 - research lisp primitives

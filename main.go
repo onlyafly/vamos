@@ -13,8 +13,8 @@ import (
 )
 
 const (
-	version         = `0.2.0`
-	versionDate     = `2015-01-30`
+	version         = `0.1.0-alpha`
+	versionDate     = `2015-02-08`
 	historyFilename = "/tmp/.vamos_liner_history"
 )
 
@@ -72,7 +72,15 @@ func writeLinerHistory(line *liner.State) {
 func main() {
 
 	startupFileName := flag.String("l", "", "load a file at startup")
+	showHelp := flag.Bool("help", false, "show the help")
 	flag.Parse()
+	exeFileName := flag.Arg(0)
+
+	if showHelp != nil && *showHelp {
+		fmt.Printf("Usage of vamos:\n")
+		flag.PrintDefaults()
+		return
+	}
 
 	// Setup liner
 
@@ -83,14 +91,19 @@ func main() {
 
 	// Initialize
 
-	fmt.Printf("Vamos %s (%s)\n", version, versionDate)
-	fmt.Printf("Press Ctrl+C or type :quit to exit\n\n")
-
 	topLevelEnv := lang.NewTopLevelMapEnv()
 
-	// Loading of files
+	if len(exeFileName) != 0 {
+		loadFile("prelude.v", topLevelEnv)
+		loadFile(exeFileName, topLevelEnv)
+		return
+	}
 
+	fmt.Printf("Vamos %s (%s)\n", version, versionDate)
 	loadFile("prelude.v", topLevelEnv)
+	fmt.Printf("(Press Ctrl+C or type :quit to exit)\n\n")
+
+	// Loading of files
 
 	if startupFileName != nil {
 		loadFile(*startupFileName, topLevelEnv)
@@ -124,7 +137,7 @@ func main() {
 				fmt.Println(err.Error())
 			}
 		default:
-			parseEvalPrint(topLevelEnv, input)
+			parseEvalPrint(topLevelEnv, input, true)
 		}
 	}
 }
@@ -135,15 +148,15 @@ func loadFile(fileName string, env lang.Env) {
 		if err != nil {
 			fmt.Printf("Error while loading file <%v>: %v\n", fileName, err.Error())
 		} else {
-			parseEvalPrint(env, content)
+			parseEvalPrint(env, content, false)
 		}
 	}
 }
 
-func parseEvalPrint(env lang.Env, input string) {
+func parseEvalPrint(env lang.Env, input string, printResult bool) {
 	if result, err := parseEval(env, input); err == nil {
 		// Can be null if nothing was entered
-		if result != nil {
+		if result != nil && printResult {
 			fmt.Println(result.String())
 		}
 	} else {

@@ -8,5 +8,8 @@ fmt:
 test: fmt all
 	go test ./...
 
+testprelude: test
+	vamos prelude_tests.v
+
 run: fmt all
 	vamos
