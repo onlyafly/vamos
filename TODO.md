@@ -22,7 +22,7 @@ Principles:
 
 ### Next
 
-- collection prims on strings
+- collection prims on nil (see http://www.tryclj.com/)
 - write a test suite in Vamos for Vamos, to enable testing the prelude
 - move if to prelude (see "if2")
 - research lisp primitives

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"unicode/utf8"
 )
 
 ////////// Slice of Nodes
@@ -49,6 +50,8 @@ type Coll interface {
 	Node
 	Append(coll Coll) Coll
 	Cons(elem Node) Coll
+	First() Node
+	Rest() Node
 	IsEmpty() bool
 }
 
@@ -86,6 +89,20 @@ func (s *StringNode) Equals(n Node) bool   { return s.Value == asStringNode(n).V
 func (s *StringNode) TypeName() string     { return "string" }
 func (s *StringNode) Loc() *TokenLocation  { return s.Location }
 func (s *StringNode) IsEmpty() bool        { return len(s.Value) == 0 }
+func (s *StringNode) First() Node {
+	if len(s.Value) == 0 {
+		return &NilNode{}
+	}
+	r, _ := utf8.DecodeRuneInString(s.Value)
+	return &CharNode{Value: r}
+}
+func (s *StringNode) Rest() Node {
+	if len(s.Value) == 0 {
+		return s
+	}
+	_, firstRuneWidth := utf8.DecodeRuneInString(s.Value)
+	return NewStringNode(s.Value[firstRuneWidth:])
+}
 func (s *StringNode) Append(other Coll) Coll {
 	if other.IsEmpty() {
 		return s
@@ -123,6 +140,8 @@ func (n *NilNode) SetAnnotation(ann Node) { n.annotation = ann }
 func (n *NilNode) TypeName() string       { return "nil" }
 func (n *NilNode) Loc() *TokenLocation    { return n.Location }
 func (n *NilNode) IsEmpty() bool          { return true }
+func (n *NilNode) First() Node            { return n }
+func (n *NilNode) Rest() Node             { return n }
 func (n *NilNode) Equals(other Node) bool {
 	if _, ok := other.(*NilNode); ok {
 		return true
@@ -214,7 +233,7 @@ type ListNode struct {
 	Location   *TokenLocation
 }
 
-func NewList(nodes []Node) *ListNode {
+func NewListNode(nodes []Node) *ListNode {
 	return &ListNode{Nodes: nodes}
 }
 
@@ -250,14 +269,26 @@ func (l *ListNode) Append(other Coll) Coll {
 	if other.IsEmpty() {
 		return l
 	} else {
-		return NewList(append(l.Nodes, other.Children()...))
+		return NewListNode(append(l.Nodes, other.Children()...))
 	}
 }
 func (l *ListNode) Cons(elem Node) Coll {
-	return NewList(append([]Node{elem}, l.Nodes...))
+	return NewListNode(append([]Node{elem}, l.Nodes...))
 }
 func (l *ListNode) IsEmpty() bool {
 	return len(l.Nodes) == 0
+}
+func (l *ListNode) First() Node {
+	if len(l.Nodes) == 0 {
+		return &NilNode{}
+	}
+	return l.Nodes[0]
+}
+func (l *ListNode) Rest() Node {
+	if len(l.Nodes) == 0 {
+		return l
+	}
+	return NewListNode(l.Nodes[1:])
 }
 
 ////////// Helpers

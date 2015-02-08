@@ -215,7 +215,7 @@ func evalFunctionApplication(f *Function, head Node, args []Node) packet {
 		paramName := toSymbolName(param)
 		if isMappingRestArgs {
 			restArgs := args[iarg:]
-			restList := NewList(restArgs)
+			restList := NewListNode(restArgs)
 			e.Set(paramName, restList)
 		} else if paramName == "&rest" {
 			isMappingRestArgs = true

@@ -102,28 +102,6 @@ func primList(e Env, args []Node) Node {
 	return &ListNode{Nodes: args}
 }
 
-func primFirst(e Env, args []Node) Node {
-	arg := args[0]
-	switch val := arg.(type) {
-	case *ListNode:
-		return val.Nodes[0]
-	}
-
-	panicEvalError(args[0], "Argument to first not a list: "+arg.String())
-	return nil
-}
-
-func primRest(e Env, args []Node) Node {
-	arg := args[0]
-	switch val := arg.(type) {
-	case *ListNode:
-		return &ListNode{Nodes: val.Nodes[1:]}
-	}
-
-	panicEvalError(args[0], "Argument to rest not a list: "+arg.String())
-	return nil
-}
-
 func primCurrentEnvironment(e Env, args []Node) Node {
 	return NewEnvNode(e)
 }
@@ -132,7 +110,7 @@ func primFunctionParams(e Env, args []Node) Node {
 	arg := args[0]
 	switch val := arg.(type) {
 	case *Function:
-		return NewList(val.Parameters)
+		return NewListNode(val.Parameters)
 	default:
 		panicEvalError(args[0], "Argument to 'function-params' not a function: "+arg.String())
 	}
@@ -178,6 +156,30 @@ func primPrintln(e Env, args []Node) Node {
 	}
 
 	panicEvalError(arg, "Argument to 'println' not a string: "+arg.String())
+	return nil
+}
+
+func primFirst(e Env, args []Node) Node {
+	arg := args[0]
+
+	switch val := arg.(type) {
+	case Coll:
+		return val.First()
+	}
+
+	panicEvalError(arg, "Cannot get first from a non-collection: "+arg.String())
+	return nil
+}
+
+func primRest(e Env, args []Node) Node {
+	arg := args[0]
+
+	switch val := arg.(type) {
+	case Coll:
+		return val.Rest()
+	}
+
+	panicEvalError(arg, "Cannot get rest from a non-collection: "+arg.String())
 	return nil
 }
 
