@@ -1,8 +1,7 @@
-package interpretation
+package lang
 
 import (
 	"fmt"
-	. "vamos/lang/ast"
 )
 
 ////////// Primitive Support
@@ -125,19 +124,6 @@ func primRest(e Env, args []Node) Node {
 	return nil
 }
 
-func primCons(e Env, args []Node) Node {
-	sourceElement := args[0]
-	targetList := args[1]
-	switch val := targetList.(type) {
-	case *ListNode:
-		consResult := append([]Node{sourceElement}, val.Nodes...)
-		return &ListNode{Nodes: consResult}
-	}
-
-	panicEvalError(targetList, "Second argument to 'cons' not a list: "+targetList.String())
-	return nil
-}
-
 func primCurrentEnvironment(e Env, args []Node) Node {
 	return NewEnvNode(e)
 }
@@ -192,6 +178,19 @@ func primPrintln(e Env, args []Node) Node {
 	}
 
 	panicEvalError(arg, "Argument to 'println' not a string: "+arg.String())
+	return nil
+}
+
+func primCons(e Env, args []Node) Node {
+	sourceElement := args[0]
+	targetColl := args[1]
+
+	switch val := targetColl.(type) {
+	case Coll:
+		return val.Cons(sourceElement)
+	}
+
+	panicEvalError(sourceElement, "Cannot cons onto a non-collection: "+targetColl.String())
 	return nil
 }
 

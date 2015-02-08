@@ -1,6 +1,4 @@
-package interpretation
-
-import . "vamos/lang/ast"
+package lang
 
 func evalSpecialLet(parentEnv Env, head Node, args []Node) packet {
 	ensureSpecialArgsCountEquals("let", head, args, 2)

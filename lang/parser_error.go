@@ -1,8 +1,7 @@
-package parsing
+package lang
 
 import (
 	"fmt"
-	. "vamos/lang/helpers"
 )
 
 ////////// ParserError

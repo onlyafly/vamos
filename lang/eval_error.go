@@ -1,9 +1,6 @@
-package interpretation
+package lang
 
-import (
-	"fmt"
-	. "vamos/lang/helpers"
-)
+import "fmt"
 
 // EvalError represents an error that occurs during evaluation.
 type EvalError struct {
@@ -22,4 +19,12 @@ func (e *EvalError) Error() string {
 	}
 
 	return fmt.Sprintf("Evaluation error: %v", e.Message)
+}
+
+func panicEvalError(n Node, s string) {
+	var loc *TokenLocation
+	if n != nil {
+		loc = n.Loc()
+	}
+	panic(NewEvalError(s, loc))
 }

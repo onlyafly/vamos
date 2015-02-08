@@ -1,8 +1,4 @@
-package interpretation
-
-import (
-	. "vamos/lang/ast"
-)
+package lang
 
 // Packet contains a thunk or a Node.
 // A packet is the result of the evaluation of a thunk.

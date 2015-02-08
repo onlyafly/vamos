@@ -6,9 +6,7 @@ import (
 	"log"
 	"os"
 	"strings"
-	"vamos/lang/ast"
-	"vamos/lang/interpretation"
-	"vamos/lang/parsing"
+	"vamos/lang"
 	"vamos/util"
 
 	"github.com/peterh/liner"
@@ -88,7 +86,7 @@ func main() {
 	fmt.Printf("Vamos %s (%s)\n", version, versionDate)
 	fmt.Printf("Press Ctrl+C or type :quit to exit\n\n")
 
-	topLevelEnv := interpretation.NewTopLevelMapEnv()
+	topLevelEnv := lang.NewTopLevelMapEnv()
 
 	// Loading of files
 
@@ -131,7 +129,7 @@ func main() {
 	}
 }
 
-func loadFile(fileName string, env interpretation.Env) {
+func loadFile(fileName string, env lang.Env) {
 	if len(fileName) > 0 {
 		content, err := util.ReadFile(fileName)
 		if err != nil {
@@ -142,7 +140,7 @@ func loadFile(fileName string, env interpretation.Env) {
 	}
 }
 
-func parseEvalPrint(env interpretation.Env, input string) {
+func parseEvalPrint(env lang.Env, input string) {
 	if result, err := parseEval(env, input); err == nil {
 		// Can be null if nothing was entered
 		if result != nil {
@@ -153,9 +151,9 @@ func parseEvalPrint(env interpretation.Env, input string) {
 	}
 }
 
-func inspect(arg ast.Node) {
+func inspect(arg lang.Node) {
 	switch val := arg.(type) {
-	case *interpretation.EnvNode:
+	case *lang.EnvNode:
 		fmt.Printf(
 			"Environment\n  Name='%v'\n  Env=%v\n",
 			val.Name(),
@@ -165,7 +163,7 @@ func inspect(arg ast.Node) {
 	}
 }
 
-func parseEval(env interpretation.Env, input string) (ast.Node, error) {
+func parseEval(env lang.Env, input string) (lang.Node, error) {
 	defer func() {
 		// Some non-application triggered panic has occurred
 		if e := recover(); e != nil {
@@ -174,16 +172,16 @@ func parseEval(env interpretation.Env, input string) (ast.Node, error) {
 		}
 	}()
 
-	nodes, parseErrors := parsing.Parse(input)
+	nodes, parseErrors := lang.Parse(input)
 
 	if parseErrors != nil {
 		fmt.Println(parseErrors.String())
 	}
 
-	var result ast.Node
+	var result lang.Node
 	var evalError error
 	for _, n := range nodes {
-		result, evalError = interpretation.Eval(env, n, os.Stdout)
+		result, evalError = lang.Eval(env, n, os.Stdout)
 		if evalError != nil {
 			break
 		}

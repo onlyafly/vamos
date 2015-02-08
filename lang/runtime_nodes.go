@@ -1,9 +1,4 @@
-package interpretation
-
-import (
-	. "vamos/lang/ast"
-	. "vamos/lang/helpers"
-)
+package lang
 
 ////////// EnvNode
 

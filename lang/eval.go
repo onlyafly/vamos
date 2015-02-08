@@ -1,10 +1,8 @@
-package interpretation
+package lang
 
 import (
 	"fmt"
 	"io"
-	. "vamos/lang/ast"
-	. "vamos/lang/helpers"
 )
 
 var writer io.Writer
@@ -304,14 +302,6 @@ func ensureArgsMatchParameters(procedureName string, head Node, args *[]Node, pa
 			len(*params),
 			len(*args)))
 	}
-}
-
-func panicEvalError(n Node, s string) {
-	var loc *TokenLocation
-	if n != nil {
-		loc = n.Loc()
-	}
-	panic(NewEvalError(s, loc))
 }
 
 func toSymbolName(n Node) string {

@@ -7,9 +7,6 @@ import (
 	"strings"
 	"testing"
 
-	"vamos/lang/ast"
-	"vamos/lang/interpretation"
-	"vamos/lang/parsing"
 	"vamos/util"
 )
 
@@ -63,18 +60,18 @@ func testInputFile(sourceFilePath string, t *testing.T) {
 	expectedWithUntrimmed := strings.Replace(expectedRaw, "\r", "", -1)
 	expected := strings.TrimSpace(expectedWithUntrimmed)
 
-	nodes, errors := parsing.Parse(input)
+	nodes, errors := Parse(input)
 	if errors.Len() != 0 {
 		verify(t, sourceFilePath, input, expected, errors.String())
 	} else {
-		e := interpretation.NewTopLevelMapEnv()
+		e := NewTopLevelMapEnv()
 
 		var outputBuffer bytes.Buffer
 
-		var result ast.Node
+		var result Node
 		var evalError error
 		for _, n := range nodes {
-			result, evalError = interpretation.Eval(e, n, &outputBuffer)
+			result, evalError = Eval(e, n, &outputBuffer)
 			if evalError != nil {
 				break
 			}

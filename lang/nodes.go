@@ -1,10 +1,9 @@
-package ast
+package lang
 
 import (
 	"fmt"
 	"strconv"
 	"strings"
-	. "vamos/lang/helpers"
 )
 
 ////////// Slice of Nodes
@@ -100,8 +99,13 @@ func (s *StringNode) Append(other Coll) Coll {
 	}
 }
 func (s *StringNode) Cons(elem Node) Coll {
-	// TODO fix
-	panic("Don't know how to cons: " + elem.String())
+	switch val := elem.(type) {
+	case *CharNode:
+		return NewStringNode(fmt.Sprintf("%c%v", val.Value, s.Value))
+	}
+
+	panicEvalError(s, "Cannot cons a non-character onto a string: "+elem.String())
+	return nil
 }
 
 ////////// NilNode
@@ -250,7 +254,7 @@ func (l *ListNode) Append(other Coll) Coll {
 	}
 }
 func (l *ListNode) Cons(elem Node) Coll {
-	return &ListNode{}
+	return NewList(append([]Node{elem}, l.Nodes...))
 }
 func (l *ListNode) IsEmpty() bool {
 	return len(l.Nodes) == 0

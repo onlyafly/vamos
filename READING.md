@@ -1,5 +1,19 @@
 # Reading Notes
 
+## Concurrency
+
+CSP:
+
+- http://en.wikipedia.org/wiki/Communicating_sequential_processes
+- Notes from: https://docs.google.com/document/d/1A0EVj7f4DUTjbFs4OLqkPJe-WZKG-NvIn5CTgc2F1lI/edit?hl=sv#heading=h.t43faihoaeuo
+
+Lisps that are influenced by CSP:
+
+- Clojure's core.async:
+  - https://github.com/clojure/core.async/
+  - Rich Hickey on core.async:
+    http://www.infoq.com/presentations/clojure-core-async
+
 ## Monads
 
 - http://www.infoq.com/presentations/Why-is-a-Monad-Like-a-Writing-Desk¨

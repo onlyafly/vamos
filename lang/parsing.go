@@ -1,10 +1,9 @@
-package parsing
+package lang
 
 import (
 	"fmt"
 	"strconv"
 	"unicode/utf8"
-	. "vamos/lang/ast"
 )
 
 func Parse(input string) (Nodes, ParserErrorList) {

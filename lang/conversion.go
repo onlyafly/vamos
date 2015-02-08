@@ -1,8 +1,4 @@
-package interpretation
-
-import (
-	. "vamos/lang/ast"
-)
+package lang
 
 func toListValue(n Node) *ListNode {
 	switch value := n.(type) {
