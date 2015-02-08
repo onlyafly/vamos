@@ -141,7 +141,7 @@ func (n *NilNode) TypeName() string       { return "nil" }
 func (n *NilNode) Loc() *TokenLocation    { return n.Location }
 func (n *NilNode) IsEmpty() bool          { return true }
 func (n *NilNode) First() Node            { return n }
-func (n *NilNode) Rest() Node             { return n }
+func (n *NilNode) Rest() Node             { return &ListNode{} }
 func (n *NilNode) Equals(other Node) bool {
 	if _, ok := other.(*NilNode); ok {
 		return true
@@ -152,8 +152,7 @@ func (n *NilNode) Append(other Coll) Coll {
 	return other
 }
 func (n *NilNode) Cons(elem Node) Coll {
-	// TODO fix
-	return &ListNode{}
+	return NewListNode([]Node{elem})
 }
 
 ////////// Symbol
