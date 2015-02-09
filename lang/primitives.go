@@ -2,6 +2,7 @@ package lang
 
 import (
 	"fmt"
+	"vamos/util"
 )
 
 ////////// Primitive Support
@@ -39,6 +40,7 @@ func initializePrimitives(e Env) {
 
 	// IO
 	addPrimitive(e, "println", primPrintln)
+	addPrimitive(e, "load", primLoad)
 
 	// Predefined symbols
 
@@ -222,4 +224,28 @@ func primConcat(e Env, args []Node) Node {
 	} else {
 		return sum
 	}
+}
+
+func primLoad(e Env, args []Node) Node {
+	arg := args[0]
+	switch val := arg.(type) {
+	case *StringNode:
+		fileName := val.Value
+
+		if len(fileName) > 0 {
+			content, err := util.ReadFile(fileName)
+			if err != nil {
+				panicEvalError(
+					arg,
+					fmt.Sprintf("Error while loading file <%v>: %v\n", fileName, err.Error()))
+			} else {
+				ParseEvalPrint(e, content, false)
+			}
+		}
+
+		return &NilNode{}
+	}
+
+	panicEvalError(arg, "Argument to 'load' not a string: "+arg.String())
+	return nil
 }

@@ -34,7 +34,7 @@ Quotes from the CSP paper:
 - make it possible for the test framework to test v2
   - add ability to load libs at runtime
   - factor test framework into its own lib
-  - 
+  -
 - move if to prelude (see "if2")
 - research lisp primitives
 
@@ -50,6 +50,8 @@ Quotes from the CSP paper:
 - Get ideas from comparison of different lisps at: http://hyperpolyglot.org/lisp
 - Make use of unused annotation functionality (see test 0100)
 - Make use of the Decl interface
+- Improve macros by making them non-first-class (?)
+- Dynamic binding
 
 ### Tooling
 

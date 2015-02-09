@@ -131,36 +131,14 @@ func main() {
 			return
 		case strings.HasPrefix(input, ":inspect "):
 			withoutInspectPrefix := strings.Split(input, ":inspect ")[1]
-			if result, err := parseEval(topLevelEnv, withoutInspectPrefix); err == nil {
+			if result, err := lang.ParseEval(topLevelEnv, withoutInspectPrefix); err == nil {
 				inspect(result)
 			} else {
 				fmt.Println(err.Error())
 			}
 		default:
-			parseEvalPrint(topLevelEnv, input, true)
+			lang.ParseEvalPrint(topLevelEnv, input, true)
 		}
-	}
-}
-
-func loadFile(fileName string, env lang.Env) {
-	if len(fileName) > 0 {
-		content, err := util.ReadFile(fileName)
-		if err != nil {
-			fmt.Printf("Error while loading file <%v>: %v\n", fileName, err.Error())
-		} else {
-			parseEvalPrint(env, content, false)
-		}
-	}
-}
-
-func parseEvalPrint(env lang.Env, input string, printResult bool) {
-	if result, err := parseEval(env, input); err == nil {
-		// Can be null if nothing was entered
-		if result != nil && printResult {
-			fmt.Println(result.String())
-		}
-	} else {
-		fmt.Println(err.Error())
 	}
 }
 
@@ -176,33 +154,13 @@ func inspect(arg lang.Node) {
 	}
 }
 
-func parseEval(env lang.Env, input string) (lang.Node, error) {
-	defer func() {
-		// Some non-application triggered panic has occurred
-		if e := recover(); e != nil {
-			fmt.Printf("Host environment error: %v\n", e)
-			panic(e)
+func loadFile(fileName string, env lang.Env) {
+	if len(fileName) > 0 {
+		content, err := util.ReadFile(fileName)
+		if err != nil {
+			fmt.Printf("Error while loading file <%v>: %v\n", fileName, err.Error())
+		} else {
+			lang.ParseEvalPrint(env, content, false)
 		}
-	}()
-
-	nodes, parseErrors := lang.Parse(input)
-
-	if parseErrors != nil {
-		fmt.Println(parseErrors.String())
-	}
-
-	var result lang.Node
-	var evalError error
-	for _, n := range nodes {
-		result, evalError = lang.Eval(env, n, os.Stdout)
-		if evalError != nil {
-			break
-		}
-	}
-
-	if evalError == nil {
-		return result, nil
-	} else {
-		return nil, evalError
 	}
 }

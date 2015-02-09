@@ -13,6 +13,7 @@ Lisps that are influenced by CSP:
   - https://github.com/clojure/core.async/
   - Rich Hickey on core.async:
     http://www.infoq.com/presentations/clojure-core-async
+  - http://swannodette.github.io/2013/07/12/communicating-sequential-processes/
 
 ## Monads
 

@@ -137,6 +137,8 @@ Other:
 
     (current-environment)
 
+    (load "test.v")
+
 ## Boolean Values
 
 False values: false (the symbol), which is also stored in false (the variable)
