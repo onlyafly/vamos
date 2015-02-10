@@ -37,7 +37,7 @@ func TestFullSuite(t *testing.T) {
 		}
 
 		if matched {
-			testInputFile(fp, t)
+			go testInputFile(fp, t)
 		}
 
 		return nil

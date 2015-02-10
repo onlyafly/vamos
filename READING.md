@@ -15,6 +15,13 @@ Lisps that are influenced by CSP:
     http://www.infoq.com/presentations/clojure-core-async
   - http://swannodette.github.io/2013/07/12/communicating-sequential-processes/
 
+Go's Concurrency Patterns:
+
+* http://blog.golang.org/share-memory-by-communicating
+* http://blog.golang.org/go-concurrency-patterns-timing-out-and
+* http://blog.golang.org/pipelines
+* http://blog.golang.org/context
+
 ## Monads
 
 - http://www.infoq.com/presentations/Why-is-a-Monad-Like-a-Writing-Desk¨

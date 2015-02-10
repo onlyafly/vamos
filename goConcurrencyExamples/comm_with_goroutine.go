@@ -5,7 +5,7 @@ Use a chan or a struct with a chan to communicate with a goroutine
 Source: http://talks.golang.org/2013/bestpractices.slide#28
 */
 
-package main
+package goConcurrencyExamples
 
 import (
 	"fmt"
@@ -42,7 +42,7 @@ func (s *Server) Stop() {
 	fmt.Println("server stopped")
 }
 
-func main() {
+func CommWithGoroutineMain() {
 	s := NewServer()
 	time.Sleep(2 * time.Second)
 	s.Stop()

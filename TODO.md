@@ -2,8 +2,7 @@
 
 ## Vision
 
-***Vamos is a fast Lisp that encourages a purely functional programming style an
-has CSP-like concurrency semantics.***
+***Vamos is a fast Lisp that encourages a purely functional programming style and has CSP-like concurrency semantics.***
 
 Principles:
 
