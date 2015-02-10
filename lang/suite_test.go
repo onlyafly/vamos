@@ -11,10 +11,17 @@ import (
 )
 
 const (
-	testsuiteDir = "../testsuite"
+	testsuiteDir = "testsuite"
+	baseDir      = ".."
 )
 
 func TestFullSuite(t *testing.T) {
+
+	// We set the base directory so that the test cases can use paths that make
+	// sense. If this is not set, the current working directory while the tests
+	// run will be "lang"
+	os.Chdir(baseDir)
+
 	filepath.Walk(testsuiteDir, func(fp string, fi os.FileInfo, err error) error {
 		if err != nil {
 			return nil // Can't visit this node, but continue walking elsewhere

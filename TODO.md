@@ -31,11 +31,6 @@ Quotes from the CSP paper:
 
 ### Next
 
-- make it possible for the test framework to test v2
-  - add ability to load libs at runtime
-  - factor test framework into its own lib
-  -
-- move if to prelude (see "if2")
 - research lisp primitives
 
 ### Tech Debt
@@ -56,3 +51,5 @@ Quotes from the CSP paper:
 ### Tooling
 
 ### Other
+
+- move if to prelude (see "prelude::if2") (?)

@@ -1,3 +1,3 @@
-(load "loading1_test.v")
+(load "testsuite/loading/loading1_test.v")
 
 x
