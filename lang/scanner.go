@@ -230,13 +230,12 @@ func scanString(s *Scanner) stateFn {
 }
 
 func scanChar(s *Scanner) stateFn {
-	s.next() // leading '\'
 	s.next() // first character in literal
 	if isAlpha(s.peek()) {
 		for isAlpha(s.next()) {
 		}
+		s.backup()
 	}
-	s.backup()
 	s.emit(TcChar)
 	return scanBegin
 }

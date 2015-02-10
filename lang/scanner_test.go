@@ -1,6 +1,7 @@
 package lang
 
 import (
+	"fmt"
 	"testing"
 	"vamos/testhelp"
 )
@@ -23,4 +24,15 @@ func TestScan(t *testing.T) {
 	testhelp.CheckEqualStringer(t, "3.5", <-tokens)
 	testhelp.CheckEqualStringer(t, ")", <-tokens)
 	testhelp.CheckEqualStringer(t, "EOF", <-tokens)
+
+	_, tokens = Scan("tester3", "\\a")
+	testhelp.CheckEqualStringer(t, "\\a", <-tokens)
+
+	fmt.Printf("START\n")
+	_, tokens = Scan("tester4", "(list \\a)")
+	testhelp.CheckEqualStringer(t, "(", <-tokens)
+	testhelp.CheckEqualStringer(t, "list", <-tokens)
+	testhelp.CheckEqualStringer(t, "\\a", <-tokens)
+	testhelp.CheckEqualStringer(t, ")", <-tokens)
+	fmt.Printf("END\n")
 }
