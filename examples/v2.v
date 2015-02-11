@@ -10,6 +10,15 @@
     (first l)
     (get (rest l) (- n 1))))
 
+(defn e2begin (exps env)
+  (if (list? exps)
+    (if (list? (rest exps))
+      (begin
+        (e2 (first exps) env)
+        (e2begin (rest exps) env))
+      (e2 (first exps) env))
+    (list)))
+
 (defn e2 (e env)
   (if (atom? e)
 
@@ -26,7 +35,7 @@
         (= proc 'if)     (if (e2 (get e 1) env)
                              (e2 (get e 2) env)
                              (e2 (get e 3) env))
-        ;;TODO (= proc 'begin)  (e2begin (rest e) env)
+        ;;(= proc 'begin)  (e2begin (rest e) env)
         ;;TODO (= proc 'set!)   (update! (get e 1) env (e2 (get e 2) env))
         ;;TODO (= prod 'fn)     (make-function (get e 0) (get e 1) env)
         ;;TODO else (invoke (e2 (first e) env)
@@ -40,5 +49,10 @@
             2)
          (= (e2 "test" env)
             "test"))))
+
+(deftest "Begin"
+  (let (env (current-environment))
+    (= (e2 '(begin 5 4) env)
+            42)))
 
 (runtests tests)
