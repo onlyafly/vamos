@@ -76,10 +76,11 @@ Variable number of arguments:
 ## Metaprogramming
 
     (def defn
-      (macro (name args body)
-        (list 'def name
-          (list 'fn args
-            body))))
+      (macro
+        (fn (name args body)
+          (list 'def name
+            (list 'fn args
+              body)))))
 
     (macroexpand1 '(defn inc (a) (+ 1 a)))
     => (def inc (fn (a) (+ 1 a)))
@@ -113,7 +114,7 @@ Lists:
 
 Collections (nil, lists, strings):
 
-    cons, concat, first, rest
+    cons, concat, first, rest, empty?
 
 Higher-order:
 

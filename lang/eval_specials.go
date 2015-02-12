@@ -93,17 +93,20 @@ func evalSpecialFn(e Env, head Node, args []Node) packet {
 }
 
 func evalSpecialMacro(e Env, head Node, args []Node) packet {
-	ensureSpecialArgsCountEquals("macro", head, args, 2)
+	ensureSpecialArgsCountEquals("macro", head, args, 1)
 
-	parameterList := args[0]
-	parameterNodes := parameterList.Children()
-
-	return respond(&Macro{
-		Name:       "anonymous",
-		Parameters: parameterNodes,
-		Body:       args[1],
-		ParentEnv:  e,
+	functionNode := trampoline(func() packet {
+		return evalNode(e, args[0])
 	})
+
+	switch val := functionNode.(type) {
+	case *Function:
+		val.IsMacro = true
+		return respond(val)
+	default:
+		panicEvalError(args[0], "macro expects a function argument but got: "+args[0].String())
+		return respond(nil)
+	}
 }
 
 func evalSpecialMacroexpand1(e Env, head Node, args []Node) packet {

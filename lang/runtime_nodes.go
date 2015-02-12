@@ -58,16 +58,25 @@ type Function struct {
 	Parameters []Node
 	Body       Node
 	ParentEnv  Env
+	IsMacro    bool
 }
 
 func (f *Function) String() string {
+	if f.IsMacro {
+		return "#macrofunction<" + f.Name + ">"
+	}
 	return "#function<" + f.Name + ">"
 }
 
 func (f *Function) Children() []Node    { return nil }
 func (f *Function) isExpr() bool        { return true }
-func (f *Function) TypeName() string    { return "function" }
 func (f *Function) Loc() *TokenLocation { return nil }
+func (f *Function) TypeName() string {
+	if f.IsMacro {
+		return "macrofunction"
+	}
+	return "function"
+}
 func (f *Function) Equals(n Node) bool {
 	panicEvalError(n, "Cannot compare the values of functions: "+
 		f.String()+" and "+n.String())

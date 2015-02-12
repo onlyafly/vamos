@@ -166,14 +166,8 @@ func evalList(e Env, l *ListNode, shouldEvalMacros bool) packet {
 		f := value.Value
 		return respond(f(e, evalEachNode(e, args)))
 	case *Function:
-		arguments := evalEachNode(e, args)
-
 		return bounce(func() packet {
-			return evalFunctionApplication(value, head, arguments)
-		})
-	case *Macro:
-		return bounce(func() packet {
-			return evalMacroApplication(e, value, head, args, shouldEvalMacros)
+			return evalFunctionApplication(e, value, head, args, shouldEvalMacros)
 		})
 	default:
 		panicEvalError(head, "First item in list not a function: "+value.String())
@@ -182,8 +176,9 @@ func evalList(e Env, l *ListNode, shouldEvalMacros bool) packet {
 	return respond(&NilNode{})
 }
 
-func evalFunctionApplication(f *Function, head Node, args []Node) packet {
+func evalFunctionApplication(dynamicEnv Env, f *Function, head Node, unevaledArgs []Node, shouldEvalMacros bool) packet {
 
+	// Validate parameters
 	isVariableNumberOfParams := false
 	for _, param := range f.Parameters {
 		paramName := toSymbolName(param)
@@ -192,21 +187,19 @@ func evalFunctionApplication(f *Function, head Node, args []Node) packet {
 		}
 	}
 	if !isVariableNumberOfParams {
-		ensureArgsMatchParameters(f.Name, head, &args, &f.Parameters)
+		ensureArgsMatchParameters(f.Name, head, &unevaledArgs, &f.Parameters)
 	}
 
-	e := NewMapEnv(f.Name, f.ParentEnv)
+	// Create the lexical environment based on the function's lexical parent
+	lexicalEnv := NewMapEnv(f.Name, f.ParentEnv)
 
-	// TODO
-	/*
-		print(
-			"evalFunctionApplication:\n   name=",
-			e.String(), "\n   body=",
-			f.Body.String(), "\n   parent=",
-			f.ParentEnv.String(), "\n   args=",
-			fmt.Sprintf("%v", args), "\n   isTail=",
-			fmt.Sprintf("%v", isTail), "\n")
-	*/
+	// Prepare the arguments for application
+	var args []Node
+	if f.IsMacro {
+		args = unevaledArgs
+	} else {
+		args = evalEachNode(dynamicEnv, unevaledArgs)
+	}
 
 	// Map arguments to parameters
 	isMappingRestArgs := false
@@ -216,61 +209,35 @@ func evalFunctionApplication(f *Function, head Node, args []Node) packet {
 		if isMappingRestArgs {
 			restArgs := args[iarg:]
 			restList := NewListNode(restArgs)
-			e.Set(paramName, restList)
+			lexicalEnv.Set(paramName, restList)
 		} else if paramName == "&rest" {
 			isMappingRestArgs = true
 		} else {
-			e.Set(paramName, args[iparam])
+			lexicalEnv.Set(paramName, args[iparam])
 			iarg++
 		}
 	}
 
-	return bounce(func() packet {
-		return evalNode(e, f.Body)
-	})
-}
-
-func evalMacroApplication(applicationEnv Env, m *Macro, head Node, args []Node, shouldEvalMacros bool) packet {
-	macroResult := expandMacro(m, head, args)
-
-	if shouldEvalMacros {
-		return bounce(func() packet {
-			// This is executed in the environment of its application, not the
-			// environment of its definition
-			return evalNode(applicationEnv, macroResult)
+	if f.IsMacro {
+		expandedMacro := trampoline(func() packet {
+			return evalNode(lexicalEnv, f.Body)
 		})
+
+		if shouldEvalMacros {
+			return bounce(func() packet {
+				// This is executed in the environment of its application, not the
+				// environment of its definition
+				return evalNode(dynamicEnv, expandedMacro)
+			})
+		} else {
+			return respond(expandedMacro)
+		}
 	} else {
-		return respond(macroResult)
+		// Evaluate the body in the new lexical environment
+		return bounce(func() packet {
+			return evalNode(lexicalEnv, f.Body)
+		})
 	}
-}
-
-func expandMacro(m *Macro, head Node, args []Node) Node {
-	ensureArgsMatchParameters(m.Name, head, &args, &m.Parameters)
-
-	e := NewMapEnv(m.Name, m.ParentEnv)
-
-	// TODO
-
-	/*
-		print(
-			"evalMacroApplication:\n   name=",
-			e.String(), "\n   body=",
-			m.Body.String(), "\n   parent=",
-			m.ParentEnv.String(), "\n   args=",
-			fmt.Sprintf("%v", args), "\n")
-	*/
-
-	// Save arguments into parameters
-	for i, arg := range args {
-		paramName := toSymbolName(m.Parameters[i])
-		e.Set(paramName, arg)
-	}
-
-	macroResult := trampoline(func() packet {
-		return evalNode(e, m.Body)
-	})
-
-	return macroResult
 }
 
 func ensureSpecialArgsCountEquals(formName string, head Node, args []Node, paramCount int) {

@@ -79,6 +79,12 @@
 (defn atom? (n)
   (not (list? n)))
 
+(defn empty? (n)
+  (cond (= n '()) true
+        (= n "") true
+        (= n nil) true
+        else false))
+
 (defn boolean? (n)
   (cond (= n true) true
         (= n false) true

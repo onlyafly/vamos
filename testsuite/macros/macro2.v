@@ -1,8 +1,9 @@
 (def defn
-  (macro (name args body)
-    (list 'def name
-      (list 'fn args
-        body))))
+  (macro
+    (fn (name args body)
+      (list 'def name
+        (list 'fn args
+          body)))))
 
 (defn addem (a b) (+ a b))
 

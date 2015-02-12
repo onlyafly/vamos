@@ -1,4 +1,5 @@
 (load "vtest.v")
+(load "vtest-old.v")
 
 ;; Inspired by Lisp in Small Pieces (LiSP)
 
@@ -12,7 +13,7 @@
 
 (defn e2begin (exps env)
   (if (list? exps)
-    (if (list? (rest exps))
+    (if (not (empty? (rest exps)))
       (begin
         (e2 (first exps) env)
         (e2begin (rest exps) env))
@@ -35,7 +36,7 @@
         (= proc 'if)     (if (e2 (get e 1) env)
                              (e2 (get e 2) env)
                              (e2 (get e 3) env))
-        ;;(= proc 'begin)  (e2begin (rest e) env)
+        (= proc 'begin)  (e2begin (rest e) env)
         ;;TODO (= proc 'set!)   (update! (get e 1) env (e2 (get e 2) env))
         ;;TODO (= prod 'fn)     (make-function (get e 0) (get e 1) env)
         ;;TODO else (invoke (e2 (first e) env)
@@ -43,16 +44,18 @@
         else (list 'NOT_YET_IMPLEMENTED proc)
         ))))
 
-(deftest "Atoms"
-  (let (env (current-environment))
-    (and (= (e2 '2 env)
-            2)
-         (= (e2 "test" env)
-            "test"))))
+(let (env (current-environment))
+
+(defvtest "Atoms"
+  (begin
+    (vt= (e2 '2 env)
+         2)
+    (vt= (e2 "test" env)
+         "test"))))
 
 (deftest "Begin"
   (let (env (current-environment))
     (= (e2 '(begin 5 4) env)
-            42)))
+            4)))
 
-(runtests tests)
+(vt-start)
