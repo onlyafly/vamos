@@ -164,7 +164,8 @@ func evalList(e Env, l *ListNode, shouldEvalMacros bool) packet {
 	switch value := headNode.(type) {
 	case *Primitive:
 		f := value.Value
-		return respond(f(e, evalEachNode(e, args)))
+		ensurePrimitiveArgsCountInRange(value.Name, head, args, value.MinArity, value.MaxArity)
+		return respond(f(e, head, evalEachNode(e, args)))
 	case *Function:
 		return bounce(func() packet {
 			return evalFunctionApplication(e, value, head, args, shouldEvalMacros)
@@ -264,10 +265,21 @@ func ensureSpecialArgsCountInRange(specialName string, head Node, args []Node, p
 func ensureArgsMatchParameters(procedureName string, head Node, args *[]Node, params *[]Node) {
 	if len(*args) != len(*params) {
 		panicEvalError(head, fmt.Sprintf(
-			"Procedure '%v' expects %v argument(s), but was given %v",
+			"Function '%v' expects %v argument(s), but was given %v",
 			procedureName,
 			len(*params),
 			len(*args)))
+	}
+}
+
+func ensurePrimitiveArgsCountInRange(name string, head Node, args []Node, paramCountMin int, paramCountMax int) {
+	if !(paramCountMin <= len(args) && len(args) <= paramCountMax) {
+		panicEvalError(head, fmt.Sprintf(
+			"Primitive '%v' expects between %v and %v arguments, but was given %v",
+			name,
+			paramCountMin,
+			paramCountMax,
+			len(args)))
 	}
 }
 

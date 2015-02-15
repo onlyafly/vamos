@@ -11,36 +11,36 @@ var trueSymbol, falseSymbol *Symbol
 
 func initializePrimitives(e Env) {
 	// Math
-	addPrimitive(e, "+", primAdd)
-	addPrimitive(e, "-", primSubtract)
-	addPrimitive(e, "*", primMult)
-	addPrimitive(e, "/", primDiv)
-	addPrimitive(e, "<", primLt)
-	addPrimitive(e, ">", primGt)
+	addPrimitive(e, "+", 2, primAdd)
+	addPrimitive(e, "-", 2, primSubtract)
+	addPrimitive(e, "*", 2, primMult)
+	addPrimitive(e, "/", 2, primDiv)
+	addPrimitive(e, "<", 2, primLt)
+	addPrimitive(e, ">", 2, primGt)
 
 	// Equality
-	addPrimitive(e, "=", primEquals)
+	addPrimitive(e, "=", 2, primEquals)
 
-	addPrimitive(e, "list", primList)
+	addPrimitiveWithArityRange(e, "list", 2, 100, primList)
 
 	// Collections
-	addPrimitive(e, "first", primFirst)
-	addPrimitive(e, "rest", primRest)
-	addPrimitive(e, "cons", primCons)
-	addPrimitive(e, "concat", primConcat)
+	addPrimitive(e, "first", 1, primFirst)
+	addPrimitive(e, "rest", 1, primRest)
+	addPrimitive(e, "cons", 2, primCons)
+	addPrimitive(e, "concat", 2, primConcat)
 
 	// Environments and types
-	addPrimitive(e, "current-environment", primCurrentEnvironment)
-	addPrimitive(e, "typeof", primTypeof)
+	addPrimitive(e, "current-environment", 0, primCurrentEnvironment)
+	addPrimitive(e, "typeof", 1, primTypeof)
 
 	// Metaprogramming
-	addPrimitive(e, "function-params", primFunctionParams)
-	addPrimitive(e, "function-body", primFunctionBody)
-	addPrimitive(e, "function-environment", primFunctionEnvironment)
+	addPrimitive(e, "function-params", 1, primFunctionParams)
+	addPrimitive(e, "function-body", 1, primFunctionBody)
+	addPrimitive(e, "function-environment", 1, primFunctionEnvironment)
 
 	// IO
-	addPrimitive(e, "println", primPrintln)
-	addPrimitive(e, "load", primLoad)
+	addPrimitive(e, "println", 1, primPrintln)
+	addPrimitive(e, "load", 1, primLoad)
 
 	// Predefined symbols
 
@@ -51,64 +51,70 @@ func initializePrimitives(e Env) {
 	e.Set("false", falseSymbol)
 }
 
-func addPrimitive(e Env, name string, f primitiveFunction) {
+func addPrimitiveWithArityRange(e Env, name string, minArity int, maxArity int, f primitiveFunction) {
 	e.Set(
 		name,
-		&Primitive{Name: name, Value: primitiveFunction(f)})
+		NewPrimitive(name, minArity, maxArity, primitiveFunction(f)))
+}
+
+func addPrimitive(e Env, name string, arity int, f primitiveFunction) {
+	e.Set(
+		name,
+		NewPrimitive(name, arity, arity, primitiveFunction(f)))
 }
 
 ////////// Primitives
 
-func primAdd(e Env, args []Node) Node {
+func primAdd(e Env, head Node, args []Node) Node {
 	result := toNumberValue(args[0]) + toNumberValue(args[1])
 	return &Number{Value: result}
 }
 
-func primSubtract(e Env, args []Node) Node {
+func primSubtract(e Env, head Node, args []Node) Node {
 	result := toNumberValue(args[0]) - toNumberValue(args[1])
 	return &Number{Value: result}
 }
 
-func primEquals(e Env, args []Node) Node {
+func primEquals(e Env, head Node, args []Node) Node {
 	if args[0].Equals(args[1]) {
 		return trueSymbol
 	}
 	return falseSymbol
 }
 
-func primLt(e Env, args []Node) Node {
+func primLt(e Env, head Node, args []Node) Node {
 	if toNumberValue(args[0]) < toNumberValue(args[1]) {
 		return trueSymbol
 	}
 	return falseSymbol
 }
 
-func primGt(e Env, args []Node) Node {
+func primGt(e Env, head Node, args []Node) Node {
 	if toNumberValue(args[0]) > toNumberValue(args[1]) {
 		return trueSymbol
 	}
 	return falseSymbol
 }
 
-func primDiv(e Env, args []Node) Node {
+func primDiv(e Env, head Node, args []Node) Node {
 	result := toNumberValue(args[0]) / toNumberValue(args[1])
 	return &Number{Value: result}
 }
 
-func primMult(e Env, args []Node) Node {
+func primMult(e Env, head Node, args []Node) Node {
 	result := toNumberValue(args[0]) * toNumberValue(args[1])
 	return &Number{Value: result}
 }
 
-func primList(e Env, args []Node) Node {
+func primList(e Env, head Node, args []Node) Node {
 	return &ListNode{Nodes: args}
 }
 
-func primCurrentEnvironment(e Env, args []Node) Node {
+func primCurrentEnvironment(e Env, head Node, args []Node) Node {
 	return NewEnvNode(e)
 }
 
-func primFunctionParams(e Env, args []Node) Node {
+func primFunctionParams(e Env, head Node, args []Node) Node {
 	arg := args[0]
 	switch val := arg.(type) {
 	case *Function:
@@ -120,7 +126,7 @@ func primFunctionParams(e Env, args []Node) Node {
 	return nil
 }
 
-func primFunctionBody(e Env, args []Node) Node {
+func primFunctionBody(e Env, head Node, args []Node) Node {
 	arg := args[0]
 	switch val := arg.(type) {
 	case *Function:
@@ -132,7 +138,7 @@ func primFunctionBody(e Env, args []Node) Node {
 	return nil
 }
 
-func primFunctionEnvironment(e Env, args []Node) Node {
+func primFunctionEnvironment(e Env, head Node, args []Node) Node {
 	arg := args[0]
 	switch val := arg.(type) {
 	case *Function:
@@ -144,12 +150,12 @@ func primFunctionEnvironment(e Env, args []Node) Node {
 	return nil
 }
 
-func primTypeof(e Env, args []Node) Node {
+func primTypeof(e Env, head Node, args []Node) Node {
 	arg := args[0]
 	return &Symbol{Name: arg.TypeName()}
 }
 
-func primPrintln(e Env, args []Node) Node {
+func primPrintln(e Env, head Node, args []Node) Node {
 	arg := args[0]
 	switch val := arg.(type) {
 	case *StringNode:
@@ -161,7 +167,7 @@ func primPrintln(e Env, args []Node) Node {
 	return nil
 }
 
-func primFirst(e Env, args []Node) Node {
+func primFirst(e Env, head Node, args []Node) Node {
 	arg := args[0]
 
 	switch val := arg.(type) {
@@ -173,7 +179,7 @@ func primFirst(e Env, args []Node) Node {
 	return nil
 }
 
-func primRest(e Env, args []Node) Node {
+func primRest(e Env, head Node, args []Node) Node {
 	arg := args[0]
 
 	switch val := arg.(type) {
@@ -185,7 +191,7 @@ func primRest(e Env, args []Node) Node {
 	return nil
 }
 
-func primCons(e Env, args []Node) Node {
+func primCons(e Env, head Node, args []Node) Node {
 	sourceElement := args[0]
 	targetColl := args[1]
 
@@ -198,7 +204,7 @@ func primCons(e Env, args []Node) Node {
 	return nil
 }
 
-func primConcat(e Env, args []Node) Node {
+func primConcat(e Env, head Node, args []Node) Node {
 	var sum Node = nil
 
 	for _, arg := range args {
@@ -226,7 +232,7 @@ func primConcat(e Env, args []Node) Node {
 	}
 }
 
-func primLoad(e Env, args []Node) Node {
+func primLoad(e Env, head Node, args []Node) Node {
 	arg := args[0]
 	switch val := arg.(type) {
 	case *StringNode:
@@ -239,7 +245,7 @@ func primLoad(e Env, args []Node) Node {
 					arg,
 					fmt.Sprintf("Error while loading file <%v>: %v\n", fileName, err.Error()))
 			} else {
-				ParseEvalPrint(e, content, false)
+				ParseEvalPrint(e, content, fileName, false)
 			}
 		}
 

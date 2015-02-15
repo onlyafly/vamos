@@ -1,0 +1,1 @@
+Evaluation error (testsuite/collection_prims/cons-error-on-missing-args.v: 1): Primitive 'cons' expects 2 argument(s), but was given 1

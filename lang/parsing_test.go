@@ -19,13 +19,13 @@ func TestParseAtom(t *testing.T) {
 }
 
 func TestParse(t *testing.T) {
-	result, _ := Parse("(defn init ()  (print 42))")
+	result, _ := Parse("(defn init ()  (print 42))", "test")
 
 	testhelp.CheckEqualString(t, "(defn init () (print 42))", result.String())
 }
 
 func TestParse_SymbolAnnotatingSymbol(t *testing.T) {
-	result, _ := Parse("(defn ^sample init ()  (print 42))")
+	result, _ := Parse("(defn ^sample init ()  (print 42))", "test")
 
 	testhelp.CheckEqualString(t, "(defn ^sample init () (print 42))", result.String())
 }

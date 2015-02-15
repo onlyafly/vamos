@@ -30,11 +30,22 @@ func (en *EnvNode) Equals(n Node) bool {
 
 ////////// Primitive
 
-type primitiveFunction func(Env, []Node) Node
+type primitiveFunction func(Env, Node, []Node) Node
 
 type Primitive struct {
-	Name  string
-	Value primitiveFunction
+	Name     string
+	Value    primitiveFunction
+	MinArity int
+	MaxArity int
+}
+
+func NewPrimitive(name string, minArity int, maxArity int, value primitiveFunction) *Primitive {
+	return &Primitive{
+		Name:     name,
+		Value:    value,
+		MinArity: minArity,
+		MaxArity: maxArity,
+	}
 }
 
 func (p *Primitive) String() string {

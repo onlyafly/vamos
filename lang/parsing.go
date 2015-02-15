@@ -6,8 +6,8 @@ import (
 	"unicode/utf8"
 )
 
-func Parse(input string) (Nodes, ParserErrorList) {
-	s, _ := Scan("parserCreated", input)
+func Parse(input string, sourceName string) (Nodes, ParserErrorList) {
+	s, _ := Scan(sourceName, input)
 	errorList := NewParserErrorList()
 	p := &parser{s: s}
 

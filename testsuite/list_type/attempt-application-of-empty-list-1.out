@@ -1,1 +1,1 @@
-Evaluation error (line 1): Empty list cannot be evaluated: ()
+Evaluation error (testsuite/list_type/attempt-application-of-empty-list-1.v: 1): Empty list cannot be evaluated: ()

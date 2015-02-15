@@ -1,5 +1,4 @@
 (load "vtest.v")
-(load "vtest-old.v")
 
 ;; Inspired by Lisp in Small Pieces (LiSP)
 
@@ -45,17 +44,18 @@
         ))))
 
 (let (env (current-environment))
-
-(defvtest "Atoms"
   (begin
-    (vt= (e2 '2 env)
-         2)
-    (vt= (e2 "test" env)
-         "test"))))
 
-(deftest "Begin"
-  (let (env (current-environment))
-    (= (e2 '(begin 5 4) env)
-            4)))
+    (defvtest "Atoms"
+      (vt= (e2 '2 env)
+           2)
+      (vt= (e2 "test" env)
+           "test"))
+
+    (defvtest "Begin"
+      (vt= (e2 '(begin 5 4) env)
+           4))
+
+  ))
 
 (vt-start)
