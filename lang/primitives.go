@@ -21,13 +21,13 @@ func initializePrimitives(e Env) {
 	// Equality
 	addPrimitive(e, "=", 2, primEquals)
 
-	addPrimitiveWithArityRange(e, "list", 2, 100, primList)
+	addPrimitiveWithArityRange(e, "list", 0, -1, primList)
 
 	// Collections
 	addPrimitive(e, "first", 1, primFirst)
 	addPrimitive(e, "rest", 1, primRest)
 	addPrimitive(e, "cons", 2, primCons)
-	addPrimitive(e, "concat", 2, primConcat)
+	addPrimitiveWithArityRange(e, "concat", 0, -1, primConcat)
 
 	// Environments and types
 	addPrimitive(e, "current-environment", 0, primCurrentEnvironment)

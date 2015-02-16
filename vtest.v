@@ -3,6 +3,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;
 
 (def _vtest_tests '())
+(println "DEFINING _vtest_tests")
 
 (defn _vtest_runtests (tests)
   (cond
@@ -16,7 +17,7 @@
              (cond
                (= result true) (println ".")
                else (println (concat "TEST FAILED: " testname)))
-             (runtests othertests)))))
+             (_vtest_runtests othertests)))))
 
 ;;;;;;;;;; External API
 
@@ -32,8 +33,8 @@
     (list 'cons
       (list 'list name
         (list 'fn '()
-          (cons 'begin preds))
-      '_vtest_tests))))
+          (cons 'begin preds)))
+      '_vtest_tests)))
 
 (defn vt= (actual expected)
   (if (= actual expected)

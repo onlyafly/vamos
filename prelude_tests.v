@@ -2,16 +2,15 @@
 
 ;;;;;;;;;; Tests
 
-(deftest "Truthful values in 'if'"
-  (= (list
+(defvtest "Truthful values in 'if'"
+  (vt= (list
        (if (quote true) 1 2)
        (if true 1 2))
      '(1 1)))
 
-(deftest "Recursion"
-  (=
+(defvtest "Recursion"
+  (vt=
     '(nil nil 5)
-
     (list
       (defn bar (exps)
         exps)
@@ -29,4 +28,4 @@
       )
     ))
 
-(runtests tests)
+(vt-start)

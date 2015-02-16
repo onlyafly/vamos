@@ -48,7 +48,11 @@ func evalNode(e Env, n Node) packet {
 	case *Number:
 		return respond(value)
 	case *Symbol:
-		return respond(e.Get(value.Name))
+		result, ok := e.Get(value.Name)
+		if !ok {
+			panicEvalError(value, "Name not defined: "+value.Name)
+		}
+		return respond(result)
 	case *StringNode:
 		return respond(value)
 	case *CharNode:
@@ -109,9 +113,12 @@ func evalList(e Env, l *ListNode, shouldEvalMacros bool) packet {
 			return evalSpecialEval(e, head, args)
 		case "update!":
 			name := toSymbolName(args[0])
-			e.Update(name, trampoline(func() packet {
+			rightHandSide := trampoline(func() packet {
 				return evalNode(e, args[1])
-			}))
+			})
+			if ok := e.Update(name, rightHandSide); !ok {
+				panicEvalError(value, "Cannot 'update!' an undefined name: "+name)
+			}
 			return respond(&NilNode{})
 		case "if":
 			predicate := toBooleanValue(trampoline(func() packet {
@@ -273,13 +280,32 @@ func ensureArgsMatchParameters(procedureName string, head Node, args *[]Node, pa
 }
 
 func ensurePrimitiveArgsCountInRange(name string, head Node, args []Node, paramCountMin int, paramCountMax int) {
-	if !(paramCountMin <= len(args) && len(args) <= paramCountMax) {
-		panicEvalError(head, fmt.Sprintf(
-			"Primitive '%v' expects between %v and %v arguments, but was given %v",
-			name,
-			paramCountMin,
-			paramCountMax,
-			len(args)))
+	switch {
+	case paramCountMax == -1:
+		if !(paramCountMin <= len(args)) {
+			panicEvalError(head, fmt.Sprintf(
+				"Primitive '%v' expects at least %v argument(s), but was given %v",
+				name,
+				paramCountMin,
+				len(args)))
+		}
+	case paramCountMin == paramCountMax:
+		if !(paramCountMin == len(args)) {
+			panicEvalError(head, fmt.Sprintf(
+				"Primitive '%v' expects %v argument(s), but was given %v",
+				name,
+				paramCountMin,
+				len(args)))
+		}
+	default:
+		if !(paramCountMin <= len(args) && len(args) <= paramCountMax) {
+			panicEvalError(head, fmt.Sprintf(
+				"Primitive '%v' expects between %v and %v arguments, but was given %v",
+				name,
+				paramCountMin,
+				paramCountMax,
+				len(args)))
+		}
 	}
 }
 

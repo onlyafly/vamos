@@ -9,8 +9,8 @@ import "fmt"
 // environment, if any, is the parent of this environment.
 type Env interface {
 	Set(name string, value Node)
-	Update(name string, value Node)
-	Get(name string) Node
+	Update(name string, value Node) bool
+	Get(name string) (Node, bool)
 	String() string
 	Parent() Env
 	Name() string
@@ -58,27 +58,34 @@ func (e *MapEnv) Set(name string, value Node) {
 }
 
 // Update updates the value of an existing symbol.
-func (e *MapEnv) Update(name string, value Node) {
-	if _, exists := e.symbols[name]; exists {
-		e.symbols[name] = value
-	} else {
-		panicEvalError(value, "Cannot update an undefined name: "+name)
+func (e *MapEnv) Update(name string, value Node) bool {
+	_, exists := e.symbols[name]
+
+	if !exists {
+		if e.Parent() == nil {
+			return false
+		} else {
+			return e.Parent().Update(name, value)
+		}
 	}
+
+	e.symbols[name] = value
+	return true
 }
 
 // Get returns the value of a symbol.
-func (e *MapEnv) Get(name string) Node {
+func (e *MapEnv) Get(name string) (Node, bool) {
 	value, exists := e.symbols[name]
 
 	if !exists {
 		if e.Parent() == nil {
-			panicEvalError(value, "Name not defined: "+name)
+			return nil, false
 		} else {
 			return e.Parent().Get(name)
 		}
 	}
 
-	return value
+	return value, true
 }
 
 // Parent returns the parent environment.
