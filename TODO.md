@@ -30,7 +30,7 @@ Quotes from the CSP paper:
 
 ### Next
 
-- research lisp primitives
+- Add 'read' primitive
 
 ### Tech Debt
 
@@ -46,6 +46,7 @@ Quotes from the CSP paper:
 - Make use of the Decl interface
 - Improve macros by making them non-first-class (?)
 - Dynamic binding
+- Types and type inference (?)
 
 ### Tooling
 
