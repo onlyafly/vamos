@@ -1,16 +1,19 @@
 ;;;;;;;;;; Procedures
 
 (def defn
-  (macro (name args body)
-    (list 'def name
-      (list 'fn args
-        body))))
+  (macro
+    (fn (name args body)
+      (list 'def name
+        (list 'fn args
+          body)))))
 
 (def defmacro
-  (macro (name args body)
-    (list 'def name
-      (list 'macro args
-        body))))
+  (macro
+    (fn (name args body)
+      (list 'def name
+        (list 'macro
+          (list 'fn args
+            body))))))
 
 ;;;;;;;;;; Logic
 
@@ -78,6 +81,12 @@
 
 (defn atom? (n)
   (not (list? n)))
+
+(defn empty? (n)
+  (cond (= n '()) true
+        (= n "") true
+        (= n nil) true
+        else false))
 
 (defn boolean? (n)
   (cond (= n true) true

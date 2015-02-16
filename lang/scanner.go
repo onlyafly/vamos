@@ -80,7 +80,7 @@ func (s *Scanner) run() {
 
 func (s *Scanner) emit(code TokenCode) {
 	s.Tokens <- Token{
-		Loc:   &TokenLocation{Pos: s.start, Line: s.line},
+		Loc:   &TokenLocation{Pos: s.start, Line: s.line, Filename: s.name},
 		Code:  code,
 		Value: s.input[s.start:s.pos],
 	}
@@ -141,7 +141,7 @@ func (s *Scanner) emitErrorf(format string, args ...interface{}) {
 	}
 
 	s.Tokens <- Token{
-		Loc:   &TokenLocation{Pos: s.start, Line: s.line},
+		Loc:   &TokenLocation{Pos: s.start, Line: s.line, Filename: s.name},
 		Code:  TcError,
 		Value: s.input[s.start:s.pos],
 	}

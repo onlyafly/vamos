@@ -15,7 +15,7 @@ func NewEvalError(message string, location *TokenLocation) *EvalError {
 // Implements the error interface
 func (e *EvalError) Error() string {
 	if e.location != nil {
-		return fmt.Sprintf("Evaluation error (line %v): %v", e.location.Line, e.Message)
+		return fmt.Sprintf("Evaluation error (%v: %v): %v", e.location.Filename, e.location.Line, e.Message)
 	}
 
 	return fmt.Sprintf("Evaluation error: %v", e.Message)

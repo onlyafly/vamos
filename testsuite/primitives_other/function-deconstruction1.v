@@ -5,10 +5,11 @@
       (add n 1))))
 
 (def rebuild-inc
-  (macro (name)
-    (list 'def name
-      (list 'fn (function-params inc)
-        (function-body inc)))))
+  (macro
+    (fn (name)
+      (list 'def name
+        (list 'fn (function-params inc)
+          (function-body inc))))))
 
 (eval '(rebuild-inc inc2) (function-environment inc))
 

@@ -1,1 +1,1 @@
-Evaluation error (line 1): Cannot cons a non-character onto a string: 1
+Evaluation error (testsuite/collection_prims/cons-on-strings-bad.v: 1): Cannot cons a non-character onto a string: 1

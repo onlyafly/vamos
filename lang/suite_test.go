@@ -37,7 +37,7 @@ func TestFullSuite(t *testing.T) {
 		}
 
 		if matched {
-			go testInputFile(fp, t)
+			testInputFile(fp, t)
 		}
 
 		return nil
@@ -67,7 +67,7 @@ func testInputFile(sourceFilePath string, t *testing.T) {
 	expectedWithUntrimmed := strings.Replace(expectedRaw, "\r", "", -1)
 	expected := strings.TrimSpace(expectedWithUntrimmed)
 
-	nodes, errors := Parse(input)
+	nodes, errors := Parse(input, sourceFilePath)
 	if errors.Len() != 0 {
 		verify(t, sourceFilePath, input, expected, errors.String())
 	} else {

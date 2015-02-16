@@ -131,13 +131,13 @@ func main() {
 			return
 		case strings.HasPrefix(input, ":inspect "):
 			withoutInspectPrefix := strings.Split(input, ":inspect ")[1]
-			if result, err := lang.ParseEval(topLevelEnv, withoutInspectPrefix); err == nil {
+			if result, err := lang.ParseEval(topLevelEnv, withoutInspectPrefix, "REPL"); err == nil {
 				inspect(result)
 			} else {
 				fmt.Println(err.Error())
 			}
 		default:
-			lang.ParseEvalPrint(topLevelEnv, input, true)
+			lang.ParseEvalPrint(topLevelEnv, input, "REPL", true)
 		}
 	}
 }
@@ -160,7 +160,7 @@ func loadFile(fileName string, env lang.Env) {
 		if err != nil {
 			fmt.Printf("Error while loading file <%v>: %v\n", fileName, err.Error())
 		} else {
-			lang.ParseEvalPrint(env, content, false)
+			lang.ParseEvalPrint(env, content, fileName, false)
 		}
 	}
 }

@@ -1,1 +1,1 @@
-Evaluation error (line 2): Cannot redefine a name: x
+Evaluation error (testsuite/variables_def_update/error-when-redefining1.v: 2): Cannot redefine a name: x
