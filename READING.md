@@ -1,5 +1,16 @@
 # Reading Notes
 
+## General Inspiration
+
+* Reasons the world needs new programming languages:
+  * http://www.fastcolabs.com/3031443/why-does-the-world-need-more-programming-languages
+    1.
+* "The Hundred-Year Language" by Paul Graham
+  * http://paulgraham.com/hundred.html
+* "Why we need even more programming languages" By Neil McAllister
+  * http://www.infoworld.com/article/2618643/application-development/why-we-need-even-more-programming-languages.html
+  * Upgrading existing, popular languages to support new features is a lot harder than you might think
+
 ## Concurrency
 
 CSP:
