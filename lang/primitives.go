@@ -2,6 +2,7 @@ package lang
 
 import (
 	"fmt"
+	"time"
 	"vamos/util"
 )
 
@@ -41,6 +42,7 @@ func initializePrimitives(e Env) {
 	// IO
 	addPrimitive(e, "println", 1, primPrintln)
 	addPrimitive(e, "load", 1, primLoad)
+	addPrimitive(e, "now", 1, primNow)
 
 	// Predefined symbols
 
@@ -253,5 +255,20 @@ func primLoad(e Env, head Node, args []Node) Node {
 	}
 
 	panicEvalError(arg, "Argument to 'load' not a string: "+arg.String())
+	return nil
+}
+
+func primNow(e Env, head Node, args []Node) Node {
+
+	time.Now()
+
+	arg := args[0]
+	switch val := arg.(type) {
+	case *StringNode:
+		fmt.Fprintf(writer, "%v\n", val.Value)
+		return &NilNode{}
+	}
+
+	panicEvalError(arg, "Argument to 'println' not a string: "+arg.String())
 	return nil
 }

@@ -84,12 +84,13 @@ func testInputFile(sourceFilePath string, t *testing.T) {
 			}
 		}
 
-		var actual string
-		actual = (&outputBuffer).String()
+		actual := (&outputBuffer).String()
 
 		if evalError == nil {
 			//DEBUG fmt.Printf("RESULT(%v): %v\n", sourceFilePath, result)
-			actual = actual + result.String()
+			if result != nil {
+				actual = actual + result.String()
+			}
 		} else {
 			actual = actual + evalError.Error()
 		}
