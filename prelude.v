@@ -101,6 +101,12 @@
   (list 'cond condition consequent
               true      alternative))
 
+;; TODO Naive implementation
+(defn len (xs)
+  (if (empty? xs)
+    0
+    (+ 1 (len (rest xs)))))
+
 ;;;;;;;;;;
 
 "Prelude version 2015-02-08"

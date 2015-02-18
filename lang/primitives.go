@@ -42,7 +42,7 @@ func initializePrimitives(e Env) {
 	// IO
 	addPrimitive(e, "println", 1, primPrintln)
 	addPrimitive(e, "load", 1, primLoad)
-	addPrimitive(e, "now", 1, primNow)
+	addPrimitive(e, "now", 0, primNow)
 
 	// Predefined symbols
 
@@ -260,15 +260,18 @@ func primLoad(e Env, head Node, args []Node) Node {
 
 func primNow(e Env, head Node, args []Node) Node {
 
-	time.Now()
+	t := time.Now()
+	year, month, day := t.Date()
+	hour, minute, second := t.Clock()
 
-	arg := args[0]
-	switch val := arg.(type) {
-	case *StringNode:
-		fmt.Fprintf(writer, "%v\n", val.Value)
-		return &NilNode{}
-	}
+	result := NewListNode([]Node{
+		&Number{Value: float64(year)},
+		&Number{Value: float64(month)},
+		&Number{Value: float64(day)},
+		&Number{Value: float64(hour)},
+		&Number{Value: float64(minute)},
+		&Number{Value: float64(second)},
+	})
 
-	panicEvalError(arg, "Argument to 'println' not a string: "+arg.String())
-	return nil
+	return result
 }

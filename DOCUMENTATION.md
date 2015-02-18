@@ -2,7 +2,7 @@
 
 * See http://hyperpolyglot.org/lisp for comparison of different Lisps.
 
-## Literals
+### Literals
 
 Nil:
 
@@ -31,7 +31,7 @@ List:
 
     '()
 
-## Special Forms
+### Special Forms
 
     ; This is a (single-line) comment
 
@@ -73,7 +73,7 @@ Variable number of arguments:
     (fn (x y &rest z)
       (+ x (+ y z)))
 
-## Metaprogramming
+### Metaprogramming
 
     (def defn
       (macro
@@ -94,7 +94,7 @@ Variable number of arguments:
     (function-environment inc)
     => #environment<TopLevel>
 
-## Built-in Functions
+### Built-in Functions
 
 Math:
 
@@ -133,6 +133,11 @@ Other:
 
     (typeof 4)
     => number
+
+### Concurrency
+
+    (now)
+    => (2015 10 01 20 45 16) ;; == 2015-10-01 8:45:16 PM
 
 ### Evaluation and environments
 
