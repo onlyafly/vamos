@@ -3,7 +3,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;
 
 (def _vtest_tests '())
-(println "DEFINING _vtest_tests")
 
 (defn _vtest_runtests (tests)
   (cond
@@ -44,4 +43,6 @@
       false)))
 
 (defn vt-start ()
-  (_vtest_runtests _vtest_tests))
+  (println "Running vtest tests...")
+  (_vtest_runtests _vtest_tests)
+  (println "Tests complete..."))

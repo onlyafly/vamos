@@ -44,6 +44,7 @@ func initializePrimitives(e Env) {
 	addPrimitive(e, "load", 1, primLoad)
 	addPrimitive(e, "now", 0, primNow)
 	addPrimitive(e, "sleep", 1, primSleep)
+	addPrimitiveWithArityRange(e, "go", 1, -1, primGo)
 
 	// Predefined symbols
 
@@ -289,4 +290,8 @@ func primSleep(e Env, head Node, args []Node) Node {
 
 	panicEvalError(arg, "Argument to 'sleep' not a number: "+arg.String())
 	return nil
+}
+
+func primGo(e Env, head Node, args []Node) Node {
+	return &NilNode{}
 }

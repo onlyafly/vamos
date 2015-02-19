@@ -2,10 +2,10 @@
 
 (def defn
   (macro
-    (fn (name args body)
+    (fn (name args &rest exps)
       (list 'def name
         (list 'fn args
-          body)))))
+          (cons 'begin exps))))))
 
 (def defmacro
   (macro
@@ -109,4 +109,4 @@
 
 ;;;;;;;;;;
 
-"Prelude version 2015-02-08"
+"Prelude version 2015-02-19"
