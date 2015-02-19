@@ -139,6 +139,10 @@ Other:
     (now)
     => (2015 10 01 20 45 16) ;; == 2015-10-01 8:45:16 PM
 
+    ;; Sleep for 1 second
+    (sleep 1000)
+    => nil
+
 ### Evaluation and environments
 
     (current-environment)

@@ -43,6 +43,7 @@ func initializePrimitives(e Env) {
 	addPrimitive(e, "println", 1, primPrintln)
 	addPrimitive(e, "load", 1, primLoad)
 	addPrimitive(e, "now", 0, primNow)
+	addPrimitive(e, "sleep", 1, primSleep)
 
 	// Predefined symbols
 
@@ -274,4 +275,18 @@ func primNow(e Env, head Node, args []Node) Node {
 	})
 
 	return result
+}
+
+func primSleep(e Env, head Node, args []Node) Node {
+
+	arg := args[0]
+
+	switch val := arg.(type) {
+	case *Number:
+		time.Sleep(time.Duration(val.Value) * time.Millisecond)
+		return &NilNode{}
+	}
+
+	panicEvalError(arg, "Argument to 'sleep' not a number: "+arg.String())
+	return nil
 }
