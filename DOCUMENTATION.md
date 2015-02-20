@@ -112,7 +112,7 @@ Lists:
 
     list
 
-Collections (nil, lists, strings):
+ast.Collections (nil, lists, strings):
 
     cons, concat, first, rest, empty?
 

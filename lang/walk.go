@@ -13,7 +13,7 @@ func DepthFirstWalk(visitor Visitor, node ast.Node) {
 	if childVisitor != nil {
 		var children ast.Nodes
 		switch val := node.(type) {
-		case Coll:
+		case ast.Coll:
 			children = val.Children()
 		}
 

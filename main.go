@@ -3,11 +3,15 @@ package main
 import (
 	"flag"
 	"fmt"
+
 	"log"
 	"os"
 	"strings"
+
 	"vamos/lang"
 	"vamos/util"
+
+	"vamos/lang/ast"
 
 	"github.com/peterh/liner"
 )
@@ -142,7 +146,7 @@ func main() {
 	}
 }
 
-func inspect(arg lang.Node) {
+func inspect(arg ast.Node) {
 	switch val := arg.(type) {
 	case *lang.EnvNode:
 		fmt.Printf(

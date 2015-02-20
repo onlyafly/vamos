@@ -9,7 +9,7 @@ func evalSpecialLet(parentEnv Env, head ast.Node, args []ast.Node) packet {
 
 	var variableNodes ast.Nodes
 	switch val := args[0].(type) {
-	case Coll:
+	case ast.Coll:
 		variableNodes = val.Children()
 	default:
 		panicEvalError(head, "Expected list as first argument to 'let': "+val.String())
@@ -96,7 +96,7 @@ func evalSpecialFn(e Env, head ast.Node, args []ast.Node) packet {
 
 	var parameterNodes ast.Nodes
 	switch val := args[0].(type) {
-	case Coll:
+	case ast.Coll:
 		parameterNodes = val.Children()
 	default:
 		panicEvalError(head, "Expected list as first argument to 'fn': "+val.String())

@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
-
+	"vamos/lang/ast"
 	"vamos/util"
 )
 

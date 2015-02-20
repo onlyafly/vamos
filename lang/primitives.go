@@ -175,7 +175,7 @@ func primFirst(e Env, head ast.Node, args []ast.Node) ast.Node {
 	arg := args[0]
 
 	switch val := arg.(type) {
-	case Coll:
+	case ast.Coll:
 		return val.First()
 	}
 
@@ -187,7 +187,7 @@ func primRest(e Env, head ast.Node, args []ast.Node) ast.Node {
 	arg := args[0]
 
 	switch val := arg.(type) {
-	case Coll:
+	case ast.Coll:
 		return val.Rest()
 	}
 
@@ -200,8 +200,13 @@ func primCons(e Env, head ast.Node, args []ast.Node) ast.Node {
 	targetColl := args[1]
 
 	switch val := targetColl.(type) {
-	case Coll:
-		return val.Cons(sourceElement)
+	case ast.Coll:
+		result, err := val.Cons(sourceElement)
+		if err != nil {
+			panicEvalError(head, err.Error())
+			return nil
+		}
+		return result
 	}
 
 	panicEvalError(sourceElement, "Cannot cons onto a non-collection: "+targetColl.String())
@@ -209,16 +214,16 @@ func primCons(e Env, head ast.Node, args []ast.Node) ast.Node {
 }
 
 func primConcat(e Env, head ast.Node, args []ast.Node) ast.Node {
-	var sum Coll
+	var sum ast.Node
 
 	for _, arg := range args {
 		if sum == nil {
 			sum = arg
 		} else {
 			switch sumVal := sum.(type) {
-			case Coll:
+			case ast.Coll:
 				switch argVal := arg.(type) {
-				case Coll:
+				case ast.Coll:
 					sum = sumVal.Append(argVal)
 				default:
 					panicEvalError(arg, "Cannot concat a collection with a non-collection: "+arg.String())
