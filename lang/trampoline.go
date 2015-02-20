@@ -1,10 +1,12 @@
 package lang
 
-// Packet contains a thunk or a Node.
+import "vamos/lang/ast"
+
+// Packet contains a thunk or a ast.Node.
 // A packet is the result of the evaluation of a thunk.
 type packet struct {
 	Thunk thunk
-	Node  Node
+	Node  ast.Node
 }
 
 // Bounce continues the trampolining session by placing a new thunk in the chain.
@@ -12,17 +14,17 @@ func bounce(t thunk) packet {
 	return packet{Thunk: t}
 }
 
-// Respond exits a trampolining session by placing a Node on the end of the
+// Respond exits a trampolining session by placing a ast.Node on the end of the
 // chain.
-func respond(n Node) packet {
+func respond(n ast.Node) packet {
 	return packet{Node: n}
 }
 
 type thunk func() packet
 
 // Trampoline iteratively calls a chain of thunks until there is no next thunk,
-// at which point it pulls the resulting Node out of the packet and returns it.
-func trampoline(currentThunk thunk) Node {
+// at which point it pulls the resulting ast.Node out of the packet and returns it.
+func trampoline(currentThunk thunk) ast.Node {
 	for currentThunk != nil {
 		nextPacket := currentThunk()
 

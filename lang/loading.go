@@ -3,6 +3,7 @@ package lang
 import (
 	"fmt"
 	"os"
+	"vamos/lang/ast"
 )
 
 func ParseEvalPrint(env Env, input string, sourceName string, printResult bool) {
@@ -16,7 +17,7 @@ func ParseEvalPrint(env Env, input string, sourceName string, printResult bool) 
 	}
 }
 
-func ParseEval(env Env, input string, sourceName string) (Node, error) {
+func ParseEval(env Env, input string, sourceName string) (ast.Node, error) {
 	defer func() {
 		// Some non-application triggered panic has occurred
 		if e := recover(); e != nil {
@@ -31,7 +32,7 @@ func ParseEval(env Env, input string, sourceName string) (Node, error) {
 		fmt.Println(parseErrors.String())
 	}
 
-	var result Node
+	var result ast.Node
 	var evalError error
 	for _, n := range nodes {
 		result, evalError = Eval(env, n, os.Stdout)

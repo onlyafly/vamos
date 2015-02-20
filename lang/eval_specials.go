@@ -1,11 +1,19 @@
 package lang
 
-func evalSpecialLet(parentEnv Env, head Node, args []Node) packet {
+import "vamos/lang/ast"
+
+func evalSpecialLet(parentEnv Env, head ast.Node, args []ast.Node) packet {
 	ensureSpecialArgsCountEquals("let", head, args, 2)
 
-	variableList := args[0]
 	body := args[1]
-	variableNodes := variableList.Children()
+
+	var variableNodes ast.Nodes
+	switch val := args[0].(type) {
+	case Coll:
+		variableNodes = val.Children()
+	default:
+		panicEvalError(head, "Expected list as first argument to 'let': "+val.String())
+	}
 
 	e := NewMapEnv("let", parentEnv)
 
@@ -26,32 +34,32 @@ func evalSpecialLet(parentEnv Env, head Node, args []Node) packet {
 	})
 }
 
-func evalSpecialGo(e Env, head Node, args []Node) packet {
+func evalSpecialGo(e Env, head ast.Node, args []ast.Node) packet {
 	go evalEachNode(e, args)
-	return respond(&NilNode{})
+	return respond(&ast.Nil{})
 }
 
-func evalSpecialBegin(e Env, head Node, args []Node) packet {
+func evalSpecialBegin(e Env, head ast.Node, args []ast.Node) packet {
 	results := evalEachNode(e, args)
 
 	if len(results) == 0 {
-		return respond(&NilNode{})
+		return respond(&ast.Nil{})
 	}
 
 	return respond(results[len(results)-1])
 }
 
-func evalSpecialDef(e Env, head Node, args []Node) packet {
+func evalSpecialDef(e Env, head ast.Node, args []ast.Node) packet {
 	ensureSpecialArgsCountEquals("def", head, args, 2)
 
 	name := toSymbolName(args[0])
 	e.Set(name, trampoline(func() packet {
 		return evalNode(e, args[1])
 	}))
-	return respond(&NilNode{})
+	return respond(&ast.Nil{})
 }
 
-func evalSpecialEval(e Env, head Node, args []Node) packet {
+func evalSpecialEval(e Env, head ast.Node, args []ast.Node) packet {
 	ensureSpecialArgsCountInRange("eval", head, args, 1, 2)
 
 	node := trampoline(func() packet {
@@ -83,11 +91,16 @@ func evalSpecialEval(e Env, head Node, args []Node) packet {
 	}
 }
 
-func evalSpecialFn(e Env, head Node, args []Node) packet {
+func evalSpecialFn(e Env, head ast.Node, args []ast.Node) packet {
 	ensureSpecialArgsCountEquals("fn", head, args, 2)
 
-	parameterList := args[0]
-	parameterNodes := parameterList.Children()
+	var parameterNodes ast.Nodes
+	switch val := args[0].(type) {
+	case Coll:
+		parameterNodes = val.Children()
+	default:
+		panicEvalError(head, "Expected list as first argument to 'fn': "+val.String())
+	}
 
 	return respond(&Function{
 		Name:       "anonymous",
@@ -97,7 +110,7 @@ func evalSpecialFn(e Env, head Node, args []Node) packet {
 	})
 }
 
-func evalSpecialMacro(e Env, head Node, args []Node) packet {
+func evalSpecialMacro(e Env, head ast.Node, args []ast.Node) packet {
 	ensureSpecialArgsCountEquals("macro", head, args, 1)
 
 	functionNode := trampoline(func() packet {
@@ -114,7 +127,7 @@ func evalSpecialMacro(e Env, head Node, args []Node) packet {
 	}
 }
 
-func evalSpecialMacroexpand1(e Env, head Node, args []Node) packet {
+func evalSpecialMacroexpand1(e Env, head ast.Node, args []ast.Node) packet {
 	ensureSpecialArgsCountEquals("macroexpand1", head, args, 1)
 
 	expansionNode := trampoline(func() packet {
@@ -122,7 +135,7 @@ func evalSpecialMacroexpand1(e Env, head Node, args []Node) packet {
 	})
 
 	switch value := expansionNode.(type) {
-	case *ListNode:
+	case *ast.List:
 		expansionResult := trampoline(func() packet {
 			return evalList(e, value, false)
 		})

@@ -3,12 +3,13 @@ package lang
 import (
 	"fmt"
 	"io"
+	"vamos/lang/ast"
 )
 
 var writer io.Writer
 
 // Eval evaluates a node in an environment.
-func Eval(e Env, n Node, w io.Writer) (result Node, err error) {
+func Eval(e Env, n ast.Node, w io.Writer) (result ast.Node, err error) {
 	defer func() {
 		if e := recover(); e != nil {
 			result = nil
@@ -31,8 +32,8 @@ func Eval(e Env, n Node, w io.Writer) (result Node, err error) {
 	return trampoline(startThunk), nil
 }
 
-func evalEachNode(e Env, ns []Node) []Node {
-	result := make([]Node, len(ns))
+func evalEachNode(e Env, ns []ast.Node) []ast.Node {
+	result := make([]ast.Node, len(ns))
 	for i, n := range ns {
 		evalNodeThunk := func() packet {
 			return evalNode(e, n)
@@ -42,33 +43,33 @@ func evalEachNode(e Env, ns []Node) []Node {
 	return result
 }
 
-func evalNode(e Env, n Node) packet {
+func evalNode(e Env, n ast.Node) packet {
 
 	switch value := n.(type) {
-	case *Number:
+	case *ast.Number:
 		return respond(value)
-	case *Symbol:
+	case *ast.Symbol:
 		result, ok := e.Get(value.Name)
 		if !ok {
 			panicEvalError(value, "Name not defined: "+value.Name)
 		}
 		return respond(result)
-	case *StringNode:
+	case *ast.Str:
 		return respond(value)
-	case *CharNode:
+	case *ast.CharNode:
 		return respond(value)
-	case *ListNode:
+	case *ast.List:
 		return bounce(func() packet { return evalList(e, value, true) })
-	case *NilNode:
-		return respond(&NilNode{})
+	case *ast.Nil:
+		return respond(&ast.Nil{})
 	default:
 		panicEvalError(n, "Unknown form to evaluate: "+value.String())
 	}
 
-	return respond(&NilNode{})
+	return respond(&ast.Nil{})
 }
 
-func evalList(e Env, l *ListNode, shouldEvalMacros bool) packet {
+func evalList(e Env, l *ast.List, shouldEvalMacros bool) packet {
 	elements := l.Nodes
 
 	if len(elements) == 0 {
@@ -96,16 +97,16 @@ func evalList(e Env, l *ListNode, shouldEvalMacros bool) packet {
 	args := elements[1:]
 
 	switch value := head.(type) {
-	case *Symbol:
+	case *ast.Symbol:
 		switch value.Name {
 		case "apply":
 			f := args[0]
 			l := toListValue(trampoline(func() packet {
 				return evalNode(e, args[1])
 			}))
-			nodes := append([]Node{f}, l.Nodes...)
+			nodes := append([]ast.Node{f}, l.Nodes...)
 			return respond(trampoline(func() packet {
-				return evalList(e, &ListNode{Nodes: nodes}, true)
+				return evalList(e, &ast.List{Nodes: nodes}, true)
 			}))
 		case "def":
 			return evalSpecialDef(e, head, args)
@@ -119,7 +120,7 @@ func evalList(e Env, l *ListNode, shouldEvalMacros bool) packet {
 			if ok := e.Update(name, rightHandSide); !ok {
 				panicEvalError(value, "Cannot 'update!' an undefined name: "+name)
 			}
-			return respond(&NilNode{})
+			return respond(&ast.Nil{})
 		case "if":
 			predicate := toBooleanValue(trampoline(func() packet {
 				return evalNode(e, args[0])
@@ -183,10 +184,10 @@ func evalList(e Env, l *ListNode, shouldEvalMacros bool) packet {
 		panicEvalError(head, "First item in list not a function: "+value.String())
 	}
 
-	return respond(&NilNode{})
+	return respond(&ast.Nil{})
 }
 
-func evalFunctionApplication(dynamicEnv Env, f *Function, head Node, unevaledArgs []Node, shouldEvalMacros bool) packet {
+func evalFunctionApplication(dynamicEnv Env, f *Function, head ast.Node, unevaledArgs []ast.Node, shouldEvalMacros bool) packet {
 
 	// Validate parameters
 	isVariableNumberOfParams := false
@@ -204,7 +205,7 @@ func evalFunctionApplication(dynamicEnv Env, f *Function, head Node, unevaledArg
 	lexicalEnv := NewMapEnv(f.Name, f.ParentEnv)
 
 	// Prepare the arguments for application
-	var args []Node
+	var args []ast.Node
 	if f.IsMacro {
 		args = unevaledArgs
 	} else {
@@ -218,7 +219,7 @@ func evalFunctionApplication(dynamicEnv Env, f *Function, head Node, unevaledArg
 		paramName := toSymbolName(param)
 		if isMappingRestArgs {
 			restArgs := args[iarg:]
-			restList := NewListNode(restArgs)
+			restList := ast.NewList(restArgs)
 			lexicalEnv.Set(paramName, restList)
 		} else if paramName == "&rest" {
 			isMappingRestArgs = true
@@ -250,7 +251,7 @@ func evalFunctionApplication(dynamicEnv Env, f *Function, head Node, unevaledArg
 	}
 }
 
-func ensureSpecialArgsCountEquals(formName string, head Node, args []Node, paramCount int) {
+func ensureSpecialArgsCountEquals(formName string, head ast.Node, args []ast.Node, paramCount int) {
 	if len(args) != paramCount {
 		panicEvalError(head, fmt.Sprintf(
 			"Special form '%v' expects %v argument(s), but was given %v",
@@ -260,7 +261,7 @@ func ensureSpecialArgsCountEquals(formName string, head Node, args []Node, param
 	}
 }
 
-func ensureSpecialArgsCountInRange(specialName string, head Node, args []Node, paramCountMin int, paramCountMax int) {
+func ensureSpecialArgsCountInRange(specialName string, head ast.Node, args []ast.Node, paramCountMin int, paramCountMax int) {
 	if !(paramCountMin <= len(args) && len(args) <= paramCountMax) {
 		panicEvalError(head, fmt.Sprintf(
 			"Special form '%v' expects between %v and %v arguments, but was given %v",
@@ -271,7 +272,7 @@ func ensureSpecialArgsCountInRange(specialName string, head Node, args []Node, p
 	}
 }
 
-func ensureArgsMatchParameters(procedureName string, head Node, args *[]Node, params *[]Node) {
+func ensureArgsMatchParameters(procedureName string, head ast.Node, args *[]ast.Node, params *[]ast.Node) {
 	if len(*args) != len(*params) {
 		panicEvalError(head, fmt.Sprintf(
 			"Function '%v' expects %v argument(s), but was given %v",
@@ -281,7 +282,7 @@ func ensureArgsMatchParameters(procedureName string, head Node, args *[]Node, pa
 	}
 }
 
-func ensurePrimitiveArgsCountInRange(name string, head Node, args []Node, paramCountMin int, paramCountMax int) {
+func ensurePrimitiveArgsCountInRange(name string, head ast.Node, args []ast.Node, paramCountMin int, paramCountMax int) {
 	switch {
 	case paramCountMax == -1:
 		if !(paramCountMin <= len(args)) {
@@ -311,9 +312,9 @@ func ensurePrimitiveArgsCountInRange(name string, head Node, args []Node, paramC
 	}
 }
 
-func toSymbolName(n Node) string {
+func toSymbolName(n ast.Node) string {
 	switch value := n.(type) {
-	case *Symbol:
+	case *ast.Symbol:
 		return value.Name
 	}
 

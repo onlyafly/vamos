@@ -1,8 +1,6 @@
-package lang
+package token
 
-////////// TokenLocation
-
-type TokenLocation struct {
+type Location struct {
 	Pos      int // position within the file
 	Line     int
 	Filename string

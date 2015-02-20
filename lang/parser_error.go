@@ -2,12 +2,13 @@ package lang
 
 import (
 	"fmt"
+	"vamos/lang/token"
 )
 
 ////////// ParserError
 
 type ParserError struct {
-	Loc     *TokenLocation
+	Loc     *token.Location
 	Message string
 }
 
@@ -26,7 +27,7 @@ func NewParserErrorList() ParserErrorList {
 	return make(ParserErrorList, 0)
 }
 
-func (p *ParserErrorList) Add(loc *TokenLocation, msg string) {
+func (p *ParserErrorList) Add(loc *token.Location, msg string) {
 	*p = append(*p, &ParserError{loc, msg})
 }
 

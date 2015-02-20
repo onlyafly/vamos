@@ -1,15 +1,21 @@
 package lang
 
+import "vamos/lang/ast"
+
 type Visitor interface {
-	Visit(node Node) (childVisitor Visitor)
+	Visit(node ast.Node) (childVisitor Visitor)
 }
 
 // DepthFirstWalk traverses the AST in depth-first order.
-func DepthFirstWalk(visitor Visitor, node Node) {
+func DepthFirstWalk(visitor Visitor, node ast.Node) {
 	childVisitor := visitor.Visit(node)
 
 	if childVisitor != nil {
-		children := node.Children()
+		var children ast.Nodes
+		switch val := node.(type) {
+		case Coll:
+			children = val.Children()
+		}
 
 		if len(children) > 0 {
 			for _, child := range children {

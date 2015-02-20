@@ -75,7 +75,7 @@ func testInputFile(sourceFilePath string, t *testing.T) {
 
 		var outputBuffer bytes.Buffer
 
-		var result Node
+		var result ast.Node
 		var evalError error
 		for _, n := range nodes {
 			result, evalError = Eval(e, n, &outputBuffer)

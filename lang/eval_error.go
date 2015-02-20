@@ -1,14 +1,18 @@
 package lang
 
-import "fmt"
+import (
+	"fmt"
+	"vamos/lang/ast"
+	"vamos/lang/token"
+)
 
 // EvalError represents an error that occurs during evaluation.
 type EvalError struct {
 	Message  string
-	location *TokenLocation
+	location *token.Location
 }
 
-func NewEvalError(message string, location *TokenLocation) *EvalError {
+func NewEvalError(message string, location *token.Location) *EvalError {
 	return &EvalError{message, location}
 }
 
@@ -21,8 +25,8 @@ func (e *EvalError) Error() string {
 	return fmt.Sprintf("Evaluation error: %v", e.Message)
 }
 
-func panicEvalError(n Node, s string) {
-	var loc *TokenLocation
+func panicEvalError(n ast.Node, s string) {
+	var loc *token.Location
 	if n != nil {
 		loc = n.Loc()
 	}

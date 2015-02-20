@@ -9,12 +9,13 @@ import (
 	"fmt"
 	"strings"
 	"unicode/utf8"
+	"vamos/lang/token"
 )
 
 ////////// Token
 
 type Token struct {
-	Loc   *TokenLocation
+	Loc   *token.Location
 	Code  TokenCode
 	Value string
 }
@@ -80,7 +81,7 @@ func (s *Scanner) run() {
 
 func (s *Scanner) emit(code TokenCode) {
 	s.Tokens <- Token{
-		Loc:   &TokenLocation{Pos: s.start, Line: s.line, Filename: s.name},
+		Loc:   &token.Location{Pos: s.start, Line: s.line, Filename: s.name},
 		Code:  code,
 		Value: s.input[s.start:s.pos],
 	}
@@ -141,7 +142,7 @@ func (s *Scanner) emitErrorf(format string, args ...interface{}) {
 	}
 
 	s.Tokens <- Token{
-		Loc:   &TokenLocation{Pos: s.start, Line: s.line, Filename: s.name},
+		Loc:   &token.Location{Pos: s.start, Line: s.line, Filename: s.name},
 		Code:  TcError,
 		Value: s.input[s.start:s.pos],
 	}

@@ -3,12 +3,13 @@ package lang
 import (
 	"fmt"
 	"time"
+	"vamos/lang/ast"
 	"vamos/util"
 )
 
 ////////// Primitive Support
 
-var trueSymbol, falseSymbol *Symbol
+var trueSymbol, falseSymbol *ast.Symbol
 
 func initializePrimitives(e Env) {
 	// Math
@@ -47,10 +48,10 @@ func initializePrimitives(e Env) {
 
 	// Predefined symbols
 
-	trueSymbol = &Symbol{Name: "true"}
+	trueSymbol = &ast.Symbol{Name: "true"}
 	e.Set("true", trueSymbol)
 
-	falseSymbol = &Symbol{Name: "false"}
+	falseSymbol = &ast.Symbol{Name: "false"}
 	e.Set("false", falseSymbol)
 }
 
@@ -68,60 +69,60 @@ func addPrimitive(e Env, name string, arity int, f primitiveFunction) {
 
 ////////// Primitives
 
-func primAdd(e Env, head Node, args []Node) Node {
+func primAdd(e Env, head ast.Node, args []ast.Node) ast.Node {
 	result := toNumberValue(args[0]) + toNumberValue(args[1])
-	return &Number{Value: result}
+	return &ast.Number{Value: result}
 }
 
-func primSubtract(e Env, head Node, args []Node) Node {
+func primSubtract(e Env, head ast.Node, args []ast.Node) ast.Node {
 	result := toNumberValue(args[0]) - toNumberValue(args[1])
-	return &Number{Value: result}
+	return &ast.Number{Value: result}
 }
 
-func primEquals(e Env, head Node, args []Node) Node {
+func primEquals(e Env, head ast.Node, args []ast.Node) ast.Node {
 	if args[0].Equals(args[1]) {
 		return trueSymbol
 	}
 	return falseSymbol
 }
 
-func primLt(e Env, head Node, args []Node) Node {
+func primLt(e Env, head ast.Node, args []ast.Node) ast.Node {
 	if toNumberValue(args[0]) < toNumberValue(args[1]) {
 		return trueSymbol
 	}
 	return falseSymbol
 }
 
-func primGt(e Env, head Node, args []Node) Node {
+func primGt(e Env, head ast.Node, args []ast.Node) ast.Node {
 	if toNumberValue(args[0]) > toNumberValue(args[1]) {
 		return trueSymbol
 	}
 	return falseSymbol
 }
 
-func primDiv(e Env, head Node, args []Node) Node {
+func primDiv(e Env, head ast.Node, args []ast.Node) ast.Node {
 	result := toNumberValue(args[0]) / toNumberValue(args[1])
-	return &Number{Value: result}
+	return &ast.Number{Value: result}
 }
 
-func primMult(e Env, head Node, args []Node) Node {
+func primMult(e Env, head ast.Node, args []ast.Node) ast.Node {
 	result := toNumberValue(args[0]) * toNumberValue(args[1])
-	return &Number{Value: result}
+	return &ast.Number{Value: result}
 }
 
-func primList(e Env, head Node, args []Node) Node {
-	return &ListNode{Nodes: args}
+func primList(e Env, head ast.Node, args []ast.Node) ast.Node {
+	return &ast.List{Nodes: args}
 }
 
-func primCurrentEnvironment(e Env, head Node, args []Node) Node {
+func primCurrentEnvironment(e Env, head ast.Node, args []ast.Node) ast.Node {
 	return NewEnvNode(e)
 }
 
-func primFunctionParams(e Env, head Node, args []Node) Node {
+func primFunctionParams(e Env, head ast.Node, args []ast.Node) ast.Node {
 	arg := args[0]
 	switch val := arg.(type) {
 	case *Function:
-		return NewListNode(val.Parameters)
+		return ast.NewList(val.Parameters)
 	default:
 		panicEvalError(args[0], "Argument to 'function-params' not a function: "+arg.String())
 	}
@@ -129,7 +130,7 @@ func primFunctionParams(e Env, head Node, args []Node) Node {
 	return nil
 }
 
-func primFunctionBody(e Env, head Node, args []Node) Node {
+func primFunctionBody(e Env, head ast.Node, args []ast.Node) ast.Node {
 	arg := args[0]
 	switch val := arg.(type) {
 	case *Function:
@@ -141,7 +142,7 @@ func primFunctionBody(e Env, head Node, args []Node) Node {
 	return nil
 }
 
-func primFunctionEnvironment(e Env, head Node, args []Node) Node {
+func primFunctionEnvironment(e Env, head ast.Node, args []ast.Node) ast.Node {
 	arg := args[0]
 	switch val := arg.(type) {
 	case *Function:
@@ -153,24 +154,24 @@ func primFunctionEnvironment(e Env, head Node, args []Node) Node {
 	return nil
 }
 
-func primTypeof(e Env, head Node, args []Node) Node {
+func primTypeof(e Env, head ast.Node, args []ast.Node) ast.Node {
 	arg := args[0]
-	return &Symbol{Name: arg.TypeName()}
+	return &ast.Symbol{Name: arg.TypeName()}
 }
 
-func primPrintln(e Env, head Node, args []Node) Node {
+func primPrintln(e Env, head ast.Node, args []ast.Node) ast.Node {
 	arg := args[0]
 	switch val := arg.(type) {
-	case *StringNode:
+	case *ast.Str:
 		fmt.Fprintf(writer, "%v\n", val.Value)
-		return &NilNode{}
+		return &ast.Nil{}
 	}
 
 	panicEvalError(arg, "Argument to 'println' not a string: "+arg.String())
 	return nil
 }
 
-func primFirst(e Env, head Node, args []Node) Node {
+func primFirst(e Env, head ast.Node, args []ast.Node) ast.Node {
 	arg := args[0]
 
 	switch val := arg.(type) {
@@ -182,7 +183,7 @@ func primFirst(e Env, head Node, args []Node) Node {
 	return nil
 }
 
-func primRest(e Env, head Node, args []Node) Node {
+func primRest(e Env, head ast.Node, args []ast.Node) ast.Node {
 	arg := args[0]
 
 	switch val := arg.(type) {
@@ -194,7 +195,7 @@ func primRest(e Env, head Node, args []Node) Node {
 	return nil
 }
 
-func primCons(e Env, head Node, args []Node) Node {
+func primCons(e Env, head ast.Node, args []ast.Node) ast.Node {
 	sourceElement := args[0]
 	targetColl := args[1]
 
@@ -207,8 +208,8 @@ func primCons(e Env, head Node, args []Node) Node {
 	return nil
 }
 
-func primConcat(e Env, head Node, args []Node) Node {
-	var sum Node = nil
+func primConcat(e Env, head ast.Node, args []ast.Node) ast.Node {
+	var sum Coll
 
 	for _, arg := range args {
 		if sum == nil {
@@ -229,16 +230,16 @@ func primConcat(e Env, head Node, args []Node) Node {
 	}
 
 	if sum == nil {
-		return &NilNode{}
+		return &ast.Nil{}
 	} else {
 		return sum
 	}
 }
 
-func primLoad(e Env, head Node, args []Node) Node {
+func primLoad(e Env, head ast.Node, args []ast.Node) ast.Node {
 	arg := args[0]
 	switch val := arg.(type) {
-	case *StringNode:
+	case *ast.Str:
 		fileName := val.Value
 
 		if len(fileName) > 0 {
@@ -252,39 +253,39 @@ func primLoad(e Env, head Node, args []Node) Node {
 			}
 		}
 
-		return &NilNode{}
+		return &ast.Nil{}
 	}
 
 	panicEvalError(arg, "Argument to 'load' not a string: "+arg.String())
 	return nil
 }
 
-func primNow(e Env, head Node, args []Node) Node {
+func primNow(e Env, head ast.Node, args []ast.Node) ast.Node {
 
 	t := time.Now()
 	year, month, day := t.Date()
 	hour, minute, second := t.Clock()
 
-	result := NewListNode([]Node{
-		&Number{Value: float64(year)},
-		&Number{Value: float64(month)},
-		&Number{Value: float64(day)},
-		&Number{Value: float64(hour)},
-		&Number{Value: float64(minute)},
-		&Number{Value: float64(second)},
+	result := ast.NewList([]ast.Node{
+		&ast.Number{Value: float64(year)},
+		&ast.Number{Value: float64(month)},
+		&ast.Number{Value: float64(day)},
+		&ast.Number{Value: float64(hour)},
+		&ast.Number{Value: float64(minute)},
+		&ast.Number{Value: float64(second)},
 	})
 
 	return result
 }
 
-func primSleep(e Env, head Node, args []Node) Node {
+func primSleep(e Env, head ast.Node, args []ast.Node) ast.Node {
 
 	arg := args[0]
 
 	switch val := arg.(type) {
-	case *Number:
+	case *ast.Number:
 		time.Sleep(time.Duration(val.Value) * time.Millisecond)
-		return &NilNode{}
+		return &ast.Nil{}
 	}
 
 	panicEvalError(arg, "Argument to 'sleep' not a number: "+arg.String())

@@ -1,8 +1,10 @@
 package lang
 
-func toListValue(n Node) *ListNode {
+import "vamos/lang/ast"
+
+func toListValue(n ast.Node) *ast.List {
 	switch value := n.(type) {
-	case *ListNode:
+	case *ast.List:
 		return value
 	}
 
@@ -10,9 +12,9 @@ func toListValue(n Node) *ListNode {
 	return nil
 }
 
-func toNumberValue(n Node) float64 {
+func toNumberValue(n ast.Node) float64 {
 	switch value := n.(type) {
-	case *Number:
+	case *ast.Number:
 		return value.Value
 	}
 
@@ -20,9 +22,9 @@ func toNumberValue(n Node) float64 {
 	return 0.0
 }
 
-func toSymbolValue(n Node) string {
+func toSymbolValue(n ast.Node) string {
 	switch value := n.(type) {
-	case *Symbol:
+	case *ast.Symbol:
 		return value.Name
 	}
 
@@ -30,9 +32,9 @@ func toSymbolValue(n Node) string {
 	return ""
 }
 
-func toBooleanValue(n Node) bool {
+func toBooleanValue(n ast.Node) bool {
 	switch value := n.(type) {
-	case *Symbol:
+	case *ast.Symbol:
 		switch value.Name {
 		case "true":
 			return true
