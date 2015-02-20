@@ -8,17 +8,17 @@ import (
 	"os"
 	"strings"
 
-	"vamos/lang"
 	"vamos/util"
 
 	"vamos/lang/ast"
+	"vamos/lang/interpreter"
 
 	"github.com/peterh/liner"
 )
 
 const (
 	version         = `0.1.0-alpha`
-	versionDate     = `2015-02-08`
+	versionDate     = `2015-02-20`
 	historyFilename = "/tmp/.vamos_liner_history"
 )
 
@@ -95,7 +95,7 @@ func main() {
 
 	// Initialize
 
-	topLevelEnv := lang.NewTopLevelMapEnv()
+	topLevelEnv := interpreter.NewTopLevelMapEnv()
 
 	if len(exeFileName) != 0 {
 		loadFile("prelude.v", topLevelEnv)
@@ -135,20 +135,20 @@ func main() {
 			return
 		case strings.HasPrefix(input, ":inspect "):
 			withoutInspectPrefix := strings.Split(input, ":inspect ")[1]
-			if result, err := lang.ParseEval(topLevelEnv, withoutInspectPrefix, "REPL"); err == nil {
+			if result, err := interpreter.ParseEval(topLevelEnv, withoutInspectPrefix, "REPL"); err == nil {
 				inspect(result)
 			} else {
 				fmt.Println(err.Error())
 			}
 		default:
-			lang.ParseEvalPrint(topLevelEnv, input, "REPL", true)
+			interpreter.ParseEvalPrint(topLevelEnv, input, "REPL", true)
 		}
 	}
 }
 
 func inspect(arg ast.Node) {
 	switch val := arg.(type) {
-	case *lang.EnvNode:
+	case *interpreter.EnvNode:
 		fmt.Printf(
 			"Environment\n  Name='%v'\n  Env=%v\n",
 			val.Name(),
@@ -158,13 +158,13 @@ func inspect(arg ast.Node) {
 	}
 }
 
-func loadFile(fileName string, env lang.Env) {
+func loadFile(fileName string, env interpreter.Env) {
 	if len(fileName) > 0 {
 		content, err := util.ReadFile(fileName)
 		if err != nil {
 			fmt.Printf("Error while loading file <%v>: %v\n", fileName, err.Error())
 		} else {
-			lang.ParseEvalPrint(env, content, fileName, false)
+			interpreter.ParseEvalPrint(env, content, fileName, false)
 		}
 	}
 }

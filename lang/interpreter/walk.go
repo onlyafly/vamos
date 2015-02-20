@@ -1,4 +1,4 @@
-package lang
+package interpreter
 
 import "vamos/lang/ast"
 

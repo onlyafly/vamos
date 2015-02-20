@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 	"vamos/lang/ast"
+	"vamos/lang/interpreter"
 	"vamos/lang/parser"
 	"vamos/util"
 )
@@ -72,14 +73,14 @@ func testInputFile(sourceFilePath string, t *testing.T) {
 	if errors.Len() != 0 {
 		verify(t, sourceFilePath, input, expected, errors.String())
 	} else {
-		e := NewTopLevelMapEnv()
+		e := interpreter.NewTopLevelMapEnv()
 
 		var outputBuffer bytes.Buffer
 
 		var result ast.Node
 		var evalError error
 		for _, n := range nodes {
-			result, evalError = Eval(e, n, &outputBuffer)
+			result, evalError = interpreter.Eval(e, n, &outputBuffer)
 			if evalError != nil {
 				break
 			}

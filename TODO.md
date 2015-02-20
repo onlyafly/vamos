@@ -30,7 +30,6 @@ Quotes from the CSP paper:
 
 ### Next
 
-- Refactor parser out of rest of library
 - Make specials first class
 - Add 'read' primitive
 - Complete concurrency functionality
