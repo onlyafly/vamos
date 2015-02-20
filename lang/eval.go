@@ -161,6 +161,8 @@ func evalList(e Env, l *ListNode, shouldEvalMacros bool) packet {
 			return bounce(func() packet {
 				return evalSpecialBegin(e, head, args)
 			})
+		case "go":
+			return evalSpecialGo(e, head, args)
 		}
 	}
 

@@ -26,6 +26,11 @@ func evalSpecialLet(parentEnv Env, head Node, args []Node) packet {
 	})
 }
 
+func evalSpecialGo(e Env, head Node, args []Node) packet {
+	go evalEachNode(e, args)
+	return respond(&NilNode{})
+}
+
 func evalSpecialBegin(e Env, head Node, args []Node) packet {
 	results := evalEachNode(e, args)
 
