@@ -30,7 +30,10 @@ Quotes from the CSP paper:
 
 ### Next
 
+- Refactor parser out of rest of library
+- Make specials first class
 - Add 'read' primitive
+- Complete concurrency functionality
 
 ### Tech Debt
 
@@ -40,6 +43,7 @@ Quotes from the CSP paper:
 
 ### Language
 
+- Add module system
 - Associate source information with Function nodes (filename, line number, etc)
 - Get ideas from comparison of different lisps at: http://hyperpolyglot.org/lisp
 - Make use of unused annotation functionality (see test 0100)
@@ -47,6 +51,7 @@ Quotes from the CSP paper:
 - Improve macros by making them non-first-class (?)
 - Dynamic binding
 - Types and type inference (?)
+- Reader macros
 
 ### Tooling
 
