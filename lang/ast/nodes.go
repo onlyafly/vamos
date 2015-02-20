@@ -22,6 +22,7 @@ func (ns Nodes) String() string {
 // Node represents a parsed lisp node.
 type Node interface {
 	fmt.Stringer
+
 	Equals(Node) bool
 	TypeName() string
 	Loc() *token.Location

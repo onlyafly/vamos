@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 	"vamos/lang/ast"
+	"vamos/lang/parser"
 	"vamos/util"
 )
 
@@ -67,7 +68,7 @@ func testInputFile(sourceFilePath string, t *testing.T) {
 	expectedWithUntrimmed := strings.Replace(expectedRaw, "\r", "", -1)
 	expected := strings.TrimSpace(expectedWithUntrimmed)
 
-	nodes, errors := Parse(input, sourceFilePath)
+	nodes, errors := parser.Parse(input, sourceFilePath)
 	if errors.Len() != 0 {
 		verify(t, sourceFilePath, input, expected, errors.String())
 	} else {

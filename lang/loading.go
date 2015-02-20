@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"vamos/lang/ast"
+	"vamos/lang/parser"
 )
 
 func ParseEvalPrint(env Env, input string, sourceName string, printResult bool) {
@@ -26,7 +27,7 @@ func ParseEval(env Env, input string, sourceName string) (ast.Node, error) {
 		}
 	}()
 
-	nodes, parseErrors := Parse(input, sourceName)
+	nodes, parseErrors := parser.Parse(input, sourceName)
 
 	if parseErrors != nil {
 		fmt.Println(parseErrors.String())
