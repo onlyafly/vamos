@@ -56,7 +56,7 @@ func evalNode(e Env, n ast.Node) packet {
 		return respond(result)
 	case *ast.Str:
 		return respond(value)
-	case *ast.CharNode:
+	case *ast.Char:
 		return respond(value)
 	case *ast.List:
 		return bounce(func() packet { return evalList(e, value, true) })

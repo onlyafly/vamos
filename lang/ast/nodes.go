@@ -114,16 +114,15 @@ func (s *Symbol) Equals(n Node) bool   { return s.Name == asSymbol(n).Name }
 func (s *Symbol) TypeName() string     { return "symbol" }
 func (s *Symbol) Loc() *token.Location { return s.Location }
 
-////////// CharNode
+////////// Char
 
-// FIX rename to Char
-type CharNode struct {
+type Char struct {
 	Value      rune
 	annotation Node
 	Location   *token.Location
 }
 
-func (cn *CharNode) String() string {
+func (cn *Char) String() string {
 	var rep string
 	switch cn.Value {
 	case '\n':
@@ -133,12 +132,12 @@ func (cn *CharNode) String() string {
 	}
 	return displayAnnotation(cn, rep)
 }
-func (cn *CharNode) isExpr() bool         { return true }
-func (cn *CharNode) Annotation() Node     { return cn.annotation }
-func (cn *CharNode) SetAnnotation(n Node) { cn.annotation = n }
-func (cn *CharNode) Equals(n Node) bool   { return cn.Value == asChar(n).Value }
-func (cn *CharNode) TypeName() string     { return "char" }
-func (cn *CharNode) Loc() *token.Location { return cn.Location }
+func (cn *Char) isExpr() bool         { return true }
+func (cn *Char) Annotation() Node     { return cn.annotation }
+func (cn *Char) SetAnnotation(n Node) { cn.annotation = n }
+func (cn *Char) Equals(n Node) bool   { return cn.Value == asChar(n).Value }
+func (cn *Char) TypeName() string     { return "char" }
+func (cn *Char) Loc() *token.Location { return cn.Location }
 
 ////////// Number
 
@@ -213,11 +212,11 @@ func asStr(n Node) *Str {
 	}
 	return &Str{}
 }
-func asChar(n Node) *CharNode {
-	if result, ok := n.(*CharNode); ok {
+func asChar(n Node) *Char {
+	if result, ok := n.(*Char); ok {
 		return result
 	}
-	return &CharNode{}
+	return &Char{}
 }
 func asSymbol(n Node) *Symbol {
 	if result, ok := n.(*Symbol); ok {

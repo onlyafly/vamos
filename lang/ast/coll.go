@@ -39,7 +39,7 @@ func (s *Str) First() Node {
 		return &Nil{}
 	}
 	r, _ := utf8.DecodeRuneInString(s.Value)
-	return &CharNode{Value: r}
+	return &Char{Value: r}
 }
 
 ////////// Rest
@@ -96,7 +96,7 @@ func (n *Nil) Cons(elem Node) (Coll, error) {
 }
 func (s *Str) Cons(elem Node) (Coll, error) {
 	switch val := elem.(type) {
-	case *CharNode:
+	case *Char:
 		return NewStr(fmt.Sprintf("%c%v", val.Value, s.Value)), nil
 	}
 	return nil, errors.New("Cannot cons a non-character onto a string: " + elem.String())

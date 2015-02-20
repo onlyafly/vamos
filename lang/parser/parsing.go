@@ -145,18 +145,18 @@ func parseString(t Token, errors *ParserErrorList) *ast.Str {
 	return &ast.Str{Value: content, Location: t.Loc}
 }
 
-func parseChar(t Token, errors *ParserErrorList) *ast.CharNode {
+func parseChar(t Token, errors *ParserErrorList) *ast.Char {
 	switch {
 	case t.Value == "\\newline":
-		return &ast.CharNode{Value: '\n'}
+		return &ast.Char{Value: '\n'}
 	case len(t.Value) == 2:
 		_, leadingSlashWidth := utf8.DecodeRuneInString(t.Value)
 		r, _ := utf8.DecodeRuneInString(t.Value[leadingSlashWidth:])
-		return &ast.CharNode{Value: r}
+		return &ast.Char{Value: r}
 	}
 
 	errors.Add(t.Loc, fmt.Sprintf("Invalid character literal: %v", t.Value))
-	return &ast.CharNode{}
+	return &ast.Char{}
 }
 
 ////////// Helper Functions
