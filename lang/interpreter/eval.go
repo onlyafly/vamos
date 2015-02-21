@@ -6,6 +6,7 @@ import (
 	"vamos/lang/ast"
 )
 
+// TODO get rid of this global variable
 var writer io.Writer
 
 // Eval evaluates a node in an environment.
@@ -100,70 +101,44 @@ func evalList(e Env, l *ast.List, shouldEvalMacros bool) packet {
 	case *ast.Symbol:
 		switch value.Name {
 		case "apply":
-			f := args[0]
-			l := toListValue(trampoline(func() packet {
-				return evalNode(e, args[1])
-			}))
-			nodes := append([]ast.Node{f}, l.Nodes...)
-			return respond(trampoline(func() packet {
-				return evalList(e, &ast.List{Nodes: nodes}, true)
-			}))
+			ensureSpecialArgsCountInRange("apply", head, args, 2, 2)
+			return specialApply(e, head, args)
 		case "def":
-			return evalSpecialDef(e, head, args)
+			ensureSpecialArgsCountInRange("def", head, args, 2, 2)
+			return specialDef(e, head, args)
 		case "eval":
-			return evalSpecialEval(e, head, args)
+			ensureSpecialArgsCountInRange("eval", head, args, 1, 2)
+			return specialEval(e, head, args)
 		case "update!":
-			name := toSymbolName(args[0])
-			rightHandSide := trampoline(func() packet {
-				return evalNode(e, args[1])
-			})
-			if ok := e.Update(name, rightHandSide); !ok {
-				panicEvalError(value, "Cannot 'update!' an undefined name: "+name)
-			}
-			return respond(&ast.Nil{})
+			ensureSpecialArgsCountInRange("update!", head, args, 2, 2)
+			return specialUpdateBang(e, head, args)
 		case "if":
-			predicate := toBooleanValue(trampoline(func() packet {
-				return evalNode(e, args[0])
-			}))
-			if predicate {
-				return bounce(func() packet {
-					return evalNode(e, args[1])
-				})
-			}
-			return bounce(func() packet {
-				return evalNode(e, args[2])
-			})
+			ensureSpecialArgsCountInRange("if", head, args, 3, 3)
+			return specialIf(e, head, args)
 		case "cond":
-			for i := 0; i < len(args); i += 2 {
-				predicate := toBooleanValue(trampoline(func() packet {
-					return evalNode(e, args[i])
-				}))
-
-				if predicate {
-					return bounce(func() packet {
-						return evalNode(e, args[i+1])
-					})
-				}
-			}
-			panicEvalError(head, "No matching cond clause: "+l.String())
+			ensureSpecialArgsCountInRange("cond", head, args, 2, -1)
+			return specialCond(e, head, args)
 		case "fn":
-			return evalSpecialFn(e, head, args)
+			ensureSpecialArgsCountInRange("fn", head, args, 2, 2)
+			return specialFn(e, head, args)
 		case "macro":
-			return evalSpecialMacro(e, head, args)
+			ensureSpecialArgsCountInRange("macro", head, args, 1, 1)
+			return specialMacro(e, head, args)
 		case "macroexpand1":
-			return evalSpecialMacroexpand1(e, head, args)
+			ensureSpecialArgsCountInRange("macroexpand1", head, args, 1, 1)
+			return specialMacroexpand1(e, head, args)
 		case "quote":
-			return respond(args[0])
+			ensureSpecialArgsCountInRange("quote", head, args, 1, 1)
+			return specialQuote(e, head, args)
 		case "let":
-			return bounce(func() packet {
-				return evalSpecialLet(e, head, args)
-			})
+			ensureSpecialArgsCountInRange("let", head, args, 2, 2)
+			return specialLet(e, head, args)
 		case "begin":
-			return bounce(func() packet {
-				return evalSpecialBegin(e, head, args)
-			})
+			ensureSpecialArgsCountInRange("begin", head, args, 0, -1)
+			return specialBegin(e, head, args)
 		case "go":
-			return evalSpecialGo(e, head, args)
+			ensureSpecialArgsCountInRange("go", head, args, 0, -1)
+			return specialGo(e, head, args)
 		}
 	}
 
@@ -198,7 +173,13 @@ func evalFunctionApplication(dynamicEnv Env, f *Function, head ast.Node, unevale
 		}
 	}
 	if !isVariableNumberOfParams {
-		ensureArgsMatchParameters(f.Name, head, &unevaledArgs, &f.Parameters)
+		if len(unevaledArgs) != len(f.Parameters) {
+			panicEvalError(head, fmt.Sprintf(
+				"Function '%v' expects %v argument(s), but was given %v",
+				f.Name,
+				len(f.Parameters),
+				len(unevaledArgs)))
+		}
 	}
 
 	// Create the lexical environment based on the function's lexical parent
@@ -251,43 +232,21 @@ func evalFunctionApplication(dynamicEnv Env, f *Function, head ast.Node, unevale
 	}
 }
 
-func ensureSpecialArgsCountEquals(formName string, head ast.Node, args []ast.Node, paramCount int) {
-	if len(args) != paramCount {
-		panicEvalError(head, fmt.Sprintf(
-			"Special form '%v' expects %v argument(s), but was given %v",
-			formName,
-			paramCount,
-			len(args)))
-	}
-}
-
-func ensureSpecialArgsCountInRange(specialName string, head ast.Node, args []ast.Node, paramCountMin int, paramCountMax int) {
-	if !(paramCountMin <= len(args) && len(args) <= paramCountMax) {
-		panicEvalError(head, fmt.Sprintf(
-			"Special form '%v' expects between %v and %v arguments, but was given %v",
-			specialName,
-			paramCountMin,
-			paramCountMax,
-			len(args)))
-	}
-}
-
-func ensureArgsMatchParameters(procedureName string, head ast.Node, args *[]ast.Node, params *[]ast.Node) {
-	if len(*args) != len(*params) {
-		panicEvalError(head, fmt.Sprintf(
-			"Function '%v' expects %v argument(s), but was given %v",
-			procedureName,
-			len(*params),
-			len(*args)))
-	}
+func ensureSpecialArgsCountInRange(name string, head ast.Node, args []ast.Node, paramCountMin int, paramCountMax int) {
+	ensureBuiltinArgsCountInRange("Special form", name, head, args, paramCountMin, paramCountMax)
 }
 
 func ensurePrimitiveArgsCountInRange(name string, head ast.Node, args []ast.Node, paramCountMin int, paramCountMax int) {
+	ensureBuiltinArgsCountInRange("Primitive", name, head, args, paramCountMin, paramCountMax)
+}
+
+func ensureBuiltinArgsCountInRange(builtinType string, name string, head ast.Node, args []ast.Node, paramCountMin int, paramCountMax int) {
 	switch {
 	case paramCountMax == -1:
 		if !(paramCountMin <= len(args)) {
 			panicEvalError(head, fmt.Sprintf(
-				"Primitive '%v' expects at least %v argument(s), but was given %v",
+				"%v '%v' expects at least %v argument(s), but was given %v",
+				builtinType,
 				name,
 				paramCountMin,
 				len(args)))
@@ -295,7 +254,8 @@ func ensurePrimitiveArgsCountInRange(name string, head ast.Node, args []ast.Node
 	case paramCountMin == paramCountMax:
 		if !(paramCountMin == len(args)) {
 			panicEvalError(head, fmt.Sprintf(
-				"Primitive '%v' expects %v argument(s), but was given %v",
+				"%v '%v' expects %v argument(s), but was given %v",
+				builtinType,
 				name,
 				paramCountMin,
 				len(args)))
@@ -303,7 +263,8 @@ func ensurePrimitiveArgsCountInRange(name string, head ast.Node, args []ast.Node
 	default:
 		if !(paramCountMin <= len(args) && len(args) <= paramCountMax) {
 			panicEvalError(head, fmt.Sprintf(
-				"Primitive '%v' expects between %v and %v arguments, but was given %v",
+				"%v '%v' expects between %v and %v arguments, but was given %v",
+				builtinType,
 				name,
 				paramCountMin,
 				paramCountMax,

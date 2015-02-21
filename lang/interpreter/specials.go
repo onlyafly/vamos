@@ -2,9 +2,66 @@ package interpreter
 
 import "vamos/lang/ast"
 
-func evalSpecialLet(parentEnv Env, head ast.Node, args []ast.Node) packet {
-	ensureSpecialArgsCountEquals("let", head, args, 2)
+func specialQuote(e Env, head ast.Node, args []ast.Node) packet {
+	return respond(args[0])
+}
 
+func specialApply(e Env, head ast.Node, args []ast.Node) packet {
+	f := args[0]
+	l := toListValue(trampoline(func() packet {
+		return evalNode(e, args[1])
+	}))
+	nodes := append([]ast.Node{f}, l.Nodes...)
+	return respond(trampoline(func() packet {
+		return evalList(e, &ast.List{Nodes: nodes}, true)
+	}))
+}
+
+func specialUpdateBang(e Env, head ast.Node, args []ast.Node) packet {
+	name := toSymbolName(args[0])
+	rightHandSide := trampoline(func() packet {
+		return evalNode(e, args[1])
+	})
+	if ok := e.Update(name, rightHandSide); !ok {
+		panicEvalError(head, "Cannot 'update!' an undefined name: "+name)
+	}
+	return respond(&ast.Nil{})
+}
+
+func specialIf(e Env, head ast.Node, args []ast.Node) packet {
+	predicate := toBooleanValue(trampoline(func() packet {
+		return evalNode(e, args[0])
+	}))
+
+	if predicate {
+		return bounce(func() packet {
+			return evalNode(e, args[1])
+		})
+	}
+
+	return bounce(func() packet {
+		return evalNode(e, args[2])
+	})
+}
+
+func specialCond(e Env, head ast.Node, args []ast.Node) packet {
+	for i := 0; i < len(args); i += 2 {
+		predicate := toBooleanValue(trampoline(func() packet {
+			return evalNode(e, args[i])
+		}))
+
+		if predicate {
+			return bounce(func() packet {
+				return evalNode(e, args[i+1])
+			})
+		}
+	}
+
+	panicEvalError(head, "No matching cond clause: "+head.String())
+	return respond(&ast.Nil{})
+}
+
+func specialLet(parentEnv Env, head ast.Node, args []ast.Node) packet {
 	body := args[1]
 
 	var variableNodes ast.Nodes
@@ -34,12 +91,12 @@ func evalSpecialLet(parentEnv Env, head ast.Node, args []ast.Node) packet {
 	})
 }
 
-func evalSpecialGo(e Env, head ast.Node, args []ast.Node) packet {
+func specialGo(e Env, head ast.Node, args []ast.Node) packet {
 	go evalEachNode(e, args)
 	return respond(&ast.Nil{})
 }
 
-func evalSpecialBegin(e Env, head ast.Node, args []ast.Node) packet {
+func specialBegin(e Env, head ast.Node, args []ast.Node) packet {
 	results := evalEachNode(e, args)
 
 	if len(results) == 0 {
@@ -49,9 +106,7 @@ func evalSpecialBegin(e Env, head ast.Node, args []ast.Node) packet {
 	return respond(results[len(results)-1])
 }
 
-func evalSpecialDef(e Env, head ast.Node, args []ast.Node) packet {
-	ensureSpecialArgsCountEquals("def", head, args, 2)
-
+func specialDef(e Env, head ast.Node, args []ast.Node) packet {
 	name := toSymbolName(args[0])
 	e.Set(name, trampoline(func() packet {
 		return evalNode(e, args[1])
@@ -59,7 +114,7 @@ func evalSpecialDef(e Env, head ast.Node, args []ast.Node) packet {
 	return respond(&ast.Nil{})
 }
 
-func evalSpecialEval(e Env, head ast.Node, args []ast.Node) packet {
+func specialEval(e Env, head ast.Node, args []ast.Node) packet {
 	ensureSpecialArgsCountInRange("eval", head, args, 1, 2)
 
 	node := trampoline(func() packet {
@@ -91,8 +146,7 @@ func evalSpecialEval(e Env, head ast.Node, args []ast.Node) packet {
 	}
 }
 
-func evalSpecialFn(e Env, head ast.Node, args []ast.Node) packet {
-	ensureSpecialArgsCountEquals("fn", head, args, 2)
+func specialFn(e Env, head ast.Node, args []ast.Node) packet {
 
 	var parameterNodes ast.Nodes
 	switch val := args[0].(type) {
@@ -110,8 +164,7 @@ func evalSpecialFn(e Env, head ast.Node, args []ast.Node) packet {
 	})
 }
 
-func evalSpecialMacro(e Env, head ast.Node, args []ast.Node) packet {
-	ensureSpecialArgsCountEquals("macro", head, args, 1)
+func specialMacro(e Env, head ast.Node, args []ast.Node) packet {
 
 	functionNode := trampoline(func() packet {
 		return evalNode(e, args[0])
@@ -127,8 +180,7 @@ func evalSpecialMacro(e Env, head ast.Node, args []ast.Node) packet {
 	}
 }
 
-func evalSpecialMacroexpand1(e Env, head ast.Node, args []ast.Node) packet {
-	ensureSpecialArgsCountEquals("macroexpand1", head, args, 1)
+func specialMacroexpand1(e Env, head ast.Node, args []ast.Node) packet {
 
 	expansionNode := trampoline(func() packet {
 		return evalNode(e, args[0])
