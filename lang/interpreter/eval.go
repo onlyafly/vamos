@@ -101,43 +101,43 @@ func evalList(e Env, l *ast.List, shouldEvalMacros bool) packet {
 	case *ast.Symbol:
 		switch value.Name {
 		case "apply":
-			ensureSpecialArgsCountInRange("apply", head, args, 2, 2)
+			checkSpecialArgs("apply", head, args, 2, 2)
 			return specialApply(e, head, args)
 		case "def":
-			ensureSpecialArgsCountInRange("def", head, args, 2, 2)
+			checkSpecialArgs("def", head, args, 2, 2)
 			return specialDef(e, head, args)
 		case "eval":
-			ensureSpecialArgsCountInRange("eval", head, args, 1, 2)
+			checkSpecialArgs("eval", head, args, 1, 2)
 			return specialEval(e, head, args)
 		case "update!":
-			ensureSpecialArgsCountInRange("update!", head, args, 2, 2)
+			checkSpecialArgs("update!", head, args, 2, 2)
 			return specialUpdateBang(e, head, args)
 		case "if":
-			ensureSpecialArgsCountInRange("if", head, args, 3, 3)
+			checkSpecialArgs("if", head, args, 3, 3)
 			return specialIf(e, head, args)
 		case "cond":
-			ensureSpecialArgsCountInRange("cond", head, args, 2, -1)
+			checkSpecialArgs("cond", head, args, 2, -1)
 			return specialCond(e, head, args)
 		case "fn":
-			ensureSpecialArgsCountInRange("fn", head, args, 2, 2)
+			checkSpecialArgs("fn", head, args, 2, 2)
 			return specialFn(e, head, args)
 		case "macro":
-			ensureSpecialArgsCountInRange("macro", head, args, 1, 1)
+			checkSpecialArgs("macro", head, args, 1, 1)
 			return specialMacro(e, head, args)
 		case "macroexpand1":
-			ensureSpecialArgsCountInRange("macroexpand1", head, args, 1, 1)
+			checkSpecialArgs("macroexpand1", head, args, 1, 1)
 			return specialMacroexpand1(e, head, args)
 		case "quote":
-			ensureSpecialArgsCountInRange("quote", head, args, 1, 1)
+			checkSpecialArgs("quote", head, args, 1, 1)
 			return specialQuote(e, head, args)
 		case "let":
-			ensureSpecialArgsCountInRange("let", head, args, 2, 2)
+			checkSpecialArgs("let", head, args, 2, 2)
 			return specialLet(e, head, args)
 		case "begin":
-			ensureSpecialArgsCountInRange("begin", head, args, 0, -1)
+			checkSpecialArgs("begin", head, args, 0, -1)
 			return specialBegin(e, head, args)
 		case "go":
-			ensureSpecialArgsCountInRange("go", head, args, 0, -1)
+			checkSpecialArgs("go", head, args, 0, -1)
 			return specialGo(e, head, args)
 		}
 	}
@@ -149,7 +149,7 @@ func evalList(e Env, l *ast.List, shouldEvalMacros bool) packet {
 	switch value := headNode.(type) {
 	case *Primitive:
 		f := value.Value
-		ensurePrimitiveArgsCountInRange(value.Name, head, args, value.MinArity, value.MaxArity)
+		checkPrimitiveArgs(value.Name, head, args, value.MinArity, value.MaxArity)
 		return respond(f(e, head, evalEachNode(e, args)))
 	case *Function:
 		return bounce(func() packet {
@@ -232,15 +232,15 @@ func evalFunctionApplication(dynamicEnv Env, f *Function, head ast.Node, unevale
 	}
 }
 
-func ensureSpecialArgsCountInRange(name string, head ast.Node, args []ast.Node, paramCountMin int, paramCountMax int) {
-	ensureBuiltinArgsCountInRange("Special form", name, head, args, paramCountMin, paramCountMax)
+func checkSpecialArgs(name string, head ast.Node, args []ast.Node, paramCountMin int, paramCountMax int) {
+	checkBuiltinArgs("Special form", name, head, args, paramCountMin, paramCountMax)
 }
 
-func ensurePrimitiveArgsCountInRange(name string, head ast.Node, args []ast.Node, paramCountMin int, paramCountMax int) {
-	ensureBuiltinArgsCountInRange("Primitive", name, head, args, paramCountMin, paramCountMax)
+func checkPrimitiveArgs(name string, head ast.Node, args []ast.Node, paramCountMin int, paramCountMax int) {
+	checkBuiltinArgs("Primitive", name, head, args, paramCountMin, paramCountMax)
 }
 
-func ensureBuiltinArgsCountInRange(builtinType string, name string, head ast.Node, args []ast.Node, paramCountMin int, paramCountMax int) {
+func checkBuiltinArgs(builtinType string, name string, head ast.Node, args []ast.Node, paramCountMin int, paramCountMax int) {
 	switch {
 	case paramCountMax == -1:
 		if !(paramCountMin <= len(args)) {

@@ -115,7 +115,7 @@ func specialDef(e Env, head ast.Node, args []ast.Node) packet {
 }
 
 func specialEval(e Env, head ast.Node, args []ast.Node) packet {
-	ensureSpecialArgsCountInRange("eval", head, args, 1, 2)
+	checkSpecialArgs("eval", head, args, 1, 2)
 
 	node := trampoline(func() packet {
 		return evalNode(e, args[0])
