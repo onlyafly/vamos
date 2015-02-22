@@ -7,6 +7,8 @@ import (
 	"vamos/lang/ast"
 )
 
+// Parse accepts a string and the name of the source of the code, and returns
+// the Vamos nodes therein, along with a list of any errors found.
 func Parse(input string, sourceName string) (ast.Nodes, ParserErrorList) {
 	s, _ := Scan(sourceName, input)
 	errorList := NewParserErrorList()

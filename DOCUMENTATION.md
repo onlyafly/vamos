@@ -56,8 +56,6 @@ List:
 
     (apply + '(1 3))
 
-    (eval '(+ 1 2))
-
     (begin
       (update! x 10)
       (number? x))
@@ -143,11 +141,25 @@ Other:
     (sleep 1000)
     => nil
 
+    (go
+      (sleep 1000)
+      (println "Woah!"))
+    (println "Cool!")
+    => Cool!
+    => Woah!
+
 ### Evaluation and environments
 
     (current-environment)
 
     (load "test.v")
+
+    (eval '(+ 1 2))
+
+    (eval '(+ x y) environment)
+
+    (read-string "(+ 41 1)")
+    => (+ 41 1)
 
 ## Boolean Values
 

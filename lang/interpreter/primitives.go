@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 	"vamos/lang/ast"
+	"vamos/lang/parser"
 	"vamos/util"
 )
 
@@ -39,6 +40,7 @@ func initializePrimitives(e Env) {
 	addPrimitive(e, "function-params", 1, primFunctionParams)
 	addPrimitive(e, "function-body", 1, primFunctionBody)
 	addPrimitive(e, "function-environment", 1, primFunctionEnvironment)
+	addPrimitive(e, "read-string", 1, primReadString)
 
 	// IO
 	addPrimitive(e, "println", 1, primPrintln)
@@ -294,5 +296,27 @@ func primSleep(e Env, head ast.Node, args []ast.Node) ast.Node {
 	}
 
 	panicEvalError(arg, "Argument to 'sleep' not a number: "+arg.String())
+	return nil
+}
+
+func primReadString(e Env, head ast.Node, args []ast.Node) ast.Node {
+	arg := args[0]
+	switch val := arg.(type) {
+	case *ast.Str:
+		nodes, parseErrors := parser.Parse(val.Value, "string")
+
+		if parseErrors != nil {
+			panicEvalError(arg, fmt.Sprintf("Unable to read string %v: %v", val, parseErrors))
+			return nil
+		}
+
+		if len(nodes) == 0 {
+			return &ast.Nil{}
+		}
+
+		return nodes[0]
+	}
+
+	panicEvalError(arg, "Argument to 'read-string' not a string: "+arg.String())
 	return nil
 }

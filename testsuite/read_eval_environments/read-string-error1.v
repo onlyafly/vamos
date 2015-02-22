@@ -1,0 +1,1 @@
+(read-string "42)")

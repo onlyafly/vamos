@@ -30,7 +30,6 @@ Quotes from the CSP paper:
 
 ### Next
 
-- Make specials first class
 - Add 'read' primitive
 - Complete concurrency functionality
 
