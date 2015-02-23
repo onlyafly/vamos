@@ -7,6 +7,7 @@
 Principles:
 
 1. Influenced by Go's concurrency
+   - https://play.golang.org/
 2. Influenced by Clojure's take on a Lisp
    - http://hyperpolyglot.org/lisp
    - http://www.tryclj.com/
@@ -30,7 +31,6 @@ Quotes from the CSP paper:
 
 ### Next
 
-- Add 'read' primitive
 - Complete concurrency functionality
 
 ### Tech Debt

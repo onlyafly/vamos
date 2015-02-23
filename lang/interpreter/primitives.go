@@ -48,6 +48,11 @@ func initializePrimitives(e Env) {
 	addPrimitive(e, "now", 0, primNow)
 	addPrimitive(e, "sleep", 1, primSleep)
 
+	// Concurrency
+	addPrimitive(e, "chan", 0, primChan)
+	addPrimitive(e, "send!", 2, primSendBang)
+	addPrimitive(e, "take!", 1, primTakeBang)
+
 	// Predefined symbols
 
 	trueSymbol = &ast.Symbol{Name: "true"}
@@ -319,4 +324,33 @@ func primReadString(e Env, head ast.Node, args []ast.Node) ast.Node {
 
 	panicEvalError(arg, "Argument to 'read-string' not a string: "+arg.String())
 	return nil
+}
+
+func primChan(e Env, head ast.Node, args []ast.Node) ast.Node {
+	return NewChan()
+}
+
+func primSendBang(e Env, head ast.Node, args []ast.Node) ast.Node {
+	chanArg := args[0]
+	switch chanVal := chanArg.(type) {
+	case *Chan:
+		messageArg := args[1]
+		chanVal.Value <- messageArg
+	default:
+		panicEvalError(head, "Target of a send! must be a chan: "+chanArg.String())
+	}
+
+	return &ast.Nil{}
+}
+
+func primTakeBang(e Env, head ast.Node, args []ast.Node) ast.Node {
+	chanArg := args[0]
+	switch chanVal := chanArg.(type) {
+	case *Chan:
+		return <-chanVal.Value
+	default:
+		panicEvalError(head, "Source of a take! must be a chan: "+chanArg.String())
+	}
+
+	return &ast.Nil{}
 }

@@ -148,6 +148,11 @@ Other:
     => Cool!
     => Woah!
 
+    (def c (chan))
+    (go (send! c 42))
+    (take! c)
+    => 42
+
 ### Evaluation and environments
 
     (current-environment)

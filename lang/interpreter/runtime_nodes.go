@@ -1,6 +1,7 @@
 package interpreter
 
 import (
+	"fmt"
 	"vamos/lang/ast"
 	"vamos/lang/token"
 )
@@ -23,7 +24,6 @@ func (en *EnvNode) String() string {
 	return "#environment<" + en.Env.Name() + ">"
 }
 
-func (en *EnvNode) Children() []ast.Node { return nil }
 func (en *EnvNode) isExpr() bool         { return true }
 func (en *EnvNode) TypeName() string     { return "environment" }
 func (en *EnvNode) Loc() *token.Location { return nil }
@@ -57,7 +57,6 @@ func (p *Primitive) String() string {
 	return "#primitive<" + p.Name + ">"
 }
 
-func (p *Primitive) Children() []ast.Node { return nil }
 func (p *Primitive) isExpr() bool         { return true }
 func (p *Primitive) TypeName() string     { return "primitive" }
 func (p *Primitive) Loc() *token.Location { return nil }
@@ -84,7 +83,6 @@ func (f *Function) String() string {
 	return "#function<" + f.Name + ">"
 }
 
-func (f *Function) Children() []ast.Node { return nil }
 func (f *Function) isExpr() bool         { return true }
 func (f *Function) Loc() *token.Location { return nil }
 func (f *Function) TypeName() string {
@@ -112,12 +110,40 @@ func (m *Macro) String() string {
 	return "#macro<" + m.Name + ">"
 }
 
-func (m *Macro) Children() []ast.Node { return nil }
 func (m *Macro) isExpr() bool         { return true }
 func (m *Macro) TypeName() string     { return "macro" }
 func (m *Macro) Loc() *token.Location { return nil }
 func (m *Macro) Equals(n ast.Node) bool {
 	panicEvalError(n, "Cannot compare the values of macros: "+
 		m.String()+" and "+n.String())
+	return false
+}
+
+////////// Chan
+
+var channelNumber int
+
+type Chan struct {
+	id    int
+	Value chan ast.Node
+}
+
+func NewChan() *Chan {
+	cn := channelNumber
+	channelNumber++
+
+	return &Chan{
+		id:    cn,
+		Value: make(chan ast.Node),
+	}
+}
+
+func (c *Chan) String() string       { return fmt.Sprintf("#chan<%v>", c.id) }
+func (c *Chan) isExpr() bool         { return true }
+func (c *Chan) Loc() *token.Location { return nil }
+func (c *Chan) TypeName() string     { return "chan" }
+func (c *Chan) Equals(n ast.Node) bool {
+	panicEvalError(n, "Cannot compare the values of chans: "+
+		c.String()+" and "+n.String())
 	return false
 }
