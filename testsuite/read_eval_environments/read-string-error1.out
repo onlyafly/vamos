@@ -1,1 +1,1 @@
-Evaluation error (testsuite/read_eval/read-string-error1.v: 1): Unable to read string "42)": Error (line 1): Unbalanced parentheses
+Evaluation error (testsuite/read_eval_environments/read-string-error1.v: 1): Unable to read string "42)": Error (line 1): Unbalanced parentheses
