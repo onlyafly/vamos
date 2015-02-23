@@ -10,6 +10,7 @@ Principles:
    - https://play.golang.org/
 2. Influenced by Clojure's take on a Lisp
    - http://hyperpolyglot.org/lisp
+   - http://clojure.org/lisps (see chart on page)
    - http://www.tryclj.com/
 3. Well-documented code in a near literate style
 

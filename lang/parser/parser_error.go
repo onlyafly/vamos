@@ -14,7 +14,11 @@ type ParserError struct {
 
 // Implements the error interface
 func (pe *ParserError) Error() string {
-	return fmt.Sprintf("Error (line %v): %v", pe.Loc.Line, pe.Message)
+	if pe.Loc != nil {
+		return fmt.Sprintf("Parsing error (%v: %v): %v", pe.Loc.Filename, pe.Loc.Line, pe.Message)
+	}
+
+	return fmt.Sprintf("Parsing error: %v", pe.Message)
 }
 
 ////////// ParserErrorList

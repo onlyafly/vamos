@@ -35,6 +35,8 @@ List:
 
     ; This is a (single-line) comment
 
+    #| This is a multiline comment |#
+
     (def x 4)
 
     (update! x 1)

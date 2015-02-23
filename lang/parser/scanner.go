@@ -204,10 +204,16 @@ Outer:
 			return scanSymbol
 		case r == '"':
 			return scanString
+		case r == '#':
+			rnext := s.next()
+			if rnext == '|' {
+				return scanMultiLineComment
+			}
+			s.emitErrorf("unrecognized character sequence: %c%c", r, rnext)
 		case r == eof:
 			break Outer
 		default:
-			s.emitErrorf("unrecognized character")
+			s.emitErrorf("unrecognized character: %c", r)
 		}
 	}
 
@@ -220,6 +226,24 @@ func scanSingleLineComment(s *Scanner) stateFn {
 	}
 	s.backup()
 	s.ignore()
+	return scanBegin
+}
+
+func scanMultiLineComment(s *Scanner) stateFn {
+	r := s.next()
+	for r != eof {
+		if r == '|' {
+			rnext := s.next()
+			if rnext == '#' {
+				s.backup()
+				s.ignore()
+				return scanBegin
+			}
+			s.backup()
+		}
+	}
+
+	s.emitErrorf("non-terminated multiline comment")
 	return scanBegin
 }
 

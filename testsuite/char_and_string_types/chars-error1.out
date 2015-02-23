@@ -1,1 +1,1 @@
-Error (line 1): Invalid character literal: \dude
+Parsing error (testsuite/char_and_string_types/chars-error1.v: 1): Invalid character literal: \dude

@@ -1,1 +1,1 @@
-Error (line 2): Unbalanced parentheses
+Parsing error (testsuite/other/unbalanced-parens1.v: 2): Unbalanced parentheses

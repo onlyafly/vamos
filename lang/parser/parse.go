@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"unicode/utf8"
 	"vamos/lang/ast"
+	"vamos/lang/token"
 )
 
 // Parse accepts a string and the name of the source of the code, and returns
@@ -13,6 +14,11 @@ func Parse(input string, sourceName string) (ast.Nodes, ParserErrorList) {
 	s, _ := Scan(sourceName, input)
 	errorList := NewParserErrorList()
 	p := &parser{s: s}
+
+	s.errorHandler = func(position int, message string) {
+		// FIX improve error message by passing a token instead of a position to the error handler
+		errorList.Add(&token.Location{Pos: position, Line: 0, Filename: sourceName}, message)
+	}
 
 	nodes := parseNodes(p, &errorList)
 
@@ -77,6 +83,8 @@ func parseAnnotatedNode(p *parser, errors *ParserErrorList) ast.AnnotatedNode {
 	token := p.next()
 
 	switch token.Code {
+	case TcError:
+		errors.Add(token.Loc, "Error token: "+token.String())
 	case TcLeftParen:
 		var list []ast.Node
 		for p.peek().Code != TcRightParen {
