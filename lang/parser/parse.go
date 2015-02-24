@@ -12,12 +12,11 @@ import (
 func Parse(input string, sourceName string) (ast.Nodes, ParserErrorList) {
 	s, _ := Scan(sourceName, input)
 	errorList := NewParserErrorList()
-	p := &parser{s: s}
-
 	s.errorHandler = func(t Token, message string) {
 		errorList.Add(t.Loc, message)
 	}
 
+	p := &parser{s: s}
 	nodes := parseNodes(p, &errorList)
 
 	if errorList.Len() > 0 {

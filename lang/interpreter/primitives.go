@@ -43,7 +43,7 @@ func initializePrimitives(e Env) {
 	addPrimitive(e, "read-string", 1, primReadString)
 
 	// IO
-	addPrimitive(e, "println", 1, primPrintln)
+	addPrimitiveWithArityRange(e, "println", 1, -1, primPrintln)
 	addPrimitive(e, "load", 1, primLoad)
 	addPrimitive(e, "now", 0, primNow)
 	addPrimitive(e, "sleep", 1, primSleep)
@@ -52,6 +52,7 @@ func initializePrimitives(e Env) {
 	addPrimitive(e, "chan", 0, primChan)
 	addPrimitive(e, "send!", 2, primSendBang)
 	addPrimitive(e, "take!", 1, primTakeBang)
+	addPrimitive(e, "close!", 1, primCloseBang)
 
 	// Predefined symbols
 
@@ -167,15 +168,24 @@ func primTypeof(e Env, head ast.Node, args []ast.Node) ast.Node {
 }
 
 func primPrintln(e Env, head ast.Node, args []ast.Node) ast.Node {
-	arg := args[0]
-	switch val := arg.(type) {
-	case *ast.Str:
-		fmt.Fprintf(writer, "%v\n", val.Value)
-		return &ast.Nil{}
+	for i, arg := range args {
+		if i > 0 {
+			fmt.Fprintf(writer, " ")
+		}
+
+		switch val := arg.(type) {
+		case *ast.Str:
+			fmt.Fprintf(writer, "%v", val.Value)
+		case ast.Node:
+			fmt.Fprintf(writer, "%v", val.String())
+		default:
+			fmt.Fprintf(writer, "\n")
+			panicEvalError(arg, "Unrecognized argument type to 'println': "+arg.String())
+		}
 	}
 
-	panicEvalError(arg, "Argument to 'println' not a string: "+arg.String())
-	return nil
+	fmt.Fprintf(writer, "\n")
+	return &ast.Nil{}
 }
 
 func primFirst(e Env, head ast.Node, args []ast.Node) ast.Node {
@@ -347,9 +357,25 @@ func primTakeBang(e Env, head ast.Node, args []ast.Node) ast.Node {
 	chanArg := args[0]
 	switch chanVal := chanArg.(type) {
 	case *Chan:
-		return <-chanVal.Value
+		n, more := <-chanVal.Value
+		if !more {
+			return &ast.Nil{}
+		}
+		return n
 	default:
 		panicEvalError(head, "Source of a take! must be a chan: "+chanArg.String())
+	}
+
+	return &ast.Nil{}
+}
+
+func primCloseBang(e Env, head ast.Node, args []ast.Node) ast.Node {
+	chanArg := args[0]
+	switch chanVal := chanArg.(type) {
+	case *Chan:
+		close(chanVal.Value)
+	default:
+		panicEvalError(head, "Argument to 'close!' must be a chan: "+chanArg.String())
 	}
 
 	return &ast.Nil{}

@@ -124,6 +124,8 @@ IO:
 
     (println "Test")
 
+    (println "Test" 42 'HELLO)
+
 Strings:
 
     (concat "abc" "de" "fgh")
@@ -154,6 +156,14 @@ Other:
     (go (send! c 42))
     (take! c)
     => 42
+
+    (def c (chan))
+    (go (send! c 42))
+    (close! c)
+    (take! c)
+    (take! c) ; doesn't block, since the channel is closed
+    => 42
+    => nil
 
 ### Evaluation and environments
 
