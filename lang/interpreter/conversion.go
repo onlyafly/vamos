@@ -36,13 +36,13 @@ func toBooleanValue(n ast.Node) bool {
 	switch value := n.(type) {
 	case *ast.Symbol:
 		switch value.Name {
-		case "true":
-			return true
 		case "false":
 			return false
 		}
+	case *ast.Nil:
+		return false
 	}
 
-	// All other values are treated as false
-	return false
+	// All other values are treated as true
+	return true
 }

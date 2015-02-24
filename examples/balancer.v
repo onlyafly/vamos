@@ -1,40 +1,42 @@
-(def num-workers 42)
+(def num-workers 50)
+(def work-count 100)
 
 (defn sendLotsOfWork (c)
   (defn loop (i)
-    (if (> i 0)
+    (if (< i work-count)
       (begin
         (send! c (list i (* i 2) 0))
-        (loop (- i 1)))
+        (loop (+ i 1)))
       nil))
-  (loop 100)
-  (send! c 'DONE)
+  (loop 0)
+  (close! c)
   )
 
 (defn receiveLotsOfResults (c)
   (go (defn loop ()
         (let (w (take! c))
-          (if (= w 'DONE)
-            nil
+          (if w
             (begin
               (println "Received:" w)
-              (loop)))))
+              (loop))
+            nil)))
       (loop))
 
-  (sleep 100000))
+  (println "Sleeping for 10 seconds...")
+  (sleep 10000)
+  (close! c))
 
 (defn worker (cin cout)
   (let (w (take! cin))
-    (if (= w 'DONE)
-      nil
+    (if w
       (let (x (first w)
             y (first (rest w))
             z (* x y))
         (begin
-          (println "Sleeping for: " z)
           (sleep z)
           (send! cout (list x y z))
-          (worker cin cout))))))
+          (worker cin cout)))
+      nil)))
 
 (defn main ()
   (let (cin (chan)

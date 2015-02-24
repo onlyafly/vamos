@@ -85,7 +85,7 @@ func parseAnnotatedNode(p *parser, errors *ParserErrorList) ast.AnnotatedNode {
 	case TcLeftParen:
 		var list []ast.Node
 		for p.peek().Code != TcRightParen {
-			if p.peek().Code == TcEOF {
+			if p.peek().Code == TcEOF || p.peek().Code == TcError {
 				errors.Add(token.Loc, "Unbalanced parentheses")
 				p.next()
 				return &ast.Nil{Location: token.Loc}

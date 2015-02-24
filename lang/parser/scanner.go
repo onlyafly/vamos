@@ -36,7 +36,7 @@ func (t Token) String() string {
 type TokenCode int
 
 const (
-	TcError TokenCode = iota
+	TcError TokenCode = iota // important that TcError has value 0
 	TcLeftParen
 	TcRightParen
 	TcSymbol
