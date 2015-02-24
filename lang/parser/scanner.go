@@ -50,7 +50,7 @@ const (
 
 const eof = -1
 
-type ErrorHandler func(position int, message string)
+type ErrorHandler func(t Token, message string)
 
 ////////// Scanner struct
 
@@ -136,16 +136,18 @@ func (s *Scanner) acceptRun(valid string) {
 }
 
 func (s *Scanner) emitErrorf(format string, args ...interface{}) {
-	if s.errorHandler != nil {
-		message := fmt.Sprintf(format, args...)
-		s.errorHandler(s.start, message)
-	}
-
-	s.Tokens <- Token{
+	t := Token{
 		Loc:   &token.Location{Pos: s.start, Line: s.line, Filename: s.name},
 		Code:  TcError,
 		Value: s.input[s.start:s.pos],
 	}
+
+	if s.errorHandler != nil {
+		message := fmt.Sprintf(format, args...)
+		s.errorHandler(t, message)
+	}
+
+	s.Tokens <- t
 	s.start = s.pos
 
 	s.errorCount++
@@ -209,11 +211,11 @@ Outer:
 			if rnext == '|' {
 				return scanMultiLineComment
 			}
-			s.emitErrorf("unrecognized character sequence: %c%c", r, rnext)
+			s.emitErrorf("unrecognized character sequence: '%c%c' = %v,%v", r, rnext, r, rnext)
 		case r == eof:
 			break Outer
 		default:
-			s.emitErrorf("unrecognized character: %c", r)
+			s.emitErrorf("unrecognized character: '%c' = %v", r, r)
 		}
 	}
 
@@ -235,12 +237,12 @@ func scanMultiLineComment(s *Scanner) stateFn {
 		if r == '|' {
 			rnext := s.next()
 			if rnext == '#' {
-				s.backup()
 				s.ignore()
 				return scanBegin
 			}
-			s.backup()
+			s.backup() // in case there is a '|' following the '|'
 		}
+		r = s.next()
 	}
 
 	s.emitErrorf("non-terminated multiline comment")

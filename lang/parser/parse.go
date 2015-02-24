@@ -5,7 +5,6 @@ import (
 	"strconv"
 	"unicode/utf8"
 	"vamos/lang/ast"
-	"vamos/lang/token"
 )
 
 // Parse accepts a string and the name of the source of the code, and returns
@@ -15,9 +14,8 @@ func Parse(input string, sourceName string) (ast.Nodes, ParserErrorList) {
 	errorList := NewParserErrorList()
 	p := &parser{s: s}
 
-	s.errorHandler = func(position int, message string) {
-		// FIX improve error message by passing a token instead of a position to the error handler
-		errorList.Add(&token.Location{Pos: position, Line: 0, Filename: sourceName}, message)
+	s.errorHandler = func(t Token, message string) {
+		errorList.Add(t.Loc, message)
 	}
 
 	nodes := parseNodes(p, &errorList)
