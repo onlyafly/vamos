@@ -1,3 +1,5 @@
+This page has been superseded by https://github.com/onlyafly/lisp-bibliography
+
 # Reading Notes
 
 ## General Inspiration
