@@ -1,6 +1,7 @@
 package interpreter
 
 import (
+	"bytes"
 	"fmt"
 	"time"
 	"vamos/lang/ast"
@@ -20,6 +21,9 @@ func initializePrimitives(e Env) {
 	addPrimitive(e, "/", 2, primDiv)
 	addPrimitive(e, "<", 2, primLt)
 	addPrimitive(e, ">", 2, primGt)
+
+	// Strings
+	addPrimitiveWithArityRange(e, "str", 0, -1, primStr)
 
 	// Equality
 	addPrimitive(e, "=", 2, primEquals)
@@ -228,6 +232,25 @@ func primCons(e Env, head ast.Node, args []ast.Node) ast.Node {
 
 	panicEvalError(sourceElement, "Cannot cons onto a non-collection: "+targetColl.String())
 	return nil
+}
+
+func primStr(e Env, head ast.Node, args []ast.Node) ast.Node {
+	var buffer bytes.Buffer
+
+	for _, arg := range args {
+		switch val := arg.(type) {
+		case *ast.Str:
+			buffer.WriteString(val.Value)
+		case *ast.Char:
+			buffer.WriteRune(val.Value)
+		case ast.Node:
+			buffer.WriteString(val.String())
+		default:
+			panicEvalError(arg, "Unrecognized argument type to 'str': "+arg.String())
+		}
+	}
+
+	return ast.NewStr(buffer.String())
 }
 
 func primConcat(e Env, head ast.Node, args []ast.Node) ast.Node {

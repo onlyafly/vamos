@@ -39,7 +39,7 @@
   (if (= actual expected)
     true
     (begin
-      (println (concat "TEST FAILED"))
+      (println (concat "TEST FAILED. Expected <" expected ">, got <" actual ">"))
       false)))
 
 (defn vt-start ()

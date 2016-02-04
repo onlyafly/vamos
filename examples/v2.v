@@ -2,22 +2,10 @@
 
 ;; Inspired by Lisp in Small Pieces (LiSP)
 
-(defn lookup (exp env)
-  (eval exp env))
-
 (defn get (l n)
   (if (= n 0)
     (first l)
     (get (rest l) (- n 1))))
-
-(defn e2begin (exps env)
-  (if (list? exps)
-    (if (not (empty? (rest exps)))
-      (begin
-        (e2 (first exps) env)
-        (e2begin (rest exps) env))
-      (e2 (first exps) env))
-    (list)))
 
 (defn e2 (e env)
   (if (atom? e)
@@ -43,14 +31,25 @@
         else (list 'NOT_YET_IMPLEMENTED proc)
         ))))
 
+(defn lookup (exp env)
+  (eval exp env))
+
+(defn e2begin (exps env)
+  (if (list? exps)
+    (if (not (empty? (rest exps)))
+      (begin
+        (e2 (first exps) env)
+        (e2begin (rest exps) env))
+      (e2 (first exps) env))
+    (list)))
+
 (let (env (current-environment))
   (begin
 
     (defvtest "Atoms"
-      (vt= (e2 '2 env)
-           2)
-      (vt= (e2 "test" env)
-           "test"))
+      (vt= (e2 '2 env) 2)
+      (vt= (e2 "test" env) "test")
+      (vt= (e2 \t env) \t))
 
     (defvtest "Begin"
       (vt= (e2 '(begin 5 4) env)

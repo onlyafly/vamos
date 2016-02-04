@@ -58,6 +58,9 @@
 (defn list? (n)
   (= (typeof n) 'list))
 
+(defn char? (n)
+  (= (typeof n) 'char))
+
 (defn symbol? (n)
   (= (typeof n) 'symbol))
 
@@ -109,4 +112,4 @@
 
 ;;;;;;;;;;
 
-"Prelude version 2015-02-19"
+"Prelude version 2016-02-04"

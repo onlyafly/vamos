@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Comparison of Vamos to Other Lisps</title>
+<style>
+body {
+  font-family: lucida grande, helvetica, arial, san-serif;
+}
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+th {
+  background-color: #ddd
+}
+td, th {
+  border: 1px solid #888;
+}
+td {
+  font-family: monospace;
+  white-space: pre;
+  margin: 1em 0;
+}
+</style>
+</head>
+
+<body>
+
+<h1>Comparison of Vamos to Other Lisps</h1>
+
+<h2>Notes</h2>
+<ul>
+<li>See <a href="http://hyperpolyglot.org/lisp">Hyperpolyglot's Comparison of Common Lisp, Racket, Clojure, Emacs Lisp</a></li>
+</ul>
+
+<a name="toc"></a><h2>Table of Contents</h2>
+<ol>
+<li><a href="#literals">Literals</a></li>
+<li><a href="#control-structures">Control Structures</a></li>
+<li><a href="#string-operations">String Operations</a></li>
+
+</ol>
+
+<h2>Chart</h2>
+
+<h3><a name="literals" href="#toc">Literals</a></h3>
+
+<table>
+  <tr>
+    <th></th>
+    <th>Vamos</th>
+    <th>Scheme</th>
+    <th>Clojure</th>
+  </tr>
+  <tr>
+    <td>nil</td><td>nil</td><td>nil</td><td>nil</td>
+  </tr>
+  <tr>
+    <td>numbers</td><td>2</td><td></td><td></td>
+  </tr>
+  <tr>
+    <td>characters</td><td>\a \b \c ... \newline</td><td></td><td></td>
+  </tr>
+  <tr>
+    <td>strings</td><td>"this is a string"</td><td></td><td></td>
+  </tr>
+  <tr>
+    <td>symbols</td>
+    <td>'a_quoted_symbol
+true => 'true
+false => 'false</td><td></td><td></td>
+  </tr>
+  <tr>
+    <td>lists</td><td>'()</td><td></td><td></td>
+  </tr>
+<table>
+
+<h3><a name="control-structures" href="#toc">Control Structures</a></h3>
+
+<table>
+  <tr>
+    <th></th>
+    <th>Vamos</th>
+    <th>Scheme</th>
+    <th>Clojure</th>
+  </tr>
+  <tr>
+    <td>multiple statements</td>
+    <td>(begin e1 e2 ...)</td>
+    <td>(begin e1 e2 ...)</td>
+    <td>(do e1 e2 ...)</td>
+  </tr>
+<table>
+
+<h3><a name="string-operations" href="#toc">String Operations</a></h3>
+
+<table>
+  <tr>
+    <th></th>
+    <th>Vamos</th>
+    <th>Scheme</th>
+    <th>Clojure</th>
+  </tr>
+  <tr>
+    <td>concatenate</td>
+    <td>(str "foo " "bar " "baz")</td>
+    <td>(string-append "foo " "bar " "baz")</td>
+    <td>(str "foo " "bar " "baz")</td>
+  </tr>
+  <tr>
+    <td>convert number to string</td>
+    <td>(str "Value: " 8)</td>
+    <td>(string-append "Value: " (number->string 8))</td>
+    <td>(str "Value: " 8)</td>
+  </tr>
+<table>
+
+</body>
+</html>
