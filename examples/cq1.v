@@ -59,14 +59,13 @@
   ; TODO
   (eval (list 'fn (list funcargs) funcbody) env))
 
-#|
 (defn qupdate! (id env value)
   (if (empty? env)
     (wrong "no such binding" id)
     (if (= (get (first env) 0) id)
-      (get (first env) 1)
+      (begin (let )(update-element! (first env) 1)
+             )
       (lookup id (rest env)))))
-|#
 
 (defn qupdate! (variable env newvalue)
   ;; TODO this is executed outside of the environment :(

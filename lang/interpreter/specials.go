@@ -29,7 +29,9 @@ func specialUpdateBang(e Env, head ast.Node, args []ast.Node) packet {
 }
 
 func specialUpdateElementBang(e Env, head ast.Node, args []ast.Node) packet {
-	name := toSymbolName(args[0])
+	leftHandSide := trampoline(func() packet {
+		return evalNode(e, args[0])
+	})
 
 	indexNode := trampoline(func() packet {
 		return evalNode(e, args[1])
@@ -44,17 +46,12 @@ func specialUpdateElementBang(e Env, head ast.Node, args []ast.Node) packet {
 		return evalNode(e, args[2])
 	})
 
-	targetListNode, ok := e.Get(name)
-	if !ok {
-		panicEvalError(head, "Cannot 'update-element!' in an undefined name: "+name)
-	}
-
-	switch val := targetListNode.(type) {
+	switch val := leftHandSide.(type) {
 	case *ast.List:
 		children := val.Children()
 		children[index] = rightHandSide
 	default:
-		panicEvalError(head, "Cannot 'update-element!' in a non-list: "+name)
+		panicEvalError(head, "Cannot 'update-element!' in a non-list: "+leftHandSide.String())
 	}
 
 	return respond(&ast.Nil{})
