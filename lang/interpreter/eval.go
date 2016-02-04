@@ -167,9 +167,13 @@ func evalFunctionApplication(dynamicEnv Env, f *Function, head ast.Node, unevale
 	// Validate parameters
 	isVariableNumberOfParams := false
 	for _, param := range f.Parameters {
-		paramName := toSymbolName(param)
-		if paramName == "&rest" {
-			isVariableNumberOfParams = true
+		switch paramVal := param.(type) {
+		case *ast.Symbol:
+			if paramVal.Name == "&rest" {
+				isVariableNumberOfParams = true
+			}
+		default:
+			panicEvalError(head, "Function parameters should only be symbols: "+param.String())
 		}
 	}
 	if !isVariableNumberOfParams {

@@ -1,0 +1,80 @@
+;; cq1
+;; From Chapter 1 of "Lisp in Small Pieces" by Christian Queinnec
+
+(load "vtest.v")
+
+(defn get (l n)
+  (if (= n 0)
+    (first l)
+    (get (rest l) (- n 1))))
+
+(defn qeval (e env)
+  (if (atom? e)
+
+    ;; Handle atoms
+    (cond
+      (symbol? e) (lookup e env)
+      (or (number? e) (string? e) (boolean? e) (char? e)) e
+      else 'CANNOT_EVALUATE) ;TODO should be equivalent to a panic?
+
+    ;; Handle non-atoms
+    (let (proc (first e))
+      (cond
+        (= proc 'quote)     (get e 1)
+        (= proc 'if)        (if (qeval (get e 1) env)
+                              (qeval (get e 2) env)
+                              (qeval (get e 3) env))
+        (= proc 'begin)     (qbegin (rest e) env)
+        (= proc 'update!)   (qupdate! (get e 1) env (qeval (get e 2) env))
+        (= proc 'fn)        (make-function (get e 0) (get e 1) env)
+        else                (qapply (qeval (first e) env)
+                                    (evlis (rest e) env))
+        ))))
+
+(defn lookup (exp env)
+  (eval exp env))
+
+(defn qapply (funcarg args)
+  ;; TODO
+  nil)
+
+;; Takes a list of expressions and returns the corresponding list of values
+(defn evlis (exps env)
+  (if (list? exps)
+    (cons (qeval (first exps) env)
+          (evlis (rest exps) env))
+    (list) ))
+
+(defn make-function (funcargs funcbody env)
+  ; TODO
+  (eval (list 'fn (list funcargs) funcbody) env))
+
+(defn qupdate! (variable env newvalue)
+  ;; TODO this is executed outside of the environment :(
+  (update! variable newvalue))
+
+(defn qbegin (exps env)
+  (if (list? exps)
+    (if (not (empty? (rest exps)))
+      (begin
+        (qeval (first exps) env)
+        (qbegin (rest exps) env))
+      (qeval (first exps) env))
+    nil ; We return nil in the case of an empty begin
+    ))
+
+(let (env (current-environment))
+  (begin
+
+    (defvtest "Atoms"
+      (vt= (qeval '2 env) 2)
+      (vt= (qeval "test" env) "test")
+      (vt= (qeval \t env) \t))
+
+    (defvtest "Begin"
+      (vt= (qeval '(begin 5 4) env)
+           4))
+
+  ))
+
+(vt-start)

@@ -15,7 +15,7 @@
            (begin
              (cond
                (= result true) (println ".")
-               else (println (concat "TEST FAILED: " testname)))
+               else (println "TEST FAILED: " testname))
              (_vtest_runtests othertests)))))
 
 ;;;;;;;;;; External API
@@ -39,7 +39,7 @@
   (if (= actual expected)
     true
     (begin
-      (println (concat "TEST FAILED. Expected <" expected ">, got <" actual ">"))
+      (println "TEST FAILED. EXPECTED <" expected "> BUT GOT <" actual ">")
       false)))
 
 (defn vt-start ()

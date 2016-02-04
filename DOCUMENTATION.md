@@ -1,67 +1,6 @@
 # Vamos Language Documentation
 
-* See http://hyperpolyglot.org/lisp for comparison of different Lisps.
-
-### Literals
-
-Nil:
-
-    nil
-
-Character:
-
-    \a
-    \newline
-
-String:
-
-    "This is a string"
-
-Number:
-
-    42
-
-Symbol:
-
-    'this_is_a_quoted_symbol
-    true => 'true
-    false => 'false
-
-List:
-
-    '()
-
-### Special Forms
-
-    ; This is a (single-line) comment
-
-    #| This is a multiline comment |#
-
-    (def x 4)
-
-    (update! x 1)
-
-    (quote x) --OR-- 'x
-
-    (list 1 2 3)
-
-    (if <BOOL> <THEN> <ELSE>)
-
-    (cond
-      <BOOL 1> <THEN 1>
-      <BOOL 2> <THEN 2>
-      <BOOL 3> <THEN 3>)
-
-    (let (x 4
-          y (+ 1 x))
-      (* x y))
-
-    (apply + '(1 3))
-
-    (begin
-      (update! x 10)
-      (number? x))
-    => true
+* TODO: Move everything here to COMPARISON.html
 
 ### Functions
 

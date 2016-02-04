@@ -29,14 +29,17 @@ td {
 
 <h1>Comparison of Vamos to Other Lisps</h1>
 
-<h2>Notes</h2>
+<h2>See/Notes</h2>
 <ul>
-<li>See <a href="http://hyperpolyglot.org/lisp">Hyperpolyglot's Comparison of Common Lisp, Racket, Clojure, Emacs Lisp</a></li>
+<li><a href="http://hyperpolyglot.org/lisp">Hyperpolyglot's Comparison of Common Lisp, Racket, Clojure, Emacs Lisp</a></li>
+<li>Web-based Scheme REPL: <a href="https://repl.it/languages/scheme">Repl.it Scheme</a>
+<li>Web-based Clojure REPL: <a href="http://www.tryclj.com/">Tryclj</a>
 </ul>
 
 <a name="toc"></a><h2>Table of Contents</h2>
 <ol>
-<li><a href="#literals">Literals</a></li>
+<li><a href="#special-forms">Special Forms</a></li>
+<li><a href="#simple-types-and-predicates">Simple Types and Predicates</a></li>
 <li><a href="#control-structures">Control Structures</a></li>
 <li><a href="#string-operations">String Operations</a></li>
 
@@ -44,7 +47,95 @@ td {
 
 <h2>Chart</h2>
 
-<h3><a name="literals" href="#toc">Literals</a></h3>
+<h3><a name="special-forms" href="#toc">Special Forms</a></h3>
+
+<table>
+  <tr>
+    <th></th>
+    <th>Vamos</th>
+    <th>Scheme</th>
+    <th>Clojure</th>
+  </tr>
+  <tr>
+    <td>single line comment</td>
+    <td>; This is a comment</td>
+    <td>; This is a comment</td>
+    <td>; This is a comment</td>
+  </tr>
+  <tr>
+    <td>multiple line comment</td>
+    <td>#| This is a multiline
+comment |#</td>
+    <td>???</td>
+    <td>???</td>
+  </tr>
+  <tr>
+    <td>define a variable</td>
+    <td>(def x 4)</td>
+    <td>(def x 4)</td>
+    <td>(def x 4)</td>
+  </tr>
+  <tr>
+    <td>update the value in a variable</td>
+    <td>(update! x 1)</td>
+    <td>(set! x 1)</td>
+    <td>???</td>
+  </tr>
+  <tr>
+    <td>quote</td>
+    <td>(quote x) --OR-- 'x</td>
+    <td>(quote x) --OR-- 'x</td>
+    <td>(quote x) --OR-- 'x</td>
+  </tr>
+  <tr>
+    <td>list</td>
+    <td>(list 1 2 3)</td>
+    <td>(list 1 2 3)</td>
+    <td>(list 1 2 3)</td>
+  </tr>
+  <tr>
+    <td>if</td>
+    <td>(if BOOL THEN ELSE)</td>
+    <td>(if BOOL THEN ELSE)</td>
+    <td>(if BOOL THEN ELSE)</td>
+  </tr>
+  <tr>
+    <td>cond</td>
+    <td>(cond
+  BOOL1 THEN1
+  BOOL2 THEN2
+  BOOL3 THEN3)</td>
+    <td>(cond
+  BOOL1 THEN1
+  BOOL2 THEN2
+  BOOL3 THEN3)</td>
+  <td>(cond
+  BOOL1 THEN1
+  BOOL2 THEN2
+  BOOL3 THEN3)</td>
+  </tr>
+  <tr>
+    <td>let</td>
+    <td>(let (x 4
+      y (+ 1 x))
+  (* x y))</td>
+  <td>(let* (x 4
+      y (+ 1 x))
+  (* x y))</td>
+  <td>(let (x 4
+      y (+ 1 x))
+  (* x y))</td>
+  </tr>
+  <tr>
+    <td>apply a function to a list</td>
+    <td>(apply + '(1 3))</td>
+    <td></td>
+    <td></td>
+  </tr>
+<table>
+
+
+<h3><a name="simple-types-and-predicates" href="#toc">Simple Types and Predicates</a></h3>
 
 <table>
   <tr>
@@ -73,6 +164,31 @@ false => 'false</td><td></td><td></td>
   </tr>
   <tr>
     <td>lists</td><td>'()</td><td></td><td></td>
+  </tr>
+  <tr>
+    <td>type tests</td><td>list?
+atom?
+string?
+char?
+symbol?
+number?
+function?
+primitive?
+macro?
+environment?
+</td>
+<td>pair?
+atom?
+???
+???
+???
+???
+???
+???
+???
+???
+</td>
+<td>???</td>
   </tr>
 <table>
 
