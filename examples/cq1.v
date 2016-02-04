@@ -3,6 +3,10 @@
 
 (load "vtest.v")
 
+(defn wrong (msg exp)
+  ;; TODO should be equivalent to a panic?
+  (str "WRONG: " msg ": " exp))
+
 (defn get (l n)
   (if (= n 0)
     (first l)
@@ -15,7 +19,7 @@
     (cond
       (symbol? e) (lookup e env)
       (or (number? e) (string? e) (boolean? e) (char? e)) e
-      else 'CANNOT_EVALUATE) ;TODO should be equivalent to a panic?
+      else (wrong "cannot evaluate" e))
 
     ;; Handle non-atoms
     (let (proc (first e))
@@ -31,8 +35,14 @@
                                     (evlis (rest e) env))
         ))))
 
-(defn lookup (exp env)
-  (eval exp env))
+;; Environment is the closest thing to an Alist that Vamos supports:
+;; ((a 1) (b 2) (c 3))
+(defn lookup (id env)
+  (if (empty? env)
+    (wrong "no such binding" id)
+    (if (= (get (first env) 0) id)
+      (get (first env) 1)
+      (lookup id (rest env)))))
 
 (defn qapply (funcarg args)
   ;; TODO
@@ -48,6 +58,15 @@
 (defn make-function (funcargs funcbody env)
   ; TODO
   (eval (list 'fn (list funcargs) funcbody) env))
+
+#|
+(defn qupdate! (id env value)
+  (if (empty? env)
+    (wrong "no such binding" id)
+    (if (= (get (first env) 0) id)
+      (get (first env) 1)
+      (lookup id (rest env)))))
+|#
 
 (defn qupdate! (variable env newvalue)
   ;; TODO this is executed outside of the environment :(

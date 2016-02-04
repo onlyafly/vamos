@@ -112,6 +112,9 @@ func evalList(e Env, l *ast.List, shouldEvalMacros bool) packet {
 		case "update!":
 			checkSpecialArgs("update!", head, args, 2, 2)
 			return specialUpdateBang(e, head, args)
+		case "update-element!":
+			checkSpecialArgs("update-element!", head, args, 3, 3)
+			return specialUpdateElementBang(e, head, args)
 		case "if":
 			checkSpecialArgs("if", head, args, 3, 3)
 			return specialIf(e, head, args)

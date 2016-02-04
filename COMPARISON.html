@@ -82,6 +82,16 @@ comment |#</td>
     <td>???</td>
   </tr>
   <tr>
+    <td>update an item in a list</td>
+    <td>(def x '(1 2 3 4))
+(update-element! x 0 10)
+x => (10 2 3 4)</td>
+    <td>(define x '(1 2 3 4))
+(set-car! x 10)
+x => (10 2 3 4)</td>
+    <td>???</td>
+  </tr>
+  <tr>
     <td>quote</td>
     <td>(quote x) --OR-- 'x</td>
     <td>(quote x) --OR-- 'x</td>

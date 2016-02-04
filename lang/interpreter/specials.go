@@ -28,6 +28,38 @@ func specialUpdateBang(e Env, head ast.Node, args []ast.Node) packet {
 	return respond(&ast.Nil{})
 }
 
+func specialUpdateElementBang(e Env, head ast.Node, args []ast.Node) packet {
+	name := toSymbolName(args[0])
+
+	indexNode := trampoline(func() packet {
+		return evalNode(e, args[1])
+	})
+	indexNumber, ok := indexNode.(*ast.Number)
+	if !ok {
+		panicEvalError(head, "Index in 'update-element!' is not a number: "+indexNode.String())
+	}
+	index := int(indexNumber.Value)
+
+	rightHandSide := trampoline(func() packet {
+		return evalNode(e, args[2])
+	})
+
+	targetListNode, ok := e.Get(name)
+	if !ok {
+		panicEvalError(head, "Cannot 'update-element!' in an undefined name: "+name)
+	}
+
+	switch val := targetListNode.(type) {
+	case *ast.List:
+		children := val.Children()
+		children[index] = rightHandSide
+	default:
+		panicEvalError(head, "Cannot 'update-element!' in a non-list: "+name)
+	}
+
+	return respond(&ast.Nil{})
+}
+
 func specialIf(e Env, head ast.Node, args []ast.Node) packet {
 	predicate := toBooleanValue(trampoline(func() packet {
 		return evalNode(e, args[0])
