@@ -1,5 +1,6 @@
 ;; cq1
 ;; From Chapter 1 of "Lisp in Small Pieces" by Christian Queinnec
+;; Updated 2016-02-04
 
 (load "vtest.v")
 
@@ -63,13 +64,9 @@
   (if (empty? env)
     (wrong "no such binding" id)
     (if (= (get (first env) 0) id)
-      (begin (let )(update-element! (first env) 1)
-             )
-      (lookup id (rest env)))))
-
-(defn qupdate! (variable env newvalue)
-  ;; TODO this is executed outside of the environment :(
-  (update! variable newvalue))
+      (begin (update-element! (first env) 1 value)
+             value)
+      (qupdate! id (rest env) value))))
 
 (defn qbegin (exps env)
   (if (list? exps)
@@ -81,13 +78,15 @@
     nil ; We return nil in the case of an empty begin
     ))
 
-(let (env (current-environment))
+(let (env '((a 1)))
   (begin
 
     (defvtest "Atoms"
       (vt= (qeval '2 env) 2)
       (vt= (qeval "test" env) "test")
-      (vt= (qeval \t env) \t))
+      (vt= (qeval \t env) \t)
+      (vt= (qeval 'a env) 1)
+      )
 
     (defvtest "Begin"
       (vt= (qeval '(begin 5 4) env)
