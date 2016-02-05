@@ -51,6 +51,7 @@ func initializePrimitives(e Env) {
 	addPrimitive(e, "load", 1, primLoad)
 	addPrimitive(e, "now", 0, primNow)
 	addPrimitive(e, "sleep", 1, primSleep)
+	addPrimitiveWithArityRange(e, "panic", 0, -1, primPanic)
 
 	// Concurrency
 	addPrimitive(e, "chan", 0, primChan)
@@ -169,6 +170,28 @@ func primFunctionEnvironment(e Env, head ast.Node, args []ast.Node) ast.Node {
 func primTypeof(e Env, head ast.Node, args []ast.Node) ast.Node {
 	arg := args[0]
 	return &ast.Symbol{Name: arg.TypeName()}
+}
+
+func primPanic(e Env, head ast.Node, args []ast.Node) ast.Node {
+	var buffer bytes.Buffer
+
+	for i, arg := range args {
+		if i > 0 {
+			buffer.WriteString(" ")
+		}
+
+		switch val := arg.(type) {
+		case *ast.Str:
+			buffer.WriteString(val.Value)
+		case ast.Node:
+			buffer.WriteString(val.String())
+		default:
+			panicEvalError(arg, "Unrecognized argument type to 'panic': "+arg.String())
+		}
+	}
+
+	panicApplicationError(head, buffer.String())
+	return &ast.Nil{}
 }
 
 func primPrintln(e Env, head ast.Node, args []ast.Node) ast.Node {

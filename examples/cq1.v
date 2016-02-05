@@ -1,6 +1,6 @@
 ;; cq1
 ;; From Chapter 1 of "Lisp in Small Pieces" by Christian Queinnec
-;; Updated 2016-02-04
+;; Updated 2016-02-05
 
 (load "vtest.v")
 
@@ -45,6 +45,16 @@
       (get (first env) 1)
       (lookup id (rest env)))))
 
+;; Extend an environment env with a list of variables var and values val
+(defn extend (env vars vals)
+  (cond
+    (empty? vars) (if (empty? vals)
+                    env
+                    (wrong "too many variables" (list vars vals)))
+    (empty? vals) (wrong "too few variables" (list vars vals))
+    else          (cons (list (first vars) (first vals))
+                        (extend env (rest vars) (rest vals)))))
+
 (defn qapply (funcarg args)
   ;; TODO
   nil)
@@ -55,6 +65,8 @@
     (cons (qeval (first exps) env)
           (evlis (rest exps) env))
     (list) ))
+
+
 
 (defn make-function (funcargs funcbody env)
   ; TODO
