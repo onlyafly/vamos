@@ -6,12 +6,17 @@
 
 (defn wrong (msg exp)
   ;; TODO should be equivalent to a panic?
-  (str "WRONG: " msg ": " exp))
+  (panic "WRONG:" msg ":" exp))
 
 (defn get (l n)
   (if (= n 0)
     (first l)
     (get (rest l) (- n 1))))
+
+(defn proc? (p)
+  (cond (function? p)  true
+        (primitive? p) true
+        else           false))
 
 (defn qeval (e env)
   (if (atom? e)
@@ -50,14 +55,18 @@
   (cond
     (empty? vars) (if (empty? vals)
                     env
-                    (wrong "too many variables" (list vars vals)))
-    (empty? vals) (wrong "too few variables" (list vars vals))
+                    (wrong "too few variables" (list vars vals)))
+    (empty? vals) (wrong "too many variables" (list vars vals))
     else          (cons (list (first vars) (first vals))
                         (extend env (rest vars) (rest vals)))))
 
+;; "invoke" in Queinnec
+;; Note that our representation of functions here passes all args to the function
+;; as a list as a single paramter
 (defn qapply (funcarg args)
-  ;; TODO
-  nil)
+  (if (proc? funcarg)
+    (funcarg args)
+    (panic "not a function" funcarg)))
 
 ;; Takes a list of expressions and returns the corresponding list of values
 (defn evlis (exps env)
