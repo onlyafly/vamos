@@ -1,6 +1,26 @@
 ;; cq1
 ;; From Chapter 1 of "Lisp in Small Pieces" by Christian Queinnec
 ;; Updated 2016-02-05
+#|
+Features of the CQ1 language:
+
+Dynamic binding function:
+
+((let (y 2)
+   (let (y 1)
+     (dynamic-fn (x) (list x y))))
+ 3)
+=> (3 2)
+
+Lexical binding function:
+
+((let (y 2)
+   (let (y 1)
+     (fn (x) (list x y))))
+ 3)
+=> (3 1)
+
+|#
 
 (load "vtest.v")
 
@@ -30,22 +50,27 @@
     ;; Handle non-atoms
     (let (proc (first e))
       (cond
-        (= proc 'quote)     (get e 1)
-        (= proc 'if)        (if (qeval (get e 1) env)
-                              (qeval (get e 2) env)
-                              (qeval (get e 3) env))
-        (= proc 'begin)     (qbegin (rest e) env)
-        (= proc 'update!)   (qupdate! (get e 1) env (qeval (get e 2) env))
-        (= proc 'fn)        (make-function (get e 0) (get e 1) env)
-        else                (invoke (qeval (first e) env)
-                                    (evlis (rest e) env)
-                                    env)
+        (= proc 'quote)      (get e 1)
+        (= proc 'if)         (if (qeval (get e 1) env)
+                               (qeval (get e 2) env)
+                               (qeval (get e 3) env))
+        (= proc 'begin)      (qbegin (rest e) env)
+        (= proc 'update!)    (qupdate! (get e 1) env (qeval (get e 2) env))
+
+        ; Syntax: (fn (param1 ...) body ...)
+        (= proc 'fn)         (let (params (get e 1)
+                                   body (rest (rest e)))
+                               (make-function params body env))
+
+        else                 (invoke (qeval (first e) env)
+                                     (evlis (rest e) env)
+                                     env)
         ))))
 
 ;; A CQ1-function is represented as a Vamos-function, where the CQ1-function's arguments are passed as a list
-(defn make-function (funcparams funcbody lexical.env)
-  (fn (args)
-    (qbegin funcbody (extend lexical.env funcparams args))))
+(defn make-function (funcparams funcbody lexical-env)
+  (fn (args dynamic-env)
+    (qbegin funcbody (extend lexical-env funcparams args))))
 
 ;; Environment is the closest thing to an Alist that Vamos supports:
 ;; ((a 1) (b 2) (c 3))
@@ -68,9 +93,9 @@
 
 ;; Note that our representation of functions here passes all args to the function
 ;; as a list as a single paramter
-(defn invoke (funcarg args dynamic.env)
+(defn invoke (funcarg args dynamic-env)
   (if (proc? funcarg)
-    (funcarg args dynamic.env)
+    (funcarg args dynamic-env)
     (panic "not a function" funcarg)))
 
 ;; Takes a list of expressions and returns the corresponding list of values
@@ -98,7 +123,7 @@
     nil ; We return nil in the case of an empty begin
     ))
 
-(def env.init '())
+(def env-init '())
 
 (let (env '((a 1)))
   (begin
