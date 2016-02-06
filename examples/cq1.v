@@ -20,6 +20,13 @@ Lexical binding function:
  3)
 => (3 1)
 
+((((fn (a)
+     (fn (a)
+       (fn (b) a)))
+   1)
+  2)
+ 3)
+
 |#
 
 (load "vtest.v")
@@ -58,7 +65,14 @@ Lexical binding function:
         (= proc 'begin)      (qbegin (rest e) env)
         (= proc 'update!)    (qupdate! (get e 1) env (qeval (get e 2) env))
 
-        ; Syntax: (fn (param1 ...) body ...)
+        ;; Dynamically-scoped function
+        ;; Syntax: (dynamic-fn (param1 ...) body ...)
+        (= proc 'dynamic-fn) (let (params (get e 1)
+                                   body (rest (rest e)))
+                               (make-dynamic-function params body env))
+
+        ;; Lexically-scoped function
+        ;; Syntax: (fn (param1 ...) body ...)
         (= proc 'fn)         (let (params (get e 1)
                                    body (rest (rest e)))
                                (make-function params body env))
@@ -67,6 +81,11 @@ Lexical binding function:
                                      (evlis (rest e) env)
                                      env)
         ))))
+
+;; A CQ1-function is represented as a Vamos-function, where the CQ1-function's arguments are passed as a list
+(defn make-dynamic-function (funcparams funcbody lexical.env)
+  (fn (args dynamic.env)
+    (qbegin funcbody (extend dynamic.env funcparams args))))
 
 ;; A CQ1-function is represented as a Vamos-function, where the CQ1-function's arguments are passed as a list
 (defn make-function (funcparams funcbody lexical.env)
@@ -141,6 +160,16 @@ Lexical binding function:
     (defvtest "Begin"
       (vt= (qeval '(begin 5 4) env)
            4))
+
+    (defvtest "Demonstrate lexical binding"
+      (vt= (qeval '(((fn (a) (fn (b) a)) 1) 2)
+                  '((a 3)))
+           1))
+
+    (defvtest "Demonstrate dynamic binding"
+      (vt= (qeval '(((fn (a) (dynamic-fn (b) a)) 1) 2)
+                  '((a 3)))
+           3))
 
   ))
 
