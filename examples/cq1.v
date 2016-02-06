@@ -39,6 +39,7 @@ Lexical binding function:
         else           false))
 
 (defn qeval (e env)
+  (println "qeval:" e "::" env)
   (if (atom? e)
 
     ;; Handle atoms
@@ -68,9 +69,9 @@ Lexical binding function:
         ))))
 
 ;; A CQ1-function is represented as a Vamos-function, where the CQ1-function's arguments are passed as a list
-(defn make-function (funcparams funcbody lexical-env)
-  (fn (args dynamic-env)
-    (qbegin funcbody (extend lexical-env funcparams args))))
+(defn make-function (funcparams funcbody lexical.env)
+  (fn (args dynamic.env)
+    (qbegin funcbody (extend lexical.env funcparams args))))
 
 ;; Environment is the closest thing to an Alist that Vamos supports:
 ;; ((a 1) (b 2) (c 3))
@@ -93,17 +94,18 @@ Lexical binding function:
 
 ;; Note that our representation of functions here passes all args to the function
 ;; as a list as a single paramter
-(defn invoke (funcarg args dynamic-env)
+(defn invoke (funcarg args dynamic.env)
   (if (proc? funcarg)
-    (funcarg args dynamic-env)
+    (funcarg args dynamic.env)
     (panic "not a function" funcarg)))
 
 ;; Takes a list of expressions and returns the corresponding list of values
 (defn evlis (exps env)
-  (if (list? exps)
+  (println "evlis:" exps "::" env)
+  (if (empty? exps)
+    (list)
     (cons (qeval (first exps) env)
-          (evlis (rest exps) env))
-    (list) ))
+          (evlis (rest exps) env))))
 
 (defn qupdate! (id env value)
   (if (empty? env)
@@ -114,6 +116,7 @@ Lexical binding function:
       (qupdate! id (rest env) value))))
 
 (defn qbegin (exps env)
+  (println "qbegin:" exps "::" env)
   (if (list? exps)
     (if (not (empty? (rest exps)))
       (begin
@@ -123,7 +126,7 @@ Lexical binding function:
     nil ; We return nil in the case of an empty begin
     ))
 
-(def env-init '())
+(def env.init '())
 
 (let (env '((a 1)))
   (begin
