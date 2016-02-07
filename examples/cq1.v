@@ -92,6 +92,12 @@ Lexical binding function:
   (fn (args dynamic.env)
     (qbegin funcbody (extend lexical.env funcparams args))))
 
+(defn make-primitive (primname primfunc arity)
+  (fn (args dynamic.env)
+    (if (= arity (len args))
+      (apply primfunc args)
+      (wrong "Incorrect arity" (list primname args)))))
+
 ;; Environment is the closest thing to an Alist that Vamos supports:
 ;; ((a 1) (b 2) (c 3))
 (defn lookup (id env)
@@ -158,10 +164,7 @@ Lexical binding function:
 (defmacro defprimitive (name f arity)
   (list 'definitial
         name
-        (list 'fn (list 'args 'dynanic.env)
-          (list 'if (list '= arity (list 'len 'args))
-            (list 'apply f 'args)
-            (list 'wrong "Incorrect arity" (list (list 'quote name) 'args))))))
+        (list 'make-primitive (list 'quote name) f arity)))
 
 (let (env '((a 1)))
   (begin
