@@ -59,12 +59,6 @@ Higher-order:
 
     apply
 
-IO:
-
-    (println "Test")
-
-    (println "Test" 42 'HELLO)
-
 Strings:
 
     (concat "abc" "de" "fgh")

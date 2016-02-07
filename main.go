@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
 
@@ -131,6 +132,17 @@ func main() {
 		writeLinerHistory(line)
 
 		switch {
+		case input == ":test":
+			// TODO: update read-line so that it does this
+			line.Close()
+			fmt.Print("Test Prompt: ")
+			reader := bufio.NewReader(os.Stdin)
+			text, _ := reader.ReadString('\n')
+			fmt.Println(text)
+			line = liner.NewLiner()
+			defer line.Close()
+			openLinerHistory(line)
+			configureLiner(line)
 		case input == ":quit":
 			return
 		case strings.HasPrefix(input, ":inspect "):

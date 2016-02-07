@@ -3,6 +3,8 @@ package interpreter
 import (
 	"bytes"
 	"fmt"
+	"io/ioutil"
+	"os"
 	"time"
 	"vamos/lang/ast"
 	"vamos/lang/parser"
@@ -48,6 +50,7 @@ func initializePrimitives(e Env) {
 
 	// IO
 	addPrimitiveWithArityRange(e, "println", 1, -1, primPrintln)
+	addPrimitiveWithArityRange(e, "read-line", 0, 0, primReadLine)
 	addPrimitive(e, "load", 1, primLoad)
 	addPrimitive(e, "now", 0, primNow)
 	addPrimitive(e, "sleep", 1, primSleep)
@@ -213,6 +216,15 @@ func primPrintln(e Env, head ast.Node, args []ast.Node) ast.Node {
 
 	fmt.Fprintf(writer, "\n")
 	return &ast.Nil{}
+}
+
+func primReadLine(e Env, head ast.Node, args []ast.Node) ast.Node {
+	bytes, _ := ioutil.ReadAll(os.Stdin)
+	/*
+		reader := bufio.NewReader(os.Stdin)
+		text, _ := reader.ReadString('\n')
+	*/
+	return ast.NewStr(string(bytes))
 }
 
 func primFirst(e Env, head ast.Node, args []ast.Node) ast.Node {

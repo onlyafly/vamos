@@ -166,6 +166,16 @@ Lexical binding function:
         name
         (list 'make-primitive (list 'quote name) f arity)))
 
+(definitial foo)
+(definitial bar)
+
+(defprimitive cons cons 2)
+(defprimitive first first 1)
+(defprimitive update-element! update-element! 3)
+(defprimitive + + 2)
+(defprimitive = = 2)
+(defprimitive < < 2)
+
 (let (env '((a 1)))
   (begin
 
