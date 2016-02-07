@@ -147,6 +147,22 @@ Lexical binding function:
 
 (def env.init '())
 
+(def env.global env.init)
+
+;; value is optional
+(defmacro definitial (name value)
+  (list 'begin (list 'update! 'env.global (list 'cons (list 'list (list 'quote name) value)
+                                                      'env.global))
+               (list 'quote name)))
+
+(defmacro defprimitive (name f arity)
+  (list 'definitial
+        name
+        (list 'fn (list 'args 'dynanic.env)
+          (list 'if (list '= arity (list 'len 'args))
+            (list 'apply f 'args)
+            (list 'wrong "Incorrect arity" (list (list 'quote name) 'args))))))
+
 (let (env '((a 1)))
   (begin
 
