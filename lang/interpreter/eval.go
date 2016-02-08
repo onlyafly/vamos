@@ -8,9 +8,10 @@ import (
 
 // TODO get rid of this global variable
 var writer io.Writer
+var readLine func() string
 
 // Eval evaluates a node in an environment.
-func Eval(e Env, n ast.Node, w io.Writer) (result ast.Node, err error) {
+func Eval(e Env, n ast.Node, w io.Writer, rl func() string) (result ast.Node, err error) {
 	defer func() {
 		if e := recover(); e != nil {
 			result = nil
@@ -25,6 +26,7 @@ func Eval(e Env, n ast.Node, w io.Writer) (result ast.Node, err error) {
 	}()
 
 	writer = w
+	readLine = rl
 
 	startThunk := func() packet {
 		return evalNode(e, n)

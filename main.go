@@ -14,7 +14,7 @@ import (
 	"vamos/lang/ast"
 	"vamos/lang/interpreter"
 
-	"github.com/peterh/liner"
+	"vamos/Godeps/_workspace/src/github.com/peterh/liner"
 )
 
 const (
@@ -74,6 +74,17 @@ func writeLinerHistory(line *liner.State) {
 	}
 }
 
+func startLiner() *liner.State {
+	line := liner.NewLiner()
+	openLinerHistory(line)
+	configureLiner(line)
+	return line
+}
+
+func stopLiner(line *liner.State) {
+	line.Close()
+}
+
 func main() {
 
 	startupFileName := flag.String("l", "", "load a file at startup")
@@ -89,29 +100,35 @@ func main() {
 
 	// Setup liner
 
-	line := liner.NewLiner()
+	line := startLiner()
 	defer line.Close()
-	openLinerHistory(line)
-	configureLiner(line)
+
+	standardReadLine := func() string {
+		stopLiner(line) // Liner must be stopped to turn off raw mode...
+		reader := bufio.NewReader(os.Stdin)
+		text, _ := reader.ReadString('\n')
+		line = startLiner() // ...and then turn it back on.
+		return text
+	}
 
 	// Initialize
 
 	topLevelEnv := interpreter.NewTopLevelMapEnv()
 
 	if len(exeFileName) != 0 {
-		loadFile("prelude.v", topLevelEnv)
-		loadFile(exeFileName, topLevelEnv)
+		loadFile("prelude.v", topLevelEnv, standardReadLine)
+		loadFile(exeFileName, topLevelEnv, standardReadLine)
 		return
 	}
 
 	fmt.Printf("Vamos %s (%s)\n", version, versionDate)
-	loadFile("prelude.v", topLevelEnv)
+	loadFile("prelude.v", topLevelEnv, standardReadLine)
 	fmt.Printf("(Press Ctrl+C or type :quit to exit)\n\n")
 
 	// Loading of files
 
 	if startupFileName != nil {
-		loadFile(*startupFileName, topLevelEnv)
+		loadFile(*startupFileName, topLevelEnv, standardReadLine)
 	}
 
 	// REPL
@@ -133,27 +150,19 @@ func main() {
 
 		switch {
 		case input == ":test":
-			// TODO: update read-line so that it does this
-			line.Close()
 			fmt.Print("Test Prompt: ")
-			reader := bufio.NewReader(os.Stdin)
-			text, _ := reader.ReadString('\n')
-			fmt.Println(text)
-			line = liner.NewLiner()
-			defer line.Close()
-			openLinerHistory(line)
-			configureLiner(line)
+			fmt.Println(standardReadLine())
 		case input == ":quit":
 			return
 		case strings.HasPrefix(input, ":inspect "):
 			withoutInspectPrefix := strings.Split(input, ":inspect ")[1]
-			if result, err := interpreter.ParseEval(topLevelEnv, withoutInspectPrefix, "REPL"); err == nil {
+			if result, err := interpreter.ParseEval(topLevelEnv, withoutInspectPrefix, standardReadLine, "REPL"); err == nil {
 				inspect(result)
 			} else {
 				fmt.Println(err.Error())
 			}
 		default:
-			interpreter.ParseEvalPrint(topLevelEnv, input, "REPL", true)
+			interpreter.ParseEvalPrint(topLevelEnv, input, standardReadLine, "REPL", true)
 		}
 	}
 }
@@ -170,13 +179,13 @@ func inspect(arg ast.Node) {
 	}
 }
 
-func loadFile(fileName string, env interpreter.Env) {
+func loadFile(fileName string, env interpreter.Env, standardReadLine func() string) {
 	if len(fileName) > 0 {
 		content, err := util.ReadFile(fileName)
 		if err != nil {
 			fmt.Printf("Error while loading file <%v>: %v\n", fileName, err.Error())
 		} else {
-			interpreter.ParseEvalPrint(env, content, fileName, false)
+			interpreter.ParseEvalPrint(env, content, standardReadLine, fileName, false)
 		}
 	}
 }

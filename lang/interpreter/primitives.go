@@ -3,8 +3,7 @@ package interpreter
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
-	"os"
+	"strings"
 	"time"
 	"vamos/lang/ast"
 	"vamos/lang/parser"
@@ -219,12 +218,9 @@ func primPrintln(e Env, head ast.Node, args []ast.Node) ast.Node {
 }
 
 func primReadLine(e Env, head ast.Node, args []ast.Node) ast.Node {
-	bytes, _ := ioutil.ReadAll(os.Stdin)
-	/*
-		reader := bufio.NewReader(os.Stdin)
-		text, _ := reader.ReadString('\n')
-	*/
-	return ast.NewStr(string(bytes))
+	s := readLine() // TODO: uses a global variable :(
+	trimmed := strings.TrimSuffix(s, "\n")
+	return ast.NewStr(trimmed)
 }
 
 func primFirst(e Env, head ast.Node, args []ast.Node) ast.Node {
@@ -329,7 +325,7 @@ func primLoad(e Env, head ast.Node, args []ast.Node) ast.Node {
 					arg,
 					fmt.Sprintf("Error while loading file <%v>: %v\n", fileName, err.Error()))
 			} else {
-				ParseEvalPrint(e, content, fileName, false)
+				ParseEvalPrint(e, content, readLine, fileName, false)
 			}
 		}
 

@@ -7,8 +7,8 @@ import (
 	"vamos/lang/parser"
 )
 
-func ParseEvalPrint(env Env, input string, sourceName string, printResult bool) {
-	if result, err := ParseEval(env, input, sourceName); err == nil {
+func ParseEvalPrint(env Env, input string, readLine func() string, sourceName string, printResult bool) {
+	if result, err := ParseEval(env, input, readLine, sourceName); err == nil {
 		// Can be null if nothing was entered
 		if result != nil && printResult {
 			fmt.Println(result.String())
@@ -18,7 +18,7 @@ func ParseEvalPrint(env Env, input string, sourceName string, printResult bool) 
 	}
 }
 
-func ParseEval(env Env, input string, sourceName string) (ast.Node, error) {
+func ParseEval(env Env, input string, readLine func() string, sourceName string) (ast.Node, error) {
 	defer func() {
 		// Some non-application triggered panic has occurred
 		if e := recover(); e != nil {
@@ -36,7 +36,7 @@ func ParseEval(env Env, input string, sourceName string) (ast.Node, error) {
 	var result ast.Node
 	var evalError error
 	for _, n := range nodes {
-		result, evalError = Eval(env, n, os.Stdout)
+		result, evalError = Eval(env, n, os.Stdout, readLine)
 		if evalError != nil {
 			break
 		}
