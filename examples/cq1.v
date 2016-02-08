@@ -166,7 +166,7 @@ Lexical binding function:
         name
         (list 'make-primitive (list 'quote name) f arity)))
 
-(definitial foo)
+(definitial foo nil)
 (definitial bar nil)
 
 (defprimitive cons cons 2)

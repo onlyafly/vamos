@@ -40,6 +40,7 @@ func initializePrimitives(e Env) {
 	// Environments and types
 	addPrimitive(e, "current-environment", 0, primCurrentEnvironment)
 	addPrimitive(e, "typeof", 1, primTypeof)
+	addPrimitive(e, "update-element!", 3, primUpdateElementBang)
 
 	// Metaprogramming
 	addPrimitive(e, "function-params", 1, primFunctionParams)
@@ -264,6 +265,29 @@ func primCons(e Env, head ast.Node, args []ast.Node) ast.Node {
 
 	panicEvalError(sourceElement, "Cannot cons onto a non-collection: "+targetColl.String())
 	return nil
+}
+
+func primUpdateElementBang(e Env, head ast.Node, args []ast.Node) ast.Node {
+	leftHandSide := args[0]
+
+	indexNode := args[1]
+	indexNumber, ok := indexNode.(*ast.Number)
+	if !ok {
+		panicEvalError(head, "Index in 'update-element!' is not a number: "+indexNode.String())
+	}
+	index := int(indexNumber.Value)
+
+	rightHandSide := args[2]
+
+	switch val := leftHandSide.(type) {
+	case *ast.List:
+		children := val.Children()
+		children[index] = rightHandSide
+	default:
+		panicEvalError(head, "Cannot 'update-element!' in a non-list: "+leftHandSide.String())
+	}
+
+	return &ast.Nil{}
 }
 
 func primReadableString(e Env, head ast.Node, args []ast.Node) ast.Node {

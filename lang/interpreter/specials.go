@@ -28,6 +28,7 @@ func specialUpdateBang(e Env, head ast.Node, args []ast.Node) packet {
 	return respond(&ast.Nil{})
 }
 
+/* TODO remove
 func specialUpdateElementBang(e Env, head ast.Node, args []ast.Node) packet {
 	leftHandSide := trampoline(func() packet {
 		return evalNode(e, args[0])
@@ -56,6 +57,7 @@ func specialUpdateElementBang(e Env, head ast.Node, args []ast.Node) packet {
 
 	return respond(&ast.Nil{})
 }
+*/
 
 func specialIf(e Env, head ast.Node, args []ast.Node) packet {
 	predicate := toBooleanValue(trampoline(func() packet {
