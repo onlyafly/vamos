@@ -1,6 +1,6 @@
 ;; cq1
 ;; From Chapter 1 of "Lisp in Small Pieces" by Christian Queinnec
-;; Updated 2016-02-05
+;; Updated 2016-02-08
 #|
 Features of the CQ1 language:
 
@@ -46,7 +46,7 @@ Lexical binding function:
         else           false))
 
 (defn qeval (e env)
-  (println "qeval:" e "::" env)
+  ;;DEBUG (println "qeval:" e "::" env)
   (if (atom? e)
 
     ;; Handle atoms
@@ -126,7 +126,7 @@ Lexical binding function:
 
 ;; Takes a list of expressions and returns the corresponding list of values
 (defn evlis (exps env)
-  (println "evlis:" exps "::" env)
+  ;;DEBUG (println "evlis:" exps "::" env)
   (if (empty? exps)
     (list)
     (cons (qeval (first exps) env)
@@ -141,7 +141,7 @@ Lexical binding function:
       (qupdate! id (rest env) value))))
 
 (defn qbegin (exps env)
-  (println "qbegin:" exps "::" env)
+  ;;DEBUG (println "qbegin:" exps "::" env)
   (if (list? exps)
     (if (not (empty? (rest exps)))
       (begin
@@ -203,3 +203,8 @@ Lexical binding function:
   ))
 
 (vt-start)
+
+(defn toplevel ()
+  (println (qeval (read-string (read-line)) env.global))
+  (toplevel))
+(toplevel)
