@@ -167,7 +167,7 @@ func evalList(e Env, l *ast.List, shouldEvalMacros bool) packet {
 	return respond(&ast.Nil{})
 }
 
-func evalFunctionApplication(dynamicEnv Env, f *Function, head ast.Node, unevaledArgs []ast.Node, shouldEvalMacros bool) packet {
+func evalFunctionApplication(dynamicEnv Env, f *Function, head ast.Node, unevaledArgs ast.Nodes, shouldEvalMacros bool) packet {
 
 	// Validate parameters
 	isVariableNumberOfParams := false
@@ -184,7 +184,7 @@ func evalFunctionApplication(dynamicEnv Env, f *Function, head ast.Node, unevale
 	if !isVariableNumberOfParams {
 		if len(unevaledArgs) != len(f.Parameters) {
 			panicEvalError(head, fmt.Sprintf(
-				"Function '%v' expects %v argument(s), but was given %v.\nFunction parameters: %v\nArguments received: %v",
+				"Function '%v' expects %v argument(s), but was given %v. Function parameter list: %v. Arguments: %v.",
 				f.Name,
 				len(f.Parameters),
 				len(unevaledArgs),

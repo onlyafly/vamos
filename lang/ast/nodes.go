@@ -14,7 +14,7 @@ import (
 type Nodes []Node
 
 func (ns Nodes) String() string {
-	return strings.Join(nodesToStrings([]Node(ns)), "\n")
+	return fmt.Sprintf("(%v)", strings.Join(nodesToStrings([]Node(ns)), " "))
 }
 
 ////////// Node

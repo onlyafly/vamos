@@ -137,9 +137,20 @@ func specialBegin(e Env, head ast.Node, args []ast.Node) packet {
 
 func specialDef(e Env, head ast.Node, args []ast.Node) packet {
 	name := toSymbolName(args[0])
-	e.Set(name, trampoline(func() packet {
+
+	rightHandSide := trampoline(func() packet {
 		return evalNode(e, args[1])
-	}))
+	})
+
+	switch val := rightHandSide.(type) {
+	case *Function:
+		// This allows error better error messages
+		val.Name = name
+		e.Set(name, val)
+	default:
+		e.Set(name, val)
+	}
+
 	return respond(&ast.Nil{})
 }
 
