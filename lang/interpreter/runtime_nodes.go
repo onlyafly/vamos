@@ -70,7 +70,7 @@ func (p *Primitive) Equals(n ast.Node) bool {
 
 type Function struct {
 	Name       string
-	Parameters []ast.Node
+	Parameters ast.Nodes
 	Body       ast.Node
 	ParentEnv  Env
 	IsMacro    bool

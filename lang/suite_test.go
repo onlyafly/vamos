@@ -77,10 +77,14 @@ func testInputFile(sourceFilePath string, t *testing.T) {
 
 		var outputBuffer bytes.Buffer
 
+		dummyReadLine := func() string {
+			return "text from dummy read line"
+		}
+
 		var result ast.Node
 		var evalError error
 		for _, n := range nodes {
-			result, evalError = interpreter.Eval(e, n, &outputBuffer)
+			result, evalError = interpreter.Eval(e, n, &outputBuffer, dummyReadLine)
 			if evalError != nil {
 				break
 			}

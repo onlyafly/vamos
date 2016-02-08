@@ -184,10 +184,12 @@ func evalFunctionApplication(dynamicEnv Env, f *Function, head ast.Node, unevale
 	if !isVariableNumberOfParams {
 		if len(unevaledArgs) != len(f.Parameters) {
 			panicEvalError(head, fmt.Sprintf(
-				"Function '%v' expects %v argument(s), but was given %v",
+				"Function '%v' expects %v argument(s), but was given %v.\nFunction parameters: %v\nArguments received: %v",
 				f.Name,
 				len(f.Parameters),
-				len(unevaledArgs)))
+				len(unevaledArgs),
+				f.Parameters,
+				unevaledArgs))
 		}
 	}
 

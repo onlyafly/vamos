@@ -237,11 +237,11 @@ func asList(n Node) *List {
 	return &List{}
 }
 
-func nodesToStrings(nodes []Node) []string {
+func nodesToStrings(nodes Nodes) []string {
 	return nodesToStringsWithFunc(nodes, func(n Node) string { return n.String() })
 }
 
-func nodesToStringsWithFunc(nodes []Node, convert func(n Node) string) []string {
+func nodesToStringsWithFunc(nodes Nodes, convert func(n Node) string) []string {
 	strings := make([]string, len(nodes))
 	for i, node := range nodes {
 		strings[i] = convert(node)

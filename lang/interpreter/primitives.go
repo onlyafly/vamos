@@ -46,6 +46,7 @@ func initializePrimitives(e Env) {
 	addPrimitive(e, "function-body", 1, primFunctionBody)
 	addPrimitive(e, "function-environment", 1, primFunctionEnvironment)
 	addPrimitive(e, "read-string", 1, primReadString)
+	addPrimitive(e, "readable-string", 1, primReadableString)
 
 	// IO
 	addPrimitiveWithArityRange(e, "println", 1, -1, primPrintln)
@@ -265,9 +266,14 @@ func primCons(e Env, head ast.Node, args []ast.Node) ast.Node {
 	return nil
 }
 
+func primReadableString(e Env, head ast.Node, args []ast.Node) ast.Node {
+	return ast.NewStr(args[0].String())
+}
+
 func primStr(e Env, head ast.Node, args []ast.Node) ast.Node {
 	var buffer bytes.Buffer
 
+	// TODO replace below with calls to .FriendlyString()
 	for _, arg := range args {
 		switch val := arg.(type) {
 		case *ast.Str:

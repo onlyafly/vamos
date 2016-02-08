@@ -32,6 +32,9 @@ Quotes from the CSP paper:
 
 ### Next
 
+- Allow escapes of double quotes in strings
+- Make ast.Str.String() escape double quotes
+- Replace random locations of manually printing friendly strings with FriendlyString()
 - Complete concurrency functionality
 
 ### Tech Debt
