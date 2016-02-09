@@ -1,6 +1,8 @@
 ;; cq1
 ;; From Chapter 1 of "Lisp in Small Pieces" by Christian Queinnec
-;; Updated 2016-02-08
+;; Updated 2016-02-09
+;;
+;; Run via: vamos examples/cq1.v
 #|
 Features of the CQ1 language:
 
@@ -92,9 +94,10 @@ Lexical binding function:
   (fn (args dynamic.env)
     (qbegin funcbody (extend lexical.env funcparams args))))
 
-(defn make-primitive (primname primfunc arity)
+(defn make-primitive (primname primfunc min-arity max-arity)
   (fn (args dynamic.env)
-    (if (= arity (len args))
+    (if (and (<= min-arity (len args))
+             (>= max-arity (len args)))
       (apply primfunc args)
       (wrong "Incorrect arity" (list primname args)))))
 
@@ -161,20 +164,24 @@ Lexical binding function:
                                                       'env.global))
                (list 'quote name)))
 
-(defmacro defprimitive (name f arity)
+(defmacro defprimitive (name f min-arity max-arity)
   (list 'definitial
         name
-        (list 'make-primitive (list 'quote name) f arity)))
+        (list 'make-primitive (list 'quote name) f min-arity max-arity)))
+
+(defn primitive-list (&rest args)
+  args)
 
 (definitial foo nil)
 (definitial bar nil)
 
-(defprimitive cons cons 2)
-(defprimitive first first 1)
-(defprimitive update-element! update-element! 3)
-(defprimitive + + 2)
-(defprimitive = = 2)
-(defprimitive < < 2)
+(defprimitive cons cons 2 2)
+(defprimitive first first 1 1)
+(defprimitive update-element! update-element! 3 3)
+(defprimitive + + 2 2)
+(defprimitive = = 2 2)
+(defprimitive < < 2 2)
+(defprimitive list primitive-list 0 1000)
 
 (let (env '((a 1)))
   (begin

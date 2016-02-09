@@ -15,6 +15,14 @@
           (list 'fn args
             body))))))
 
+;;;;;;;;;; Math
+
+(defn <= (a b)
+  (or (< a b) (= a b)))
+
+(defn >= (a b)
+  (or (> a b) (= a b)))
+
 ;;;;;;;;;; Logic
 
 (def else true)
@@ -112,4 +120,4 @@
 
 ;;;;;;;;;;
 
-"Prelude version 2016-02-04"
+"Prelude version 2016-02-09"
