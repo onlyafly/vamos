@@ -60,7 +60,9 @@ Lexical binding function:
     ;; Handle non-atoms
     (let (proc (first e))
       (cond
-        (= proc 'apply)      (special-apply (get e 1) (get e 2) env)
+        (= proc 'apply)      (invoke (qeval (get e 1) env)
+                                     (evlis (rest (rest e)) env)
+                                     env)
         (= proc 'quote)      (get e 1)
         (= proc 'if)         (if (qeval (get e 1) env)
                                (qeval (get e 2) env)
@@ -135,17 +137,6 @@ Lexical binding function:
     (list)
     (cons (qeval (first exps) env)
           (evlis (rest exps) env))))
-
-#|
-(defn special-apply (funcarg listarg env)
-  (let )
-  (if (empty? env)
-    (wrong "no such binding" id)
-    (if (= (get (first env) 0) id)
-      (begin (update-element! (first env) 1 value)
-             value)
-      (qupdate! id (rest env) value))))
-|#
 
 (defn qupdate! (id env value)
   (if (empty? env)

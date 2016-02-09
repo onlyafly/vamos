@@ -234,7 +234,10 @@ func scanSingleLineComment(s *Scanner) stateFn {
 func scanMultiLineComment(s *Scanner) stateFn {
 	r := s.next()
 	for r != eof {
-		if r == '|' {
+		switch {
+		case isNewLine(r):
+			s.line++
+		case r == '|':
 			rnext := s.next()
 			if rnext == '#' {
 				s.ignore()
