@@ -169,9 +169,6 @@ Lexical binding function:
         name
         (list 'make-primitive (list 'quote name) f min-arity max-arity)))
 
-(defn primitive-list (&rest args)
-  args)
-
 (definitial foo nil)
 (definitial bar nil)
 
@@ -181,7 +178,7 @@ Lexical binding function:
 (defprimitive + + 2 2)
 (defprimitive = = 2 2)
 (defprimitive < < 2 2)
-(defprimitive list primitive-list 0 1000)
+(defprimitive list list 0 1000)
 
 (let (env '((a 1)))
   (begin
