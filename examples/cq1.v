@@ -61,7 +61,7 @@ Lexical binding function:
     (let (proc (first e))
       (cond
         (= proc 'apply)      (invoke (qeval (get e 1) env)
-                                     (evlis (rest (rest e)) env)
+                                     (qeval (get e 2) env)
                                      env)
         (= proc 'quote)      (get e 1)
         (= proc 'if)         (if (qeval (get e 1) env)
@@ -183,7 +183,8 @@ Lexical binding function:
 (defprimitive < < 2 2)
 (defprimitive list list 0 1000)
 
-(let (env '((a 1)))
+(let (env '((a 1))
+      genv env.global)
   (begin
 
     (defvtest "Atoms"
@@ -193,8 +194,14 @@ Lexical binding function:
       (vt= (qeval 'a env) 1)
       )
 
+    (defvtest "Quote"
+      (vt= (qeval '(quote (1 2)) genv)
+           '(1 2)
+           ))
+
+
     (defvtest "Apply"
-      (vt= (qeval '(apply + (quote 1 2)) env)
+      (vt= (qeval '(apply + (quote (1 2))) genv)
            3))
 
     (defvtest "Begin"

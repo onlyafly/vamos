@@ -168,6 +168,17 @@ func evalList(e Env, l *ast.List, shouldEvalMacros bool) packet {
 }
 
 func evalFunctionApplication(dynamicEnv Env, f *Function, head ast.Node, unevaledArgs ast.Nodes, shouldEvalMacros bool) packet {
+	defer func() {
+		if e := recover(); e != nil {
+			switch errorValue := e.(type) {
+			case *EvalError:
+				fmt.Printf("TRACE: (%v: %v): call to %v\n", head.Loc().Filename, head.Loc().Line, f.Name)
+				panic(errorValue)
+			default:
+				panic(errorValue)
+			}
+		}
+	}()
 
 	// Validate parameters
 	isVariableNumberOfParams := false
