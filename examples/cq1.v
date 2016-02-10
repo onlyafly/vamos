@@ -33,6 +33,8 @@ Lexical binding function:
 
 (load "vtest.v")
 
+(def *trace* false)
+
 (defn wrong (msg exp)
   ;; TODO should be equivalent to a panic?
   (panic "WRONG:" msg ":" exp))
@@ -60,6 +62,8 @@ Lexical binding function:
     ;; Handle non-atoms
     (let (proc (first e))
       (cond
+        (= proc 'trace-on)   (update! *trace* true)
+        (= proc 'trace-off)  (update! *trace* false)
         (= proc 'apply)      (invoke (qeval (get e 1) env)
                                      (qeval (get e 2) env)
                                      env)
@@ -82,10 +86,18 @@ Lexical binding function:
                                    body (rest (rest e)))
                                (make-function params body env))
 
-        else                 (invoke (qeval (first e) env)
-                                     (evlis (rest e) env)
-                                     env)
+        else                 (special-invocation e env)
         ))))
+
+(defn special-invocation (e env)
+  (let (evaluated-args (evlis (rest e) env))
+    (begin
+      (if *trace*
+        (println (str "Trace: (" (first e) evaluated-args ")"))
+        nil)
+      (invoke (qeval (first e) env)
+              evaluated-args
+              env))))
 
 ;; A CQ1-function is represented as a Vamos-function, where the CQ1-function's arguments are passed as a list
 (defn make-dynamic-function (funcparams funcbody lexical.env)

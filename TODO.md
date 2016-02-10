@@ -55,6 +55,11 @@ Quotes from the CSP paper:
 - Types and type inference (?)
 - Reader macros
 
+### Different Language Directions
+
+- Dynamic binding (like Scheme or Clojure)
+- Exceptions to replace panic functionality
+
 ### Tooling
 
 ### Other
