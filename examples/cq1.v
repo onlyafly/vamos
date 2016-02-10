@@ -93,7 +93,7 @@ Lexical binding function:
   (let (evaluated-args (evlis (rest e) env))
     (begin
       (if *trace*
-        (println (str "Trace: (" (first e) evaluated-args ")"))
+        (println (str "Trace: (" (first e) " " evaluated-args ")"))
         nil)
       (invoke (qeval (first e) env)
               evaluated-args
