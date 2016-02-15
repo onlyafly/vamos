@@ -57,7 +57,7 @@ Quotes from the CSP paper:
 
 ### Different Language Directions
 
-- Dynamic binding (like Scheme or Clojure)
+- Dynamic scoping, see Queinnec's LiSP §2.5.1
 - Exceptions to replace panic functionality
 
 ### Tooling

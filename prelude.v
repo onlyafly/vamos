@@ -54,12 +54,23 @@
 
 ;;;;;;;;;; Higher Order Functions
 
-(defn fold (f init xs)
+(defn foldl (f init xs)
   (if (= xs '())
     init
-    (fold f
-          (f init (first xs))
-          (rest xs))))
+    (foldl f
+           (f init (first xs))
+           (rest xs))))
+
+(defn reverse (xs)
+  (foldl (fn (acc x) (cons x acc)) '() xs))
+
+(defn map (f l)
+  (let (loop (fn (accum xs)
+               (if (empty? xs)
+                 accum
+                 (loop (cons (f (first xs)) accum)
+                       (rest xs)))))
+    (loop '() (reverse l))))
 
 ;;;;;;;;;; Type Predicates
 
@@ -120,4 +131,4 @@
 
 ;;;;;;;;;;
 
-"Prelude version 2016-02-09"
+"Prelude version 2016-02-12"
