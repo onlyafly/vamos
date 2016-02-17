@@ -1,2 +1,2 @@
-(def foo (fn () 1))
+(def foo (proc () 1))
 (foo 1)

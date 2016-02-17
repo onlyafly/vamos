@@ -12,10 +12,10 @@
   (vt=
     '(nil nil 5)
     (list
-      (defn bar (exps)
+      (defproc bar (exps)
         exps)
 
-      (defn foo (exps)
+      (defproc foo (exps)
         (if (list? exps)
           (if (not (empty? (rest exps)))
             (begin

@@ -1,5 +1,5 @@
 (def add
-     (fn (x y)
+     (proc (x y)
          (if (= x 0)
              y
            (add (- x 1) (+ y 1)))))

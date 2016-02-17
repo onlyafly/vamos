@@ -1,5 +1,5 @@
 (def len
-  (fn (xs)
+  (proc (xs)
     (if (= xs '())
       0
       (+ 1 (len (rest xs))))))

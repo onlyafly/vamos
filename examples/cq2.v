@@ -10,7 +10,7 @@ Dynamic binding function:
 
 ((let (y 2)
    (let (y 1)
-     (dynamic-fn (x) (list x y))))
+     (dynamic-proc (x) (list x y))))
  3)
 => (3 2)
 
@@ -18,13 +18,13 @@ Lexical binding function:
 
 ((let (y 2)
    (let (y 1)
-     (fn (x) (list x y))))
+     (proc (x) (list x y))))
  3)
 => (3 1)
 
-((((fn (a)
-     (fn (a)
-       (fn (b) a)))
+((((proc (a)
+     (proc (a)
+       (proc (b) a)))
    1)
   2)
  3)
@@ -35,21 +35,21 @@ Lexical binding function:
 
 (def *trace* false)
 
-(defn wrong (msg exp)
+(defproc wrong (msg exp)
   ;; TODO should be equivalent to a panic?
   (panic "WRONG:" msg ":" exp))
 
-(defn get (l n)
+(defproc get (l n)
   (if (= n 0)
     (first l)
     (get (rest l) (- n 1))))
 
-(defn proc? (p)
+(defproc proc? (p)
   (cond (function? p)  true
         (primitive? p) true
         else           false))
 
-(defn qeval (e env)
+(defproc qeval (e env)
   ;;DEBUG (println "qeval:" e "::" env)
   (if (atom? e)
 
@@ -75,21 +75,21 @@ Lexical binding function:
         (= proc 'update!)    (qupdate! (get e 1) env (qeval (get e 2) env))
 
         ;; Dynamically-scoped function
-        ;; Syntax: (dynamic-fn (param1 ...) body ...)
-        (= proc 'dynamic-fn) (let (params (get e 1)
+        ;; Syntax: (dynamic-proc (param1 ...) body ...)
+        (= proc 'dynamic-proc) (let (params (get e 1)
                                    body (rest (rest e)))
                                (make-dynamic-function params body env))
 
         ;; Lexically-scoped function
-        ;; Syntax: (fn (param1 ...) body ...)
-        (= proc 'fn)         (let (params (get e 1)
+        ;; Syntax: (proc (param1 ...) body ...)
+        (= proc 'proc)         (let (params (get e 1)
                                    body (rest (rest e)))
                                (make-function params body env))
 
         else                 (special-invocation e env)
         ))))
 
-(defn special-invocation (e env)
+(defproc special-invocation (e env)
   (let (evaluated-args (evlis (rest e) env))
     (begin
       (if *trace*
@@ -100,17 +100,17 @@ Lexical binding function:
               env))))
 
 ;; A CQ1-function is represented as a Vamos-function, where the CQ1-function's arguments are passed as a list
-(defn make-dynamic-function (funcparams funcbody lexical.env)
-  (fn (args dynamic.env)
+(defproc make-dynamic-function (funcparams funcbody lexical.env)
+  (proc (args dynamic.env)
     (qbegin funcbody (extend dynamic.env funcparams args))))
 
 ;; A CQ1-function is represented as a Vamos-function, where the CQ1-function's arguments are passed as a list
-(defn make-function (funcparams funcbody lexical.env)
-  (fn (args dynamic.env)
+(defproc make-function (funcparams funcbody lexical.env)
+  (proc (args dynamic.env)
     (qbegin funcbody (extend lexical.env funcparams args))))
 
-(defn make-primitive (primname primfunc min-arity max-arity)
-  (fn (args dynamic.env)
+(defproc make-primitive (primname primfunc min-arity max-arity)
+  (proc (args dynamic.env)
     (if (and (<= min-arity (len args))
              (>= max-arity (len args)))
       (apply primfunc args)
@@ -118,7 +118,7 @@ Lexical binding function:
 
 ;; Environment is the closest thing to an Alist that Vamos supports:
 ;; ((a 1) (b 2) (c 3))
-(defn lookup (id env)
+(defproc lookup (id env)
   (if (empty? env)
     (wrong "no such binding" id)
     (if (= (get (first env) 0) id)
@@ -126,7 +126,7 @@ Lexical binding function:
       (lookup id (rest env)))))
 
 ;; Extend an environment env with a list of variables var and values val
-(defn extend (env vars vals)
+(defproc extend (env vars vals)
   (cond
     (empty? vars) (if (empty? vals)
                     env
@@ -137,20 +137,20 @@ Lexical binding function:
 
 ;; Note that our representation of functions here passes all args to the function
 ;; as a list as a single paramter
-(defn invoke (funcarg args dynamic.env)
+(defproc invoke (funcarg args dynamic.env)
   (if (proc? funcarg)
     (funcarg args dynamic.env)
     (panic "not a function" funcarg)))
 
 ;; Takes a list of expressions and returns the corresponding list of values
-(defn evlis (exps env)
+(defproc evlis (exps env)
   ;;DEBUG (println "evlis:" exps "::" env)
   (if (empty? exps)
     (list)
     (cons (qeval (first exps) env)
           (evlis (rest exps) env))))
 
-(defn qupdate! (id env value)
+(defproc qupdate! (id env value)
   (if (empty? env)
     (wrong "no such binding" id)
     (if (= (get (first env) 0) id)
@@ -158,7 +158,7 @@ Lexical binding function:
              value)
       (qupdate! id (rest env) value))))
 
-(defn qbegin (exps env)
+(defproc qbegin (exps env)
   ;;DEBUG (println "qbegin:" exps "::" env)
   (if (list? exps)
     (if (not (empty? (rest exps)))
@@ -221,12 +221,12 @@ Lexical binding function:
            4))
 
     (defvtest "Demonstrate lexical binding"
-      (vt= (qeval '(((fn (a) (fn (b) a)) 1) 2)
+      (vt= (qeval '(((proc (a) (proc (b) a)) 1) 2)
                   '((a 3)))
            1))
 
     (defvtest "Demonstrate dynamic binding"
-      (vt= (qeval '(((fn (a) (dynamic-fn (b) a)) 1) 2)
+      (vt= (qeval '(((proc (a) (dynamic-proc (b) a)) 1) 2)
                   '((a 3)))
            3))
 
@@ -234,7 +234,7 @@ Lexical binding function:
 
 (vt-start)
 
-(defn toplevel ()
+(defproc toplevel ()
   (println (qeval (read-string (read-line)) env.global))
   (toplevel))
 (toplevel)

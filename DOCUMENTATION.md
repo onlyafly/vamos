@@ -4,25 +4,25 @@
 
 ### Functions
 
-    (fn (x y z)
+    (proc (x y z)
       (+ x (+ y z)))
 
 Variable number of arguments:
 
-    (fn (x y &rest z)
+    (proc (x y &rest z)
       (+ x (+ y z)))
 
 ### Metaprogramming
 
-    (def defn
+    (def defproc
       (macro
-        (fn (name args body)
+        (proc (name args body)
           (list 'def name
-            (list 'fn args
+            (list 'proc args
               body)))))
 
-    (macroexpand1 '(defn inc (a) (+ 1 a)))
-    => (def inc (fn (a) (+ 1 a)))
+    (macroexpand1 '(defproc inc (a) (+ 1 a)))
+    => (def inc (proc (a) (+ 1 a)))
 
     (function-params inc)
     => (n)

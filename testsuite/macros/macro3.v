@@ -1,1 +1,1 @@
-(macro (fn (a) a))
+(macro (proc (a) a))

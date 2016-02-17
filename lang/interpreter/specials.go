@@ -195,7 +195,7 @@ func specialFn(e Env, head ast.Node, args []ast.Node) packet {
 	case ast.Coll:
 		parameterNodes = val.Children()
 	default:
-		panicEvalError(head, "Expected list as first argument to 'fn': "+val.String())
+		panicEvalError(head, "Expected list as first argument to 'proc': "+val.String())
 	}
 
 	return respond(&Function{

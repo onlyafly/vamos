@@ -1,14 +1,14 @@
 (def inc
-  (let (add (fn (a b)
+  (let (add (proc (a b)
               (+ a b)))
-    (fn (n)
+    (proc (n)
       (add n 1))))
 
 (def rebuild-inc
   (macro
-    (fn (name)
+    (proc (name)
       (list 'def name
-        (list 'fn (function-params inc)
+        (list 'proc (function-params inc)
           (function-body inc))))))
 
 (eval '(rebuild-inc inc2) (function-environment inc))

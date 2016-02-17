@@ -1,8 +1,8 @@
 (list
   (typeof 4)
   (typeof '())
-  (typeof (fn () 'nil))
-  (typeof (macro (fn () 'nil)))
+  (typeof (proc () 'nil))
+  (typeof (macro (proc () 'nil)))
   (typeof (current-environment))
   (typeof +)
   (typeof 'foo)

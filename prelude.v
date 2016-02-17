@@ -1,52 +1,52 @@
 ;;;;;;;;;; Procedures
 
-(def defn
+(def defproc
   (macro
-    (fn (name args &rest exps)
+    (proc (name args &rest exps)
       (list 'def name
-        (list 'fn args
+        (list 'proc args
           (cons 'begin exps))))))
 
 (def defmacro
   (macro
-    (fn (name args body)
+    (proc (name args body)
       (list 'def name
         (list 'macro
-          (list 'fn args
+          (list 'proc args
             body))))))
 
 ;;;;;;;;;; Math
 
-(defn <= (a b)
+(defproc <= (a b)
   (or (< a b) (= a b)))
 
-(defn >= (a b)
+(defproc >= (a b)
   (or (> a b) (= a b)))
 
 ;;;;;;;;;; Logic
 
 (def else true)
 
-(defn binary-or (a b)
+(defproc binary-or (a b)
   (cond
     (= a true) true
     (= b true) true
     else       false))
 
-(defn binary-and (a b)
+(defproc binary-and (a b)
   (if (= a true)
     (if (= b true)
       true
       false)
     false))
 
-(defn or (&rest xs)
+(defproc or (&rest xs)
   (fold binary-or false xs))
 
-(defn and (&rest xs)
+(defproc and (&rest xs)
   (fold binary-and true xs))
 
-(defn not (b)
+(defproc not (b)
   (cond
     (= b false) true
     (= b true)  false
@@ -54,18 +54,18 @@
 
 ;;;;;;;;;; Higher Order Functions
 
-(defn foldl (f init xs)
+(defproc foldl (f init xs)
   (if (= xs '())
     init
     (foldl f
            (f init (first xs))
            (rest xs))))
 
-(defn reverse (xs)
-  (foldl (fn (acc x) (cons x acc)) '() xs))
+(defproc reverse (xs)
+  (foldl (proc (acc x) (cons x acc)) '() xs))
 
-(defn map (f l)
-  (let (loop (fn (accum xs)
+(defproc map (f l)
+  (let (loop (proc (accum xs)
                (if (empty? xs)
                  accum
                  (loop (cons (f (first xs)) accum)
@@ -74,43 +74,43 @@
 
 ;;;;;;;;;; Type Predicates
 
-(defn list? (n)
+(defproc list? (n)
   (= (typeof n) 'list))
 
-(defn char? (n)
+(defproc char? (n)
   (= (typeof n) 'char))
 
-(defn symbol? (n)
+(defproc symbol? (n)
   (= (typeof n) 'symbol))
 
-(defn number? (n)
+(defproc number? (n)
   (= (typeof n) 'number))
 
-(defn function? (n)
+(defproc function? (n)
   (= (typeof n) 'function))
 
-(defn macro? (n)
+(defproc macro? (n)
   (= (typeof n) 'macro))
 
-(defn environment? (n)
+(defproc environment? (n)
   (= (typeof n) 'environment))
 
-(defn primitive? (n)
+(defproc primitive? (n)
   (= (typeof n) 'primitive))
 
-(defn string? (n)
+(defproc string? (n)
   (= (typeof n) 'string))
 
-(defn atom? (n)
+(defproc atom? (n)
   (not (list? n)))
 
-(defn empty? (n)
+(defproc empty? (n)
   (cond (= n '()) true
         (= n "") true
         (= n nil) true
         else false))
 
-(defn boolean? (n)
+(defproc boolean? (n)
   (cond (= n true) true
         (= n false) true
         else false))
@@ -124,7 +124,7 @@
               true      alternative))
 
 ;; TODO Naive implementation
-(defn len (xs)
+(defproc len (xs)
   (if (empty? xs)
     0
     (+ 1 (len (rest xs)))))

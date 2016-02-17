@@ -1,3 +1,3 @@
 (def x 42)
-(def f (fn (x) x))
+(def f (proc (x) x))
 (f 1)

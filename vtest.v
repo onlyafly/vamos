@@ -4,7 +4,7 @@
 
 (def _vtest_tests '())
 
-(defn _vtest_runtests (tests)
+(defproc _vtest_runtests (tests)
   (cond
     (= tests '()) nil
     else (let (test (first tests)
@@ -24,25 +24,25 @@
 ;;   pred1 pred2 predn...)
 ;; =>
 ;; (update! _vtest_tests
-;;          (cons (list "Sample Test" (fn () (begin pred1 pred2 predn...)))
+;;          (cons (list "Sample Test" (proc () (begin pred1 pred2 predn...)))
 ;;                _vtest_tests))
 ;;
 (defmacro defvtest (name &rest preds)
   (list 'update! '_vtest_tests
     (list 'cons
       (list 'list name
-        (list 'fn '()
+        (list 'proc '()
           (cons 'begin preds)))
       '_vtest_tests)))
 
-(defn vt= (actual expected)
+(defproc vt= (actual expected)
   (if (= actual expected)
     true
     (begin
       (println "TEST FAILED. EXPECTED <" expected "> BUT GOT <" actual ">")
       false)))
 
-(defn vt-start ()
+(defproc vt-start ()
   (println "Running vtest tests...")
   (_vtest_runtests _vtest_tests)
   (println "Tests complete..."))

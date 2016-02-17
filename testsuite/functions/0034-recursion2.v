@@ -1,5 +1,5 @@
 (def double
-     (fn (times val)
+     (proc (times val)
          (if (= times 0)
              val
            (+ 0 (double (- times 1) (+ val val))))))

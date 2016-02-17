@@ -1,11 +1,11 @@
 (def f
-     (fn (x)
+     (proc (x)
          (if (g x)
              (+ x 1)
            (+ x 10))))
 
 (def g
-     (fn (y)
+     (proc (y)
          true))
 
 (f 7)

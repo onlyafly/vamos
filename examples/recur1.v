@@ -1,4 +1,4 @@
-(let (f (fn (x) x)
+(let (f (proc (x) x)
       y (f 1)
       z (+ z 1))
   (begin

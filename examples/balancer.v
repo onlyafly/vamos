@@ -1,8 +1,8 @@
 (def num-workers 50)
 (def work-count 100)
 
-(defn sendLotsOfWork (cin)
-  (defn loop (i)
+(defproc sendLotsOfWork (cin)
+  (defproc loop (i)
     (if (< i work-count)
       (begin
         (send! cin (list i (* i 2) 0))
@@ -12,8 +12,8 @@
   (close! cin)
   )
 
-(defn receiveLotsOfResults (cout)
-  (go (defn loop ()
+(defproc receiveLotsOfResults (cout)
+  (go (defproc loop ()
         (let (w (take! cout))
           (if w
             (begin
@@ -25,7 +25,7 @@
   (println "Sleeping for 10 seconds...")
   (sleep 10000))
 
-(defn worker (cin cout)
+(defproc worker (cin cout)
   (let (w (take! cin))
     (if w
       (let (x (first w)
@@ -37,12 +37,12 @@
           (worker cin cout)))
       nil)))
 
-(defn main ()
+(defproc main ()
   (let (cin (chan)
         cout (chan))
     (begin
 
-      (defn loop (i)
+      (defproc loop (i)
         (if (> i 0)
           (begin
             (go (worker cin cout))

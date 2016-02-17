@@ -93,7 +93,7 @@ func evalList(e Env, l *ast.List, shouldEvalMacros bool) packet {
 		The primitives are:
 
 		Lisp:  atom  quote eq car   cdr  cons cond lambda label apply
-		Vamos: atom? quote =  first rest cons cond fn			def		apply
+		Vamos: atom? quote =  first rest cons cond proc			def		apply
 	*/
 
 	head := elements[0]
@@ -123,8 +123,8 @@ func evalList(e Env, l *ast.List, shouldEvalMacros bool) packet {
 		case "cond":
 			checkSpecialArgs("cond", head, args, 2, -1)
 			return specialCond(e, head, args)
-		case "fn":
-			checkSpecialArgs("fn", head, args, 2, 2)
+		case "proc":
+			checkSpecialArgs("proc", head, args, 2, 2)
 			return specialFn(e, head, args)
 		case "macro":
 			checkSpecialArgs("macro", head, args, 1, 1)

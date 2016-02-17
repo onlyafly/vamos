@@ -1,12 +1,12 @@
 (def fib
-  (fn (n)
+  (proc (n)
     (if (> n 1)
       (+ (fib (- n 1))
          (fib (- n 2)))
       n)))
 
 (def fib-iter-help
-  (fn (a b n)
+  (proc (a b n)
     (if (> n 0)
       (fib-iter-help (+ a b)
                      a
@@ -14,5 +14,5 @@
       b)))
 
 (def fib-iter
-  (fn (n)
+  (proc (n)
     (fib-iter-help 1 0 n)))

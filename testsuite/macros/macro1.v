@@ -1,6 +1,6 @@
 (def firstm
   (macro
-    (fn (a b)
+    (proc (a b)
       (list (first a)
             (first (rest b))
             100))))

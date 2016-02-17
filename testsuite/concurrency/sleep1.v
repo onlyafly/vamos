@@ -1,4 +1,4 @@
-(def get (fn (l n)
+(def get (proc (l n)
   (if (= n 0)
     (first l)
     (get (rest l) (- n 1)))))

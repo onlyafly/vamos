@@ -1,5 +1,4 @@
-(def capture (fn (a b)
-  (current-environment)))
+(def capture (proc (a b) (current-environment)))
 
 (def e (capture 1 2))
 

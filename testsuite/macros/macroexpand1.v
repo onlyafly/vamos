@@ -1,8 +1,8 @@
-(def defn
+(def defproc
   (macro
-    (fn (name args body)
+    (proc (name args body)
       (list 'def name
-        (list 'fn args
+        (list 'proc args
           body)))))
 
-(macroexpand1 '(defn addem (a b) (+ a b)))
+(macroexpand1 '(defproc addem (a b) (+ a b)))

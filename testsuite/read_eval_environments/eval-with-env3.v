@@ -1,7 +1,7 @@
-(def foo (fn ()
+(def foo (proc ()
   (current-environment)))
 
-(def bar (fn ()
+(def bar (proc ()
   (current-environment)))
 
 (def efoo (foo))
