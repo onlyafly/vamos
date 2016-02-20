@@ -1,1 +1,0 @@
-Evaluation error (testsuite/functions/function-application-wrong-arity1.v: 1): Function 'anonymous' expects 2 argument(s), but was given 1. Function parameter list: (a b). Arguments: (1).

@@ -35,16 +35,16 @@ func (en *EnvNode) Equals(n ast.Node) bool {
 
 ////////// Primitive
 
-type primitiveFunction func(Env, ast.Node, []ast.Node) ast.Node
+type primitiveFunc func(Env, ast.Node, []ast.Node) ast.Node
 
 type Primitive struct {
 	Name     string
-	Value    primitiveFunction
+	Value    primitiveFunc
 	MinArity int
 	MaxArity int
 }
 
-func NewPrimitive(name string, minArity int, maxArity int, value primitiveFunction) *Primitive {
+func NewPrimitive(name string, minArity int, maxArity int, value primitiveFunc) *Primitive {
 	return &Primitive{
 		Name:     name,
 		Value:    value,
@@ -66,9 +66,9 @@ func (p *Primitive) Equals(n ast.Node) bool {
 	return false
 }
 
-////////// Function
+////////// Procedure
 
-type Function struct {
+type Procedure struct {
 	Name       string
 	Parameters ast.Nodes
 	Body       ast.Node
@@ -76,23 +76,23 @@ type Function struct {
 	IsMacro    bool
 }
 
-func (f *Function) String() string {
+func (f *Procedure) String() string {
 	if f.IsMacro {
-		return "#macrofunction<" + f.Name + ">"
+		return "#macro_procedure<" + f.Name + ">"
 	}
-	return "#function<" + f.Name + ">"
+	return "#procedure<" + f.Name + ">"
 }
 
-func (f *Function) isExpr() bool         { return true }
-func (f *Function) Loc() *token.Location { return nil }
-func (f *Function) TypeName() string {
+func (f *Procedure) isExpr() bool         { return true }
+func (f *Procedure) Loc() *token.Location { return nil }
+func (f *Procedure) TypeName() string {
 	if f.IsMacro {
-		return "macrofunction"
+		return "macro_procedure"
 	}
-	return "function"
+	return "procedure"
 }
-func (f *Function) Equals(n ast.Node) bool {
-	panicEvalError(n, "Cannot compare the values of functions: "+
+func (f *Procedure) Equals(n ast.Node) bool {
+	panicEvalError(n, "Cannot compare the values of procedures: "+
 		f.String()+" and "+n.String())
 	return false
 }

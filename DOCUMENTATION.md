@@ -2,7 +2,14 @@
 
 * TODO: Move everything here to COMPARISON.html
 
-### Functions
+### Routines: Functions, Procedures, Primitives, and Macros
+
+- Procedures allow side-effects
+- Procedures are pure functions, allowing no side effects
+- Primitives are built-in procedures and functions
+- Macros
+
+A procedure:
 
     (proc (x y z)
       (+ x (+ y z)))
@@ -24,16 +31,16 @@ Variable number of arguments:
     (macroexpand1 '(defproc inc (a) (+ 1 a)))
     => (def inc (proc (a) (+ 1 a)))
 
-    (function-params inc)
+    (routine-params inc)
     => (n)
 
-    (function-body inc)
+    (routine-body inc)
     => (+ 1 n)
 
-    (function-environment inc)
+    (routine-environment inc)
     => #environment<TopLevel>
 
-### Built-in Functions
+### Built-in Routines
 
 Math:
 

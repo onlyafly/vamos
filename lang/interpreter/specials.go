@@ -145,8 +145,8 @@ func specialDef(e Env, head ast.Node, args []ast.Node) packet {
 	})
 
 	switch val := rightHandSide.(type) {
-	case *Function:
-		// Give a name to the function, allowing for better error messages
+	case *Procedure:
+		// Give a name to the procedure, allowing for better error messages
 		val.Name = name
 	}
 
@@ -201,7 +201,7 @@ func specialFn(e Env, head ast.Node, args []ast.Node) packet {
 		panicEvalError(head, "Expected list as first argument to 'proc': "+val.String())
 	}
 
-	return respond(&Function{
+	return respond(&Procedure{
 		Name:       "anonymous",
 		Parameters: parameterNodes,
 		Body:       args[1],
@@ -211,16 +211,16 @@ func specialFn(e Env, head ast.Node, args []ast.Node) packet {
 
 func specialMacro(e Env, head ast.Node, args []ast.Node) packet {
 
-	functionNode := trampoline(func() packet {
+	procedureNode := trampoline(func() packet {
 		return evalNode(e, args[0])
 	})
 
-	switch val := functionNode.(type) {
-	case *Function:
+	switch val := procedureNode.(type) {
+	case *Procedure:
 		val.IsMacro = true
 		return respond(val)
 	default:
-		panicEvalError(args[0], "macro expects a function argument but got: "+args[0].String())
+		panicEvalError(args[0], "macro expects a procedure argument but got: "+args[0].String())
 		return respond(nil)
 	}
 }

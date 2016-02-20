@@ -1,0 +1,1 @@
+Evaluation error (testsuite/routines_procedures/proc-errors-show-proc-name.v: 2): Procedure 'foo' expects 0 argument(s), but was given 1. Procedure parameter list: (). Arguments: (1).

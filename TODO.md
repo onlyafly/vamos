@@ -46,7 +46,7 @@ Quotes from the CSP paper:
 ### Language
 
 - Add module system
-- Associate source information with Function nodes (filename, line number, etc)
+- Associate source information with Procedure nodes (filename, line number, etc)
 - Get ideas from comparison of different lisps at: http://hyperpolyglot.org/lisp
 - Make use of unused annotation functionality (see test 0100)
 - Make use of the Decl interface

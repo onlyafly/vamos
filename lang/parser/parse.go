@@ -166,7 +166,7 @@ func parseChar(t Token, errors *ParserErrorList) *ast.Char {
 	return &ast.Char{}
 }
 
-////////// Helper Functions
+////////// Helper Procedures
 
 func ensureSymbol(n ast.Node) *ast.Symbol {
 	if v, ok := n.(*ast.Symbol); ok {

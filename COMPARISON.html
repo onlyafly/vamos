@@ -138,7 +138,7 @@ x => (10 2 3 4)</td>
   (* x y))</td>
   </tr>
   <tr>
-    <td>apply a function to a list</td>
+    <td>apply a procedure/function to a list</td>
     <td>(apply + '(1 3))</td>
     <td></td>
     <td></td>
@@ -183,7 +183,7 @@ string?
 char?
 symbol?
 number?
-function?
+procedure?
 primitive?
 macro?
 environment?
@@ -272,16 +272,16 @@ atom?
   </tr>
   <tr>
     <td>convert an object to a readable string</td>
-    <td>(readable-string [1 2 3 4 5])
-=> "[1 2 3 4 5]"</td>
+    <td>(readable-string (1 2 3 4 5))
+=> "(1 2 3 4 5)"</td>
     <td>???</td>
     <td>(pr-str [1 2 3 4 5])
 => "[1 2 3 4 5]"</td>
   </tr>
   <tr>
     <td>read from a string to Vamos objects</td>
-    <td>(read-string "[1 2 3 4 5])
-=> [1 2 3 4 5]</td>
+    <td>(read-string "(1 2 3 4 5)")
+=> (1 2 3 4 5)</td>
     <td>???</td>
     <td>(read-string "[1 2 3 4 5]")
 => [1 2 3 4 5]</td>

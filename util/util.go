@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-////////// Utility Functions
+////////// Utility Procedures
 
 func ReadLine() string {
 	bufferedReader := bufio.NewReader(os.Stdin)

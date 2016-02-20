@@ -1,0 +1,1 @@
+Evaluation error (testsuite/routines_procedures/proc-application-wrong-arity2.v: 1): Procedure 'anonymous' expects 2 argument(s), but was given 3. Procedure parameter list: (a b). Arguments: (1 2 3).

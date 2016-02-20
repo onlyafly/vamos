@@ -45,7 +45,7 @@ Lexical binding function:
     (get (rest l) (- n 1))))
 
 (defproc proc? (p)
-  (cond (function? p)  true
+  (cond (procedure? p)  true
         (primitive? p) true
         else           false))
 

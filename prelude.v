@@ -41,10 +41,10 @@
     false))
 
 (defproc or (&rest xs)
-  (fold binary-or false xs))
+  (foldl binary-or false xs))
 
 (defproc and (&rest xs)
-  (fold binary-and true xs))
+  (foldl binary-and true xs))
 
 (defproc not (b)
   (cond
@@ -52,7 +52,7 @@
     (= b true)  false
     else        false))
 
-;;;;;;;;;; Higher Order Functions
+;;;;;;;;;; Higher Order Procedures
 
 (defproc foldl (f init xs)
   (if (= xs '())
@@ -86,8 +86,8 @@
 (defproc number? (n)
   (= (typeof n) 'number))
 
-(defproc function? (n)
-  (= (typeof n) 'function))
+(defproc procedure? (n)
+  (= (typeof n) 'procedure))
 
 (defproc macro? (n)
   (= (typeof n) 'macro))

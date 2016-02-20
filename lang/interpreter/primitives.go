@@ -43,9 +43,9 @@ func initializePrimitives(e Env) {
 	addPrimitive(e, "update-element!", 3, primUpdateElementBang)
 
 	// Metaprogramming
-	addPrimitive(e, "function-params", 1, primFunctionParams)
-	addPrimitive(e, "function-body", 1, primFunctionBody)
-	addPrimitive(e, "function-environment", 1, primFunctionEnvironment)
+	addPrimitive(e, "routine-params", 1, primProcedureParams)
+	addPrimitive(e, "routine-body", 1, primProcedureBody)
+	addPrimitive(e, "routine-environment", 1, primProcedureEnvironment)
 	addPrimitive(e, "read-string", 1, primReadString)
 	addPrimitive(e, "readable-string", 1, primReadableString)
 
@@ -72,16 +72,16 @@ func initializePrimitives(e Env) {
 	e.Set("false", falseSymbol)
 }
 
-func addPrimitiveWithArityRange(e Env, name string, minArity int, maxArity int, f primitiveFunction) {
+func addPrimitiveWithArityRange(e Env, name string, minArity int, maxArity int, f primitiveFunc) {
 	e.Set(
 		name,
-		NewPrimitive(name, minArity, maxArity, primitiveFunction(f)))
+		NewPrimitive(name, minArity, maxArity, primitiveFunc(f)))
 }
 
-func addPrimitive(e Env, name string, arity int, f primitiveFunction) {
+func addPrimitive(e Env, name string, arity int, f primitiveFunc) {
 	e.Set(
 		name,
-		NewPrimitive(name, arity, arity, primitiveFunction(f)))
+		NewPrimitive(name, arity, arity, primitiveFunc(f)))
 }
 
 ////////// Primitives
@@ -135,37 +135,37 @@ func primCurrentEnvironment(e Env, head ast.Node, args []ast.Node) ast.Node {
 	return NewEnvNode(e)
 }
 
-func primFunctionParams(e Env, head ast.Node, args []ast.Node) ast.Node {
+func primProcedureParams(e Env, head ast.Node, args []ast.Node) ast.Node {
 	arg := args[0]
 	switch val := arg.(type) {
-	case *Function:
+	case *Procedure:
 		return ast.NewList(val.Parameters)
 	default:
-		panicEvalError(args[0], "Argument to 'function-params' not a function: "+arg.String())
+		panicEvalError(args[0], "Argument to 'routine-params' not a procedure: "+arg.String())
 	}
 
 	return nil
 }
 
-func primFunctionBody(e Env, head ast.Node, args []ast.Node) ast.Node {
+func primProcedureBody(e Env, head ast.Node, args []ast.Node) ast.Node {
 	arg := args[0]
 	switch val := arg.(type) {
-	case *Function:
+	case *Procedure:
 		return val.Body
 	default:
-		panicEvalError(args[0], "Argument to 'function-body' not a function: "+arg.String())
+		panicEvalError(args[0], "Argument to 'routine-body' not a procedure: "+arg.String())
 	}
 
 	return nil
 }
 
-func primFunctionEnvironment(e Env, head ast.Node, args []ast.Node) ast.Node {
+func primProcedureEnvironment(e Env, head ast.Node, args []ast.Node) ast.Node {
 	arg := args[0]
 	switch val := arg.(type) {
-	case *Function:
+	case *Procedure:
 		return NewEnvNode(val.ParentEnv)
 	default:
-		panicEvalError(args[0], "Argument to 'function-environment' not a function: "+arg.String())
+		panicEvalError(args[0], "Argument to 'routine-environment' not a procedure: "+arg.String())
 	}
 
 	return nil

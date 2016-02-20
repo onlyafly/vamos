@@ -6,7 +6,7 @@
 (def foo +)
 
 (defproc m ()
-  (let (efoo (function-environment foo))
+  (let (efoo (routine-environment foo))
     (begin
       (println (foo 2))
       (eval '(update! x 2) efoo)

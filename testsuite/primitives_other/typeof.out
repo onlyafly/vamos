@@ -1,1 +1,1 @@
-(number list function macrofunction environment primitive symbol string nil char)
+(number list procedure macro_procedure environment primitive symbol string nil char)

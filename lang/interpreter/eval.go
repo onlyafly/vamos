@@ -156,18 +156,18 @@ func evalList(e Env, l *ast.List, shouldEvalMacros bool) packet {
 		f := value.Value
 		checkPrimitiveArgs(value.Name, head, args, value.MinArity, value.MaxArity)
 		return respond(f(e, head, evalEachNode(e, args)))
-	case *Function:
+	case *Procedure:
 		return bounce(func() packet {
-			return evalFunctionApplication(e, value, head, args, shouldEvalMacros)
+			return evalProcedureApplication(e, value, head, args, shouldEvalMacros)
 		})
 	default:
-		panicEvalError(head, "First item in list not a function: "+value.String())
+		panicEvalError(head, "First item in list not a routine: "+value.String())
 	}
 
 	return respond(&ast.Nil{})
 }
 
-func evalFunctionApplication(dynamicEnv Env, f *Function, head ast.Node, unevaledArgs ast.Nodes, shouldEvalMacros bool) packet {
+func evalProcedureApplication(dynamicEnv Env, f *Procedure, head ast.Node, unevaledArgs ast.Nodes, shouldEvalMacros bool) packet {
 	defer func() {
 		if e := recover(); e != nil {
 			switch errorValue := e.(type) {
@@ -189,13 +189,13 @@ func evalFunctionApplication(dynamicEnv Env, f *Function, head ast.Node, unevale
 				isVariableNumberOfParams = true
 			}
 		default:
-			panicEvalError(head, "Function parameters should only be symbols: "+param.String())
+			panicEvalError(head, "Procedure parameters should only be symbols: "+param.String())
 		}
 	}
 	if !isVariableNumberOfParams {
 		if len(unevaledArgs) != len(f.Parameters) {
 			panicEvalError(head, fmt.Sprintf(
-				"Function '%v' expects %v argument(s), but was given %v. Function parameter list: %v. Arguments: %v.",
+				"Procedure '%v' expects %v argument(s), but was given %v. Procedure parameter list: %v. Arguments: %v.",
 				f.Name,
 				len(f.Parameters),
 				len(unevaledArgs),
@@ -204,7 +204,7 @@ func evalFunctionApplication(dynamicEnv Env, f *Function, head ast.Node, unevale
 		}
 	}
 
-	// Create the lexical environment based on the function's lexical parent
+	// Create the lexical environment based on the procedure's lexical parent
 	lexicalEnv := NewMapEnv(f.Name, f.ParentEnv)
 
 	// Prepare the arguments for application
