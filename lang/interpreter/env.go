@@ -54,7 +54,7 @@ func NewMapEnv(name string, parent Env) *MapEnv {
 // Set sets the initial value of a symbol.
 func (e *MapEnv) Set(name string, value ast.Node) {
 	if _, exists := e.symbols[name]; exists {
-		panicEvalError(value, "Cannot redefine a name: "+name)
+		panicEvalError(value, "Cannot set the initial value of a symbol again: "+name)
 	} else {
 		e.symbols[name] = value
 	}

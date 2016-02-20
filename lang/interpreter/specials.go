@@ -146,11 +146,14 @@ func specialDef(e Env, head ast.Node, args []ast.Node) packet {
 
 	switch val := rightHandSide.(type) {
 	case *Function:
-		// This allows error better error messages
+		// Give a name to the function, allowing for better error messages
 		val.Name = name
-		e.Set(name, val)
-	default:
-		e.Set(name, val)
+	}
+
+	if _, exists := e.Get(name); exists {
+		panicEvalError(head, "Cannot redefine a name: "+name)
+	} else {
+		e.Set(name, rightHandSide)
 	}
 
 	return respond(&ast.Nil{})
