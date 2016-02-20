@@ -5,7 +5,7 @@
 ### Routines: Functions, Procedures, Primitives, and Macros
 
 - Procedures allow side-effects
-- Procedures are pure functions, allowing no side effects
+- Procedures are pure functions, allowing no side effects, and only accepting immutable data structures
 - Primitives are built-in procedures and functions
 - Macros
 
