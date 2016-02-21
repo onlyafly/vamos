@@ -10,20 +10,6 @@ func specialQuote(e Env, head ast.Node, args []ast.Node) packet {
 	return respond(args[0])
 }
 
-// TODO remove
-/*
-func specialApply(e Env, head ast.Node, args []ast.Node) packet {
-	f := args[0]
-	l := toListValue(trampoline(func() packet {
-		return evalNode(e, args[1])
-	}))
-	nodes := append([]ast.Node{f}, l.Nodes...)
-	return respond(trampoline(func() packet {
-		return evalList(e, &ast.List{Nodes: nodes}, true)
-	}))
-}
-*/
-
 func specialUpdateBang(e Env, head ast.Node, args []ast.Node) packet {
 	name := toSymbolName(args[0])
 	rightHandSide := trampoline(func() packet {

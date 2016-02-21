@@ -123,12 +123,6 @@
   (list 'cond condition consequent
               true      alternative))
 
-;; TODO Naive implementation
-(defproc len (xs)
-  (if (empty? xs)
-    0
-    (+ 1 (len (rest xs)))))
-
 ;;;;;;;;;;
 
 "Prelude version 2016-02-12"

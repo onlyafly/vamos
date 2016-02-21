@@ -1,9 +1,9 @@
-(def len
+(def len2
   (proc (xs)
     (if (= xs '())
       0
-      (+ 1 (len (rest xs))))))
+      (+ 1 (len2 (rest xs))))))
 
 (def n (now))
 
-(len n)
+(len2 n)

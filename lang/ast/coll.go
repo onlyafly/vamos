@@ -10,19 +10,34 @@ type Coll interface {
 	Node
 
 	Children() []Node
-	Append(coll Coll) Coll
+	Append(coll Coll) (Coll, error)
 	Cons(elem Node) (Coll, error)
 	First() Node
 	Rest() Node
+	Length() int
 	IsEmpty() bool
 }
+
+////////// Length
+
+func (l *List) Length() int { return len(l.Nodes) }
+func (n *Nil) Length() int  { return 0 }
+func (s *Str) Length() int  { return utf8.RuneCountInString(s.Value) }
 
 ////////// Children
 
 func (l *List) Children() []Node { return l.Nodes }
 func (n *Nil) Children() []Node  { return nil }
 func (s *Str) Children() []Node {
-	return nil /*TODO*/
+	if len(s.Value) == 0 {
+		return []Node{}
+	}
+	cs := make([]Node, 0)
+	for _, r := range s.Value {
+		c := &Char{Value: r}
+		cs = append(cs, c)
+	}
+	return cs
 }
 
 ////////// First
@@ -61,28 +76,26 @@ func (sc *Str) Rest() Node {
 
 ////////// Append
 
-func (l *List) Append(other Coll) Coll {
+func (l *List) Append(other Coll) (Coll, error) {
 	if other.IsEmpty() {
-		return l
+		return l, nil
 	} else {
-		return NewList(append(l.Nodes, other.Children()...))
+		return NewList(append(l.Nodes, other.Children()...)), nil
 	}
 }
-func (n *Nil) Append(other Coll) Coll {
-	return other
+func (n *Nil) Append(other Coll) (Coll, error) {
+	return other, nil
 }
-func (s *Str) Append(other Coll) Coll {
+func (s *Str) Append(other Coll) (Coll, error) {
 	if other.IsEmpty() {
-		return s
+		return s, nil
 	}
 
 	switch val := other.(type) {
 	case *Str:
-		return NewStr(s.Value + val.Value)
-	case Node:
-		panic("Unrecognized collection type: " + val.String())
+		return NewStr(s.Value + val.Value), nil
 	default:
-		panic("Unrecognized object")
+		return nil, errors.New("Cannot append a non-string onto a string: " + val.String())
 	}
 }
 

@@ -34,6 +34,7 @@ func initializePrimitives(e Env) {
 	addPrimitive(e, "=", 2, primEquals)
 
 	// Collections
+	addPrimitive(e, "len", 1, primLen)
 	addPrimitive(e, "first", 1, primFirst)
 	addPrimitive(e, "rest", 1, primRest)
 	addPrimitive(e, "cons", 2, primCons)
@@ -241,6 +242,18 @@ func primReadLine(e Env, head ast.Node, args []ast.Node) ast.Node {
 	return ast.NewStr(trimmed)
 }
 
+func primLen(e Env, head ast.Node, args []ast.Node) ast.Node {
+	arg := args[0]
+
+	switch val := arg.(type) {
+	case ast.Coll:
+		return &ast.Number{Value: float64(val.Length())}
+	}
+
+	panicEvalError(arg, "Cannot get length from a non-collection: "+arg.String())
+	return nil
+}
+
 func primFirst(e Env, head ast.Node, args []ast.Node) ast.Node {
 	arg := args[0]
 
@@ -341,7 +354,11 @@ func primConcat(e Env, head ast.Node, args []ast.Node) ast.Node {
 			case ast.Coll:
 				switch argVal := arg.(type) {
 				case ast.Coll:
-					sum = sumVal.Append(argVal)
+					var err error
+					sum, err = sumVal.Append(argVal)
+					if err != nil {
+						panicEvalError(arg, err.Error())
+					}
 				default:
 					panicEvalError(arg, "Cannot concat a collection with a non-collection: "+arg.String())
 				}
