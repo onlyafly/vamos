@@ -1,6 +1,6 @@
 package ast
 
+// A human-readable string
 type FriendlyStringer interface {
-	// Readable string
 	FriendlyString() string
 }

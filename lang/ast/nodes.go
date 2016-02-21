@@ -45,19 +45,12 @@ func displayAnnotation(an AnnotatedNode, rawRepresentation string) string {
 	return rawRepresentation
 }
 
-////////// Expressions and Declarations
+////////// Expressions
 
 // Expr is a node representing an expression
 type Expr interface {
 	Node
 	isExpr() bool
-}
-
-// Decl is a node representing a declaration
-// TODO unused!
-type Decl interface {
-	Node
-	isDecl() bool
 }
 
 ////////// Str

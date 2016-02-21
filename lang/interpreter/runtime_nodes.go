@@ -74,7 +74,7 @@ func (p *Primitive) Equals(n ast.Node) bool {
 	return false
 }
 
-////////// Procedure
+////////// Procedures & Runtime Macros
 
 type Procedure struct {
 	Name       string
@@ -103,28 +103,6 @@ func (f *Procedure) TypeName() string {
 func (f *Procedure) Equals(n ast.Node) bool {
 	panicEvalError(n, "Cannot compare the values of procedures: "+
 		f.String()+" and "+n.String())
-	return false
-}
-
-////////// Macro
-
-type Macro struct {
-	Name       string
-	Parameters []ast.Node
-	Body       ast.Node
-	ParentEnv  Env
-}
-
-func (m *Macro) String() string {
-	return "#macro<" + m.Name + ">" //TODO what is this? Isn't a Macro just a type of procedure?
-}
-
-func (m *Macro) isExpr() bool         { return true }
-func (m *Macro) TypeName() string     { return "macro" }
-func (m *Macro) Loc() *token.Location { return nil }
-func (m *Macro) Equals(n ast.Node) bool {
-	panicEvalError(n, "Cannot compare the values of macros: "+
-		m.String()+" and "+n.String())
 	return false
 }
 
