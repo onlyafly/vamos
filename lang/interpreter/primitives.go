@@ -15,6 +15,10 @@ import (
 var trueSymbol, falseSymbol *ast.Symbol
 
 func initializePrimitives(e Env) {
+	// Basic
+	addPrimitiveWithArityRange(e, "list", 0, -1, primList)
+	addPrimitive(e, "apply", 2, primApply)
+
 	// Math
 	addPrimitive(e, "+", 2, primAdd)
 	addPrimitive(e, "-", 2, primSubtract)
@@ -28,8 +32,6 @@ func initializePrimitives(e Env) {
 
 	// Equality
 	addPrimitive(e, "=", 2, primEquals)
-
-	addPrimitiveWithArityRange(e, "list", 0, -1, primList)
 
 	// Collections
 	addPrimitive(e, "first", 1, primFirst)
@@ -85,6 +87,20 @@ func addPrimitive(e Env, name string, arity int, f primitiveFunc) {
 }
 
 ////////// Primitives
+
+func primApply(e Env, head ast.Node, args []ast.Node) ast.Node {
+	evaluatedHead := args[0]
+	switch headVal := evaluatedHead.(type) {
+	case Routine:
+		l := toListValue(args[1])
+		return trampoline(func() packet {
+			return evalInvokeRoutine(e, headVal, head, l.Nodes, true)
+		})
+	default:
+		panicEvalError(head, "First argument to 'apply' not a routine: "+headVal.String())
+		return &ast.Nil{}
+	}
+}
 
 func primAdd(e Env, head ast.Node, args []ast.Node) ast.Node {
 	result := toNumberValue(args[0]) + toNumberValue(args[1])

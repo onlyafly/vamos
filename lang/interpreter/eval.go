@@ -102,9 +102,6 @@ func evalList(e Env, l *ast.List, shouldEvalMacros bool) packet {
 	switch value := head.(type) {
 	case *ast.Symbol:
 		switch value.Name {
-		case "apply":
-			checkSpecialArgs("apply", head, args, 2, 2)
-			return specialApply(e, head, args)
 		case "def":
 			checkSpecialArgs("def", head, args, 2, 2)
 			return specialDef(e, head, args)
@@ -114,9 +111,6 @@ func evalList(e Env, l *ast.List, shouldEvalMacros bool) packet {
 		case "update!":
 			checkSpecialArgs("update!", head, args, 2, 2)
 			return specialUpdateBang(e, head, args)
-		/*case "update-element!":
-		checkSpecialArgs("update-element!", head, args, 3, 3)
-		return specialUpdateElementBang(e, head, args)*/
 		case "if":
 			checkSpecialArgs("if", head, args, 3, 3)
 			return specialIf(e, head, args)
@@ -147,27 +141,36 @@ func evalList(e Env, l *ast.List, shouldEvalMacros bool) packet {
 		}
 	}
 
-	headNode := trampoline(func() packet {
+	evaluatedHead := trampoline(func() packet {
 		return evalNode(e, head)
 	})
 
-	switch value := headNode.(type) {
-	case *Primitive:
-		f := value.Value
-		checkPrimitiveArgs(value.Name, head, args, value.MinArity, value.MaxArity)
-		return respond(f(e, head, evalEachNode(e, args)))
-	case *Procedure:
-		return bounce(func() packet {
-			return evalProcedureApplication(e, value, head, args, shouldEvalMacros)
-		})
+	switch val := evaluatedHead.(type) {
+	case Routine:
+		return evalInvokeRoutine(e, val, head, args, shouldEvalMacros)
 	default:
-		panicEvalError(head, "First item in list not a routine: "+value.String())
+		panicEvalError(head, "First item in list not a routine: "+val.String())
+		return respond(&ast.Nil{})
 	}
-
-	return respond(&ast.Nil{})
 }
 
-func evalProcedureApplication(dynamicEnv Env, f *Procedure, head ast.Node, unevaledArgs ast.Nodes, shouldEvalMacros bool) packet {
+func evalInvokeRoutine(e Env, r Routine, head ast.Node, unevaledArgs ast.Nodes, shouldEvalMacros bool) packet {
+	switch val := r.(type) {
+	case *Primitive:
+		f := val.Value
+		checkPrimitiveArgs(val.Name, head, unevaledArgs, val.MinArity, val.MaxArity)
+		return respond(f(e, head, evalEachNode(e, unevaledArgs)))
+	case *Procedure:
+		return bounce(func() packet {
+			return evalInvokeProcedure(e, val, head, unevaledArgs, shouldEvalMacros)
+		})
+	default:
+		panicEvalError(head, "Unrecognized routine type: "+val.String())
+		return respond(&ast.Nil{})
+	}
+}
+
+func evalInvokeProcedure(dynamicEnv Env, f *Procedure, head ast.Node, unevaledArgs ast.Nodes, shouldEvalMacros bool) packet {
 	defer func() {
 		if e := recover(); e != nil {
 			switch errorValue := e.(type) {

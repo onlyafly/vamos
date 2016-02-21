@@ -1,3 +1,7 @@
+/*
+A special form is a language primitive which does not evaluate its arguments before executing.
+*/
+
 package interpreter
 
 import "vamos/lang/ast"
@@ -6,6 +10,8 @@ func specialQuote(e Env, head ast.Node, args []ast.Node) packet {
 	return respond(args[0])
 }
 
+// TODO remove
+/*
 func specialApply(e Env, head ast.Node, args []ast.Node) packet {
 	f := args[0]
 	l := toListValue(trampoline(func() packet {
@@ -16,6 +22,7 @@ func specialApply(e Env, head ast.Node, args []ast.Node) packet {
 		return evalList(e, &ast.List{Nodes: nodes}, true)
 	}))
 }
+*/
 
 func specialUpdateBang(e Env, head ast.Node, args []ast.Node) packet {
 	name := toSymbolName(args[0])
@@ -27,37 +34,6 @@ func specialUpdateBang(e Env, head ast.Node, args []ast.Node) packet {
 	}
 	return respond(&ast.Nil{})
 }
-
-/* TODO remove
-func specialUpdateElementBang(e Env, head ast.Node, args []ast.Node) packet {
-	leftHandSide := trampoline(func() packet {
-		return evalNode(e, args[0])
-	})
-
-	indexNode := trampoline(func() packet {
-		return evalNode(e, args[1])
-	})
-	indexNumber, ok := indexNode.(*ast.Number)
-	if !ok {
-		panicEvalError(head, "Index in 'update-element!' is not a number: "+indexNode.String())
-	}
-	index := int(indexNumber.Value)
-
-	rightHandSide := trampoline(func() packet {
-		return evalNode(e, args[2])
-	})
-
-	switch val := leftHandSide.(type) {
-	case *ast.List:
-		children := val.Children()
-		children[index] = rightHandSide
-	default:
-		panicEvalError(head, "Cannot 'update-element!' in a non-list: "+leftHandSide.String())
-	}
-
-	return respond(&ast.Nil{})
-}
-*/
 
 func specialIf(e Env, head ast.Node, args []ast.Node) packet {
 	predicate := toBooleanValue(trampoline(func() packet {

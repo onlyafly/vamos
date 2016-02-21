@@ -33,6 +33,13 @@ func (en *EnvNode) Equals(n ast.Node) bool {
 	return false
 }
 
+////////// Routine
+
+type Routine interface {
+	ast.Node
+	RoutineName() string
+}
+
 ////////// Primitive
 
 type primitiveFunc func(Env, ast.Node, []ast.Node) ast.Node
@@ -57,6 +64,7 @@ func (p *Primitive) String() string {
 	return "#primitive<" + p.Name + ">"
 }
 
+func (p *Primitive) RoutineName() string  { return p.Name }
 func (p *Primitive) isExpr() bool         { return true }
 func (p *Primitive) TypeName() string     { return "primitive" }
 func (p *Primitive) Loc() *token.Location { return nil }
@@ -83,6 +91,7 @@ func (f *Procedure) String() string {
 	return "#procedure<" + f.Name + ">"
 }
 
+func (p *Procedure) RoutineName() string  { return p.Name }
 func (f *Procedure) isExpr() bool         { return true }
 func (f *Procedure) Loc() *token.Location { return nil }
 func (f *Procedure) TypeName() string {
@@ -107,7 +116,7 @@ type Macro struct {
 }
 
 func (m *Macro) String() string {
-	return "#macro<" + m.Name + ">"
+	return "#macro<" + m.Name + ">" //TODO what is this? Isn't a Macro just a type of procedure?
 }
 
 func (m *Macro) isExpr() bool         { return true }

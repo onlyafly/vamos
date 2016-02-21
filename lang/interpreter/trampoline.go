@@ -2,22 +2,24 @@ package interpreter
 
 import "vamos/lang/ast"
 
-// Packet contains a thunk or a ast.Node.
-// A packet is the result of the evaluation of a thunk.
+// A packet represents the continuation of a sequence of computations.
+// It contains either a Next or a Node, but not both.
+// If it contains a Next, the thunk is the next computation to execute.
+// If it contains a Node, the trampolining session is over and the Node represents the result.
 type packet struct {
-	Thunk thunk
-	Node  ast.Node
+	Next   thunk
+	Result ast.Node
 }
 
 // Bounce continues the trampolining session by placing a new thunk in the chain.
 func bounce(t thunk) packet {
-	return packet{Thunk: t}
+	return packet{Next: t}
 }
 
 // Respond exits a trampolining session by placing a ast.Node on the end of the
 // chain.
 func respond(n ast.Node) packet {
-	return packet{Node: n}
+	return packet{Result: n}
 }
 
 type thunk func() packet
@@ -28,10 +30,10 @@ func trampoline(currentThunk thunk) ast.Node {
 	for currentThunk != nil {
 		nextPacket := currentThunk()
 
-		if nextPacket.Thunk != nil {
-			currentThunk = nextPacket.Thunk
+		if nextPacket.Next != nil {
+			currentThunk = nextPacket.Next
 		} else {
-			return nextPacket.Node
+			return nextPacket.Result
 		}
 	}
 
