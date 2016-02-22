@@ -7,19 +7,23 @@ __Web Site__: <http://www.github.com/onlyafly/vamos>
 
 Vamos is a Lisp written in Go.
 
-## Running Test Suite
+For interesting reading on Lisps, see https://github.com/onlyafly/lisp-bibliography
+
+## Usage
+
+### Running Test Suite
 
     $ make test
 
-## Building From Source
+### Building From Source
 
     $ make
 
-## Start REPL
+### Start REPL
 
     $ vamos
 
-## Load forms from file then start REPL
+### Load forms from file then start REPL
 
     $ vamos -l foo.v
 
