@@ -22,6 +22,7 @@ func (ns Nodes) String() string {
 // Node represents a parsed lisp node.
 type Node interface {
 	fmt.Stringer
+	FriendlyStringer
 
 	Equals(Node) bool
 	TypeName() string
@@ -63,13 +64,14 @@ type Str struct {
 
 func NewStr(value string) *Str { return &Str{Value: value} }
 
-func (s *Str) String() string       { return displayAnnotation(s, "\""+s.Value+"\"") }
-func (s *Str) isExpr() bool         { return true }
-func (s *Str) Annotation() Node     { return s.annotation }
-func (s *Str) SetAnnotation(n Node) { s.annotation = n }
-func (s *Str) Equals(n Node) bool   { return s.Value == asStr(n).Value }
-func (s *Str) TypeName() string     { return "string" }
-func (s *Str) Loc() *token.Location { return s.Location }
+func (s *Str) String() string         { return displayAnnotation(s, "\""+s.Value+"\"") }
+func (s *Str) FriendlyString() string { return s.Value }
+func (s *Str) isExpr() bool           { return true }
+func (s *Str) Annotation() Node       { return s.annotation }
+func (s *Str) SetAnnotation(n Node)   { s.annotation = n }
+func (s *Str) Equals(n Node) bool     { return s.Value == asStr(n).Value }
+func (s *Str) TypeName() string       { return "string" }
+func (s *Str) Loc() *token.Location   { return s.Location }
 
 ////////// Nil
 
@@ -79,6 +81,7 @@ type Nil struct {
 }
 
 func (n *Nil) String() string         { return "nil" }
+func (n *Nil) FriendlyString() string { return "nil" }
 func (n *Nil) isExpr() bool           { return true }
 func (n *Nil) Annotation() Node       { return n.annotation }
 func (n *Nil) SetAnnotation(ann Node) { n.annotation = ann }
@@ -99,13 +102,14 @@ type Symbol struct {
 	Location   *token.Location
 }
 
-func (s *Symbol) String() string       { return displayAnnotation(s, s.Name) }
-func (s *Symbol) isExpr() bool         { return true }
-func (s *Symbol) Annotation() Node     { return s.annotation }
-func (s *Symbol) SetAnnotation(n Node) { s.annotation = n }
-func (s *Symbol) Equals(n Node) bool   { return s.Name == asSymbol(n).Name }
-func (s *Symbol) TypeName() string     { return "symbol" }
-func (s *Symbol) Loc() *token.Location { return s.Location }
+func (s *Symbol) String() string         { return displayAnnotation(s, s.Name) }
+func (s *Symbol) FriendlyString() string { return s.String() }
+func (s *Symbol) isExpr() bool           { return true }
+func (s *Symbol) Annotation() Node       { return s.annotation }
+func (s *Symbol) SetAnnotation(n Node)   { s.annotation = n }
+func (s *Symbol) Equals(n Node) bool     { return s.Name == asSymbol(n).Name }
+func (s *Symbol) TypeName() string       { return "symbol" }
+func (s *Symbol) Loc() *token.Location   { return s.Location }
 
 ////////// Char
 
@@ -125,12 +129,13 @@ func (cn *Char) String() string {
 	}
 	return displayAnnotation(cn, rep)
 }
-func (cn *Char) isExpr() bool         { return true }
-func (cn *Char) Annotation() Node     { return cn.annotation }
-func (cn *Char) SetAnnotation(n Node) { cn.annotation = n }
-func (cn *Char) Equals(n Node) bool   { return cn.Value == asChar(n).Value }
-func (cn *Char) TypeName() string     { return "char" }
-func (cn *Char) Loc() *token.Location { return cn.Location }
+func (cn *Char) FriendlyString() string { return fmt.Sprintf("%c", cn.Value) }
+func (cn *Char) isExpr() bool           { return true }
+func (cn *Char) Annotation() Node       { return cn.annotation }
+func (cn *Char) SetAnnotation(n Node)   { cn.annotation = n }
+func (cn *Char) Equals(n Node) bool     { return cn.Value == asChar(n).Value }
+func (cn *Char) TypeName() string       { return "char" }
+func (cn *Char) Loc() *token.Location   { return cn.Location }
 
 ////////// Number
 
@@ -149,13 +154,13 @@ func (num *Number) String() string {
 
 	return displayAnnotation(num, rep)
 }
-
-func (num *Number) isExpr() bool         { return true }
-func (num *Number) Annotation() Node     { return num.annotation }
-func (num *Number) SetAnnotation(n Node) { num.annotation = n }
-func (num *Number) Equals(n Node) bool   { return num.Value == asNumber(n).Value }
-func (num *Number) TypeName() string     { return "number" }
-func (num *Number) Loc() *token.Location { return num.Location }
+func (num *Number) FriendlyString() string { return num.String() }
+func (num *Number) isExpr() bool           { return true }
+func (num *Number) Annotation() Node       { return num.annotation }
+func (num *Number) SetAnnotation(n Node)   { num.annotation = n }
+func (num *Number) Equals(n Node) bool     { return num.Value == asNumber(n).Value }
+func (num *Number) TypeName() string       { return "number" }
+func (num *Number) Loc() *token.Location   { return num.Location }
 
 ////////// List
 
@@ -173,12 +178,12 @@ func (l *List) String() string {
 	raw := "(" + strings.Join(nodesToStrings(l.Nodes), " ") + ")"
 	return displayAnnotation(l, raw)
 }
-
-func (l *List) isExpr() bool         { return true }
-func (l *List) Annotation() Node     { return l.annotation }
-func (l *List) SetAnnotation(n Node) { l.annotation = n }
-func (l *List) TypeName() string     { return "list" }
-func (l *List) Loc() *token.Location { return l.Location }
+func (l *List) FriendlyString() string { return l.String() }
+func (l *List) isExpr() bool           { return true }
+func (l *List) Annotation() Node       { return l.annotation }
+func (l *List) SetAnnotation(n Node)   { l.annotation = n }
+func (l *List) TypeName() string       { return "list" }
+func (l *List) Loc() *token.Location   { return l.Location }
 func (l *List) Equals(n Node) bool {
 	other := asList(n)
 

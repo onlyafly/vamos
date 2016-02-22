@@ -201,14 +201,7 @@ func primPanic(e Env, head ast.Node, args []ast.Node) ast.Node {
 			buffer.WriteString(" ")
 		}
 
-		switch val := arg.(type) {
-		case *ast.Str:
-			buffer.WriteString(val.Value)
-		case ast.Node:
-			buffer.WriteString(val.String())
-		default:
-			panicEvalError(arg, "Unrecognized argument type to 'panic': "+arg.String())
-		}
+		buffer.WriteString(arg.FriendlyString())
 	}
 
 	panicApplicationError(head, buffer.String())
@@ -221,15 +214,7 @@ func primPrintln(e Env, head ast.Node, args []ast.Node) ast.Node {
 			fmt.Fprintf(writer, " ")
 		}
 
-		switch val := arg.(type) {
-		case *ast.Str:
-			fmt.Fprintf(writer, "%v", val.Value)
-		case ast.Node:
-			fmt.Fprintf(writer, "%v", val.String())
-		default:
-			fmt.Fprintf(writer, "\n")
-			panicEvalError(arg, "Unrecognized argument type to 'println': "+arg.String())
-		}
+		fmt.Fprintf(writer, "%v", arg.FriendlyString())
 	}
 
 	fmt.Fprintf(writer, "\n")
@@ -328,16 +313,7 @@ func primStr(e Env, head ast.Node, args []ast.Node) ast.Node {
 
 	// TODO replace below with calls to .FriendlyString()
 	for _, arg := range args {
-		switch val := arg.(type) {
-		case *ast.Str:
-			buffer.WriteString(val.Value)
-		case *ast.Char:
-			buffer.WriteRune(val.Value)
-		case ast.Node:
-			buffer.WriteString(val.String())
-		default:
-			panicEvalError(arg, "Unrecognized argument type to 'str': "+arg.String())
-		}
+		buffer.WriteString(arg.FriendlyString())
 	}
 
 	return ast.NewStr(buffer.String())

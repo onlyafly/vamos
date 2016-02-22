@@ -23,10 +23,10 @@ func (en *EnvNode) Name() string {
 func (en *EnvNode) String() string {
 	return "#environment<" + en.Env.Name() + ">"
 }
-
-func (en *EnvNode) isExpr() bool         { return true }
-func (en *EnvNode) TypeName() string     { return "environment" }
-func (en *EnvNode) Loc() *token.Location { return nil }
+func (en *EnvNode) FriendlyString() string { return en.String() }
+func (en *EnvNode) isExpr() bool           { return true }
+func (en *EnvNode) TypeName() string       { return "environment" }
+func (en *EnvNode) Loc() *token.Location   { return nil }
 func (en *EnvNode) Equals(n ast.Node) bool {
 	panicEvalError(n, "Cannot compare the values of environments: "+
 		en.String()+" and "+n.String())
@@ -63,11 +63,11 @@ func NewPrimitive(name string, minArity int, maxArity int, value primitiveFunc) 
 func (p *Primitive) String() string {
 	return "#primitive<" + p.Name + ">"
 }
-
-func (p *Primitive) RoutineName() string  { return p.Name }
-func (p *Primitive) isExpr() bool         { return true }
-func (p *Primitive) TypeName() string     { return "primitive" }
-func (p *Primitive) Loc() *token.Location { return nil }
+func (p *Primitive) FriendlyString() string { return p.String() }
+func (p *Primitive) RoutineName() string    { return p.Name }
+func (p *Primitive) isExpr() bool           { return true }
+func (p *Primitive) TypeName() string       { return "primitive" }
+func (p *Primitive) Loc() *token.Location   { return nil }
 func (p *Primitive) Equals(n ast.Node) bool {
 	panicEvalError(n, "Cannot compare the values of primitive procedures: "+
 		p.String()+" and "+n.String())
@@ -91,9 +91,10 @@ func (f *Procedure) String() string {
 	return "#procedure<" + f.Name + ">"
 }
 
-func (p *Procedure) RoutineName() string  { return p.Name }
-func (f *Procedure) isExpr() bool         { return true }
-func (f *Procedure) Loc() *token.Location { return nil }
+func (p *Procedure) FriendlyString() string { return p.String() }
+func (p *Procedure) RoutineName() string    { return p.Name }
+func (f *Procedure) isExpr() bool           { return true }
+func (f *Procedure) Loc() *token.Location   { return nil }
 func (f *Procedure) TypeName() string {
 	if f.IsMacro {
 		return "macro_procedure"
@@ -125,10 +126,11 @@ func NewChan() *Chan {
 	}
 }
 
-func (c *Chan) String() string       { return fmt.Sprintf("#chan<%v>", c.id) }
-func (c *Chan) isExpr() bool         { return true }
-func (c *Chan) Loc() *token.Location { return nil }
-func (c *Chan) TypeName() string     { return "chan" }
+func (c *Chan) String() string         { return fmt.Sprintf("#chan<%v>", c.id) }
+func (c *Chan) FriendlyString() string { return c.String() }
+func (c *Chan) isExpr() bool           { return true }
+func (c *Chan) Loc() *token.Location   { return nil }
+func (c *Chan) TypeName() string       { return "chan" }
 func (c *Chan) Equals(n ast.Node) bool {
 	panicEvalError(n, "Cannot compare the values of chans: "+
 		c.String()+" and "+n.String())
