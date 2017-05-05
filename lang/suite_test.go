@@ -2,14 +2,14 @@ package lang
 
 import (
 	"bytes"
+	"github.com/onlyafly/vamos/lang/ast"
+	"github.com/onlyafly/vamos/lang/interpreter"
+	"github.com/onlyafly/vamos/lang/parser"
+	"github.com/onlyafly/vamos/util"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
-	"vamos/lang/ast"
-	"vamos/lang/interpreter"
-	"vamos/lang/parser"
-	"vamos/util"
 )
 
 const (

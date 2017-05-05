@@ -1,6 +1,6 @@
 package interpreter
 
-import "vamos/lang/ast"
+import "github.com/onlyafly/vamos/lang/ast"
 
 func toListValue(n ast.Node) *ast.List {
 	switch value := n.(type) {

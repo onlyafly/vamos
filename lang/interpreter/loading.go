@@ -2,9 +2,9 @@ package interpreter
 
 import (
 	"fmt"
+	"github.com/onlyafly/vamos/lang/ast"
+	"github.com/onlyafly/vamos/lang/parser"
 	"os"
-	"vamos/lang/ast"
-	"vamos/lang/parser"
 )
 
 func ParseEvalPrint(env Env, input string, readLine func() string, sourceName string, printResult bool) {

@@ -2,7 +2,7 @@ package parser
 
 import (
 	"fmt"
-	"vamos/lang/token"
+	"github.com/onlyafly/vamos/lang/token"
 )
 
 ////////// ParserError

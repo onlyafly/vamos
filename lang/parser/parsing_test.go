@@ -1,8 +1,8 @@
 package parser
 
 import (
+	"github.com/onlyafly/vamos/testhelp"
 	"testing"
-	"vamos/testhelp"
 )
 
 func TestParseAtom(t *testing.T) {

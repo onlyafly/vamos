@@ -4,7 +4,7 @@ A special form is a language primitive which does not evaluate its arguments bef
 
 package interpreter
 
-import "vamos/lang/ast"
+import "github.com/onlyafly/vamos/lang/ast"
 
 func specialQuote(e Env, head ast.Node, args []ast.Node) packet {
 	return respond(args[0])

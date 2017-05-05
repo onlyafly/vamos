@@ -1,6 +1,6 @@
 package interpreter
 
-import "vamos/lang/ast"
+import "github.com/onlyafly/vamos/lang/ast"
 
 // A packet represents the continuation of a sequence of computations.
 // It contains either a Next or a Node, but not both.

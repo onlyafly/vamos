@@ -3,11 +3,11 @@ package interpreter
 import (
 	"bytes"
 	"fmt"
+	"github.com/onlyafly/vamos/lang/ast"
+	"github.com/onlyafly/vamos/lang/parser"
+	"github.com/onlyafly/vamos/util"
 	"strings"
 	"time"
-	"vamos/lang/ast"
-	"vamos/lang/parser"
-	"vamos/util"
 )
 
 ////////// Primitive Support

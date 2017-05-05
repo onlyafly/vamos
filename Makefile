@@ -1,5 +1,5 @@
 all:
-	cp -f ./prelude.v ../../bin/prelude.v
+	cp -f ./prelude.v $(GOPATH)/bin/prelude.v
 	go install
 
 fmt:

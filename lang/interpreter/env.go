@@ -2,7 +2,7 @@ package interpreter
 
 import (
 	"fmt"
-	"vamos/lang/ast"
+	"github.com/onlyafly/vamos/lang/ast"
 )
 
 ////////// Env

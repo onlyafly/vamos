@@ -1,6 +1,6 @@
 package interpreter
 
-import "vamos/lang/ast"
+import "github.com/onlyafly/vamos/lang/ast"
 
 type Visitor interface {
 	Visit(node ast.Node) (childVisitor Visitor)

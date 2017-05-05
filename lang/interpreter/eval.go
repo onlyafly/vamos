@@ -2,8 +2,8 @@ package interpreter
 
 import (
 	"fmt"
+	"github.com/onlyafly/vamos/lang/ast"
 	"io"
-	"vamos/lang/ast"
 )
 
 // TODO get rid of this global variable

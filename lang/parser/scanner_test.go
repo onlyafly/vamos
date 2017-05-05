@@ -2,8 +2,8 @@ package parser
 
 import (
 	"fmt"
+	"github.com/onlyafly/vamos/testhelp"
 	"testing"
-	"vamos/testhelp"
 )
 
 func TestScan(t *testing.T) {

@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"vamos/lang/token"
+	"github.com/onlyafly/vamos/lang/token"
 )
 
 ////////// Slice of Nodes

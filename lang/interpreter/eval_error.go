@@ -2,8 +2,8 @@ package interpreter
 
 import (
 	"fmt"
-	"vamos/lang/ast"
-	"vamos/lang/token"
+	"github.com/onlyafly/vamos/lang/ast"
+	"github.com/onlyafly/vamos/lang/token"
 )
 
 // EvalError represents an error that occurs during evaluation.

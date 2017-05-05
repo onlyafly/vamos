@@ -2,9 +2,9 @@ package parser
 
 import (
 	"fmt"
+	"github.com/onlyafly/vamos/lang/ast"
 	"strconv"
 	"unicode/utf8"
-	"vamos/lang/ast"
 )
 
 // Parse accepts a string and the name of the source of the code, and returns

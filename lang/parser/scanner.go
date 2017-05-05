@@ -7,9 +7,9 @@ package parser
 
 import (
 	"fmt"
+	"github.com/onlyafly/vamos/lang/token"
 	"strings"
 	"unicode/utf8"
-	"vamos/lang/token"
 )
 
 ////////// Token
