@@ -31,12 +31,8 @@ For interesting reading on Lisps, see https://github.com/onlyafly/lisp-bibliogra
 
 ### Add a new dependency
 
-    $ go get -u foo/bar
-
-    ???
+    $ dep ensure github.com/foo/bar
 
 ### Updating an existing dependency
 
-    $ go get -u foo/bar
-
-    ???
+    $ dep ensure -update
