@@ -14,7 +14,7 @@ import (
 	"github.com/onlyafly/vamos/lang/ast"
 	"github.com/onlyafly/vamos/lang/interpreter"
 
-	"github.com/onlyafly/vamos/Godeps/_workspace/src/github.com/peterh/liner"
+	"github.com/peterh/liner"
 )
 
 const (

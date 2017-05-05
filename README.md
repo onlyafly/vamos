@@ -32,9 +32,11 @@ For interesting reading on Lisps, see https://github.com/onlyafly/lisp-bibliogra
 ### Add a new dependency
 
     $ go get -u foo/bar
-    $ godep save ./...
+
+    ???
 
 ### Updating an existing dependency
 
     $ go get -u foo/bar
-    $ godep update foo/bar
+
+    ???
