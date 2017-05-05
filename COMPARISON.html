@@ -32,8 +32,8 @@ td {
 <h2>See/Notes</h2>
 <ul>
 <li><a href="http://hyperpolyglot.org/lisp">Hyperpolyglot's Comparison of Common Lisp, Racket, Clojure, Emacs Lisp</a></li>
-<li>Web-based Scheme REPL: <a href="https://repl.it/languages/scheme">Repl.it Scheme</a>
-<li>Web-based Clojure REPL: <a href="http://www.tryclj.com/">Tryclj</a>
+<li>Web-based Scheme REPL: <a href="https://repl.it/languages/scheme">Repl.it Scheme</a></li>
+<li>Web-based Clojure REPL: <a href="http://www.tryclj.com/">Tryclj</a></li>
 </ul>
 
 <a name="toc"></a><h2>Table of Contents</h2>
@@ -87,10 +87,10 @@ comment |#</td>
     <td>update an item in a list</td>
     <td>(def x '(1 2 3 4))
 (update-element! x 0 10)
-x => (10 2 3 4)</td>
+x =&gt; (10 2 3 4)</td>
     <td>(define x '(1 2 3 4))
 (set-car! x 10)
-x => (10 2 3 4)</td>
+x =&gt; (10 2 3 4)</td>
     <td>???</td>
   </tr>
   <tr>
@@ -144,7 +144,7 @@ x => (10 2 3 4)</td>
     <td></td>
     <td></td>
   </tr>
-<table>
+</table>
 
 
 <h3><a name="simple-types-and-predicates" href="#toc">Simple Types and Predicates</a></h3>
@@ -171,8 +171,8 @@ x => (10 2 3 4)</td>
   <tr>
     <td>symbols</td>
     <td>'a_quoted_symbol
-true => 'true
-false => 'false</td><td></td><td></td>
+true =&gt; 'true
+false =&gt; 'false</td><td></td><td></td>
   </tr>
   <tr>
     <td>lists</td><td>'()</td><td></td><td></td>
@@ -202,7 +202,7 @@ atom?
 </td>
 <td>???</td>
   </tr>
-<table>
+</table>
 
 <h3><a name="control-structures" href="#toc">Control Structures</a></h3>
 
@@ -219,7 +219,7 @@ atom?
     <td>(begin e1 e2 ...)</td>
     <td>(do e1 e2 ...)</td>
   </tr>
-<table>
+</table>
 
 <h3><a name="string-operations" href="#toc">String Operations</a></h3>
 
@@ -239,10 +239,10 @@ atom?
   <tr>
     <td>convert number to string</td>
     <td>(str "Value: " 8)</td>
-    <td>(string-append "Value: " (number->string 8))</td>
+    <td>(string-append "Value: " (number-&gt;string 8))</td>
     <td>(str "Value: " 8)</td>
   </tr>
-<table>
+</table>
 
 <h3><a name="collections" href="#toc">Collections</a></h3>
 
@@ -259,7 +259,7 @@ atom?
     <td>???</td>
     <td>???</td>
   </tr>
-<table>
+</table>
 
 <h3><a name="other" href="#toc">Other</a></h3>
 
@@ -291,20 +291,20 @@ atom?
   <tr>
     <td>convert an object to a readable string</td>
     <td>(readable-string (1 2 3 4 5))
-=> "(1 2 3 4 5)"</td>
+=&gt; "(1 2 3 4 5)"</td>
     <td>???</td>
     <td>(pr-str [1 2 3 4 5])
-=> "[1 2 3 4 5]"</td>
+=&gt; "[1 2 3 4 5]"</td>
   </tr>
   <tr>
     <td>read from a string to Vamos objects</td>
     <td>(read-string "(1 2 3 4 5)")
-=> (1 2 3 4 5)</td>
+=&gt; (1 2 3 4 5)</td>
     <td>???</td>
     <td>(read-string "[1 2 3 4 5]")
-=> [1 2 3 4 5]</td>
+=&gt; [1 2 3 4 5]</td>
   </tr>
-<table>
+</table>
 
 </body>
 </html>
