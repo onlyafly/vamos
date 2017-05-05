@@ -13,3 +13,7 @@ testprelude: test
 
 run: fmt all
 	vamos
+
+deps:
+	go get -u github.com/golang/dep/...
+	dep ensure

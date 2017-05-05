@@ -1,0 +1,7 @@
+memo = "331296bb274c3897d20ce4888bfa699db80007b76a75f32dfc7f11398a08b48a"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/peterh/liner"
+  packages = ["."]
+  revision = "88609521dc4b6c858fd4c98b628147da928ce4ac"
