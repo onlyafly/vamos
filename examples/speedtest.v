@@ -1,6 +1,7 @@
 (defproc start (n acc)
+    ;(println n)
     (if (< n 0)
-        (println acc)
-        (start (- n 1) (+ 1 acc))))
+        (__stacktrace)
+        (+ (start (- n 1) (+ 1 acc)) 0)))
 
 (start 100000 0)

@@ -2,6 +2,7 @@ package interpreter
 
 import (
 	"fmt"
+
 	"github.com/onlyafly/vamos/lang/ast"
 	"github.com/onlyafly/vamos/lang/token"
 )
@@ -13,6 +14,7 @@ type EvalError struct {
 	location     *token.Location
 }
 
+// NewEvalError returns a new EvalError
 func NewEvalError(superMessage, message string, location *token.Location) *EvalError {
 	return &EvalError{superMessage, message, location}
 }

@@ -2,6 +2,7 @@ package interpreter
 
 import "github.com/onlyafly/vamos/lang/ast"
 
+// Visitor represents an AST visitor
 type Visitor interface {
 	Visit(node ast.Node) (childVisitor Visitor)
 }

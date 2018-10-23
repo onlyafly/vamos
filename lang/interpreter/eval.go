@@ -2,8 +2,9 @@ package interpreter
 
 import (
 	"fmt"
-	"github.com/onlyafly/vamos/lang/ast"
 	"io"
+
+	"github.com/onlyafly/vamos/lang/ast"
 )
 
 // TODO get rid of this global variable
@@ -246,15 +247,14 @@ func evalInvokeProcedure(dynamicEnv Env, f *Procedure, head ast.Node, unevaledAr
 				// environment of its definition
 				return evalNode(dynamicEnv, expandedMacro)
 			})
-		} else {
-			return respond(expandedMacro)
 		}
-	} else {
-		// Evaluate the body in the new lexical environment
-		return bounce(func() packet {
-			return evalNode(lexicalEnv, f.Body)
-		})
+		return respond(expandedMacro)
 	}
+
+	// Evaluate the body in the new lexical environment
+	return bounce(func() packet {
+		return evalNode(lexicalEnv, f.Body)
+	})
 }
 
 func checkSpecialArgs(name string, head ast.Node, args []ast.Node, paramCountMin int, paramCountMax int) {

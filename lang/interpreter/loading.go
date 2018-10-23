@@ -2,11 +2,13 @@ package interpreter
 
 import (
 	"fmt"
+	"os"
+
 	"github.com/onlyafly/vamos/lang/ast"
 	"github.com/onlyafly/vamos/lang/parser"
-	"os"
 )
 
+// ParseEvalPrint parses, evals, and prints
 func ParseEvalPrint(env Env, input string, readLine func() string, sourceName string, printResult bool) {
 	if result, err := ParseEval(env, input, readLine, sourceName); err == nil {
 		// Can be null if nothing was entered
@@ -18,6 +20,7 @@ func ParseEvalPrint(env Env, input string, readLine func() string, sourceName st
 	}
 }
 
+// ParseEval parses and evals
 func ParseEval(env Env, input string, readLine func() string, sourceName string) (ast.Node, error) {
 	defer func() {
 		// Some non-application triggered panic has occurred
@@ -44,7 +47,7 @@ func ParseEval(env Env, input string, readLine func() string, sourceName string)
 
 	if evalError == nil {
 		return result, nil
-	} else {
-		return nil, evalError
 	}
+
+	return nil, evalError
 }

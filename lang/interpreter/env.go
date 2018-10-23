@@ -2,6 +2,7 @@ package interpreter
 
 import (
 	"fmt"
+
 	"github.com/onlyafly/vamos/lang/ast"
 )
 
@@ -67,9 +68,8 @@ func (e *MapEnv) Update(name string, value ast.Node) bool {
 	if !exists {
 		if e.Parent() == nil {
 			return false
-		} else {
-			return e.Parent().Update(name, value)
 		}
+		return e.Parent().Update(name, value)
 	}
 
 	e.symbols[name] = value
@@ -83,9 +83,8 @@ func (e *MapEnv) Get(name string) (ast.Node, bool) {
 	if !exists {
 		if e.Parent() == nil {
 			return nil, false
-		} else {
-			return e.Parent().Get(name)
 		}
+		return e.Parent().Get(name)
 	}
 
 	return value, true
@@ -96,10 +95,12 @@ func (e *MapEnv) Parent() Env {
 	return e.parent
 }
 
+// String returns a string representation of the environment.
 func (e *MapEnv) String() string {
 	return fmt.Sprintf("%v:%v", e.name, e.symbols)
 }
 
+// Name returns the name of the environment.
 func (e *MapEnv) Name() string {
 	return e.name
 }

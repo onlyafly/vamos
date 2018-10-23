@@ -3,11 +3,13 @@ package interpreter
 import (
 	"bytes"
 	"fmt"
+	"runtime/debug"
+	"strings"
+	"time"
+
 	"github.com/onlyafly/vamos/lang/ast"
 	"github.com/onlyafly/vamos/lang/parser"
 	"github.com/onlyafly/vamos/util"
-	"strings"
-	"time"
 )
 
 ////////// Primitive Support
@@ -65,6 +67,9 @@ func initializePrimitives(e Env) {
 	addPrimitive(e, "send!", 2, primSendBang)
 	addPrimitive(e, "take!", 1, primTakeBang)
 	addPrimitive(e, "close!", 1, primCloseBang)
+
+	// Special
+	addPrimitive(e, "__stacktrace", 0, primStacktrace)
 
 	// Predefined symbols
 
@@ -346,9 +351,9 @@ func primConcat(e Env, head ast.Node, args []ast.Node) ast.Node {
 
 	if sum == nil {
 		return &ast.Nil{}
-	} else {
-		return sum
 	}
+
+	return sum
 }
 
 func primLoad(e Env, head ast.Node, args []ast.Node) ast.Node {
@@ -471,5 +476,10 @@ func primCloseBang(e Env, head ast.Node, args []ast.Node) ast.Node {
 		panicEvalError(head, "Argument to 'close!' must be a chan: "+chanArg.String())
 	}
 
+	return &ast.Nil{}
+}
+
+func primStacktrace(e Env, head ast.Node, args []ast.Node) ast.Node {
+	debug.PrintStack()
 	return &ast.Nil{}
 }
