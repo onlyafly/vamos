@@ -481,5 +481,6 @@ func primCloseBang(e Env, head ast.Node, args []ast.Node) ast.Node {
 
 func primStacktrace(e Env, head ast.Node, args []ast.Node) ast.Node {
 	debug.PrintStack()
+	//println("Stacktrace: ", len(debug.Stack()))
 	return &ast.Nil{}
 }
